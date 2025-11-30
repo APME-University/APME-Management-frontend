@@ -1,0 +1,198 @@
+<!-- Main container with gradient background supporting dark/light mode -->
+<main class="login-main">
+  
+  <!-- Animated background elements -->
+  <div class="login-bg-animation">
+    <div class="login-bg-circle login-bg-circle--top"></div>
+    <div class="login-bg-circle login-bg-circle--bottom"></div>
+  </div>
+
+  <!-- Dark mode toggle button -->
+  <button type="button" 
+          class="login-theme-toggle group"
+          onclick="document.documentElement.classList.toggle('dark')"
+          [attr.aria-label]="'::ToggleDarkMode' | abpLocalization">
+    <i class="pi pi-sun login-theme-icon login-theme-icon--light"></i>
+    <i class="pi pi-moon login-theme-icon login-theme-icon--dark"></i>
+  </button>
+
+  <!-- Main login card with glassmorphism effect -->
+  <div class="login-container">
+    <div class="login-card">
+      
+      <div class="login-content">
+        
+        <!-- Left Panel - Form Section -->
+        <div class="login-form-panel">
+          
+          <!-- Header Section -->
+          <div class="login-header">
+            <div class="login-icon">
+              <i class="pi pi-lock"></i>
+            </div>
+            <h1 class="login-title">
+              {{ "::WelcomeBack" | abpLocalization }}
+            </h1>
+          </div>
+
+          <!-- Login Form -->
+          <form #loginForm="ngForm" (ngSubmit)="onSubmit(loginForm)" class="login-form">
+            
+            <!-- Username Field -->
+            <div class="login-field-group group">
+              <label for="username" class="login-field-label">
+                <i class="pi pi-user"></i>
+                {{ "AbpIdentity::UserName" | abpLocalization }}
+              </label>
+              <div class="login-field-wrapper">
+                <input pInputText 
+                       id="username" 
+                       name="username" 
+                       type="text" 
+                       aria-label="username"
+                       class="login-input"
+                       [placeholder]="'AbpIdentity::UserName' | abpLocalization" 
+                       ngModel
+                       required 
+                       minlength="3" 
+                       [pAutoFocus]="true" 
+                       [ngClass]="{
+                         'login-input--error': (username.invalid && username.touched) || isInvalidLogin,
+                         'login-input--success': username.valid && username.touched
+                       }" 
+                       #username="ngModel" 
+                       (ngModelChange)="isInvalidLogin = false" />
+                
+                <!-- Input status icon -->
+                <div class="login-input-icon">
+                  <i class="pi pi-check login-input-icon--success"
+                     *ngIf="username.valid && username.touched"></i>
+                  <i class="pi pi-times login-input-icon--error"
+                     *ngIf="(username.invalid && username.touched) || isInvalidLogin"></i>
+                </div>
+              </div>
+              
+              <!-- Error messages -->
+              <div class="login-error-container">
+                <div class="login-error-message"
+                     *ngIf="username.invalid && username.touched">
+                  <i class="pi pi-exclamation-triangle"></i>
+                  <span *ngIf="username.errors?.['required']">
+                    {{ "::UsernameIsRequired" | abpLocalization }}
+                  </span>
+                  <span *ngIf="username.errors?.['minlength']">
+                    {{ "::UsernameMustBeAtLeast3Characters" | abpLocalization }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Password Field -->
+            <div class="login-field-group group">
+              <label for="password" class="login-field-label">
+                <i class="pi pi-key"></i>
+                {{ "::Password" | abpLocalization }}
+              </label>
+              <div class="login-field-wrapper">
+                <p-password id="password" 
+                           name="password" 
+                           aria-label="password"
+                           inputStyleClass="login-input"
+                           styleClass="login-password-wrapper"
+                           [placeholder]="'AbpIdentity::DisplayName:CurrentPassword' | abpLocalization" 
+                           [toggleMask]="true"
+                           [feedback]="false" 
+                           ngModel 
+                           required 
+                           minlength="6" 
+                           [ngClass]="{
+                             'ng-invalid ng-dirty': (password.invalid && password.touched) || isInvalidLogin,
+                             'ng-valid ng-dirty': password.valid && password.touched
+                           }" 
+                           #password="ngModel" 
+                           (ngModelChange)="isInvalidLogin = false" />
+              </div>
+              
+              <!-- Error messages -->
+              <div class="login-error-container">
+                <div class="login-error-message"
+                     *ngIf="(password.invalid && password.touched) || isInvalidLogin">
+                  <i class="pi pi-exclamation-triangle"></i>
+                  <span *ngIf="password.errors?.['required'] && !isInvalidLogin">
+                    {{ "::PasswordIsRequired" | abpLocalization }}
+                  </span>
+                  <span *ngIf="password.errors?.['minlength'] && !isInvalidLogin">
+                    {{ "::PasswordMustBeAtLeast6Characters" | abpLocalization }}
+                  </span>
+                  <span *ngIf="isInvalidLogin">
+                    {{ "::InvalidUsernameOrPassword" | abpLocalization }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Remember me and Forgot password -->
+            <div class="login-options">
+              <label class="login-checkbox group">
+                <input type="checkbox" 
+                       id="remember"
+                       class="login-checkbox-input" />
+                <span class="login-checkbox-label">
+                  {{ "::Rememberme" | abpLocalization }}
+                </span>
+              </label>
+              <a href="#" class="login-forgot-link">
+                {{ "::ForgotPassword" | abpLocalization }}
+              </a>
+            </div>
+
+            <!-- Login Button -->
+            <div class="login-button-container">
+              <button pButton 
+                      pRipple 
+                      type="submit" 
+                      class="login-submit-button group"
+                      [loading]="isLoading" 
+                      [disabled]="loginForm.invalid">
+                
+                <!-- Button background animation -->
+                <div class="login-button-animation"></div>
+                
+                <span class="login-button-content">
+                  <i class="pi pi-sign-in" *ngIf="!isLoading"></i>
+                  {{ "::Login" | abpLocalization }}
+                </span>
+              </button>
+            </div>
+          </form>
+
+        </div>
+
+        <!-- Right Panel - Illustration Section -->
+        <div class="login-illustration-panel">
+          <!-- Gradient overlay -->
+          <div class="login-illustration-overlay"></div>
+          
+          <!-- Background pattern -->
+          <div class="login-illustration-pattern"></div>
+          
+          <!-- Content -->
+          <div class="login-illustration-content">
+            <div class="login-logo-container">
+              <img [src]="'assets/images/logo/alhafez-image.png'" 
+                   [alt]="'::AlhafezLogo' | abpLocalization" 
+                   class="login-logo" />
+            </div>
+            
+            <h2 class="login-illustration-title">
+              {{ "::WelcomeToAlhafezFMS" | abpLocalization }}
+            </h2>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Toast notifications with dark mode support -->
+<p-toast styleClass="dark:bg-gray-800 dark:text-white" />

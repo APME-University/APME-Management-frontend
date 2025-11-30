@@ -1,0 +1,194 @@
+:host {
+  display: block;
+}
+
+.card {
+  padding: 1.5rem;
+}
+
+.confirmation-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex {
+  display: flex;
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.mb-3 {
+  margin-bottom: 0.75rem;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.mr-3 {
+  margin-right: 0.75rem;
+}
+
+.block {
+  display: block;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-gray-500 {
+  color: #6b7280;
+}
+
+.text-gray-600 {
+  color: #4b5563;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.p-4 {
+  padding: 1rem;
+}
+
+.p-datatable-sm {
+  font-size: 0.875rem;
+}
+
+.p-button-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+}
+
+.p-input-icon-left {
+  position: relative;
+}
+
+.p-input-icon-left i {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+}
+
+.p-input-icon-left input {
+  padding-left: 2.5rem;
+}
+
+.p-toolbar {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.p-toolbar .p-toolbar-group-left,
+.p-toolbar .p-toolbar-group-right {
+  gap: 0.5rem;
+}
+
+.p-dialog .p-dialog-content {
+  padding: 1.5rem;
+}
+
+.p-dialog .p-dialog-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.p-confirm-dialog .p-dialog-content {
+  padding: 1.5rem;
+}
+
+.p-confirm-dialog .p-dialog-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.p-toast .p-toast-message {
+  margin: 0 0 1rem 0;
+}
+
+.p-toast .p-toast-message:last-child {
+  margin: 0;
+}
+
+.p-tag {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.p-inputswitch {
+  margin-top: 0.25rem;
+}
+
+.p-inputswitch .p-inputswitch-slider {
+  background: #d1d5db;
+}
+
+.p-inputswitch.p-inputswitch-checked .p-inputswitch-slider {
+  background: #10b981;
+}
+
+.p-inputswitch .p-inputswitch-slider:before {
+  background: #ffffff;
+}
+
+.p-inputswitch.p-inputswitch-checked .p-inputswitch-slider:before {
+  transform: translateX(1.25rem);
+}
+
+.p-error {
+  color: #ef4444;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.ng-invalid {
+  border-color: #ef4444;
+}
+
+.ng-invalid:focus {
+  box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.25);
+}
+
+/* Responsive grid */
+.grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.col-12 {
+  grid-column: span 12;
+}
+
+@media (min-width: 768px) {
+  .md\:col-6 {
+    grid-column: span 6;
+  }
+}
+
+/* Table responsive */
+@media (max-width: 768px) {
+  .p-datatable .p-datatable-thead > tr > th,
+  .p-datatable .p-datatable-tbody > tr > td {
+    padding: 0.5rem;
+  }
+  
+  .p-datatable .p-datatable-tbody > tr > td:last-child {
+    min-width: 120px;
+  }
+}

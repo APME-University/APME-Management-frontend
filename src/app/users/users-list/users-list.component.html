@@ -1,0 +1,152 @@
+<div class="card">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
+  <!-- Toolbar -->
+  <p-toolbar styleClass="mb-4 gap-2">
+    <ng-template pTemplate="left">
+      <button pButton pRipple [label]="'::NewUser' | abpLocalization" icon="pi pi-plus" class="p-button-success" (click)="openNew()"></button>
+    </ng-template>
+    <ng-template pTemplate="right">
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input pInputText type="text" [placeholder]="'::Search' | abpLocalization" (input)="onGlobalFilter(dt, $event)" />
+      </span>
+    </ng-template>
+  </p-toolbar>
+
+  <!-- Users Table -->
+  <p-table 
+    #dt 
+    [value]="users" 
+    [rows]="maxResultCount" 
+    [totalRecords]="totalRecords"
+    [loading]="loading"
+    [paginator]="true" 
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    [sortMode]="'single'"
+    (onLazyLoad)="onPageChange($event)"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    responsiveLayout="scroll"
+    styleClass="p-datatable-sm">
+    
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="min-width: 120px">
+          {{ '::UserName' | abpLocalization }}
+        </th>
+        <th style="min-width: 120px">
+          {{ '::Name' | abpLocalization }}
+        </th>
+        <th style="min-width: 120px">
+          {{ '::Surname' | abpLocalization }}
+        </th>
+        <th style="min-width: 120px">
+          {{ '::PhoneNumber' | abpLocalization }}
+        </th>
+        <th style="min-width: 100px">
+          {{ '::Status' | abpLocalization }}
+        </th>
+        <th style="min-width: 150px">
+          {{ '::Created' | abpLocalization }}
+        </th>
+        <th style="min-width: 150px">{{ '::Actions' | abpLocalization }}</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-user>
+      <tr>
+        <td>{{ user.userName }}</td>
+        <td>{{ user.name }}</td>
+        <td>{{ user.surname }}</td>
+        <td>{{ user.phoneNumber }}</td>
+        <td>
+          <p-tag [value]="(getStatusLabel(user.isActive) | abpLocalization)" [severity]="getSeverity(user.isActive)"></p-tag>
+        </td>
+        <td>{{ user.creationTime | date:'short' }}</td>
+        <td>
+          <div class="flex gap-2">
+            <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success p-button-sm" 
+                    pTooltip="{{ '::EditUser' | abpLocalization }}" (click)="editUser(user)"></button>
+            <button pButton pRipple icon="pi pi-key" class="p-button-rounded p-button-warning p-button-sm" 
+                    pTooltip="{{ '::ResetPassword' | abpLocalization }}" (click)="openResetPasswordDialog(user)"></button>
+            <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-sm" 
+                    pTooltip="{{ '::DeleteUser' | abpLocalization }}" (click)="deleteUser(user)"></button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="8" class="text-center p-4">
+          <div class="text-gray-500">No users found.</div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <!-- Create/Edit User Dialog -->
+  <app-create-update-user
+    #createUpdateUser
+    [(visible)]="userDialog"
+    [user]="user"
+    [isEditMode]="isEditMode"
+    (save)="onUserSave($event)"
+    (visibleChange)="onDialogVisibilityChange($event)"
+    (userChange)="onUserDataChange()"
+    (isEditModeChange)="onEditModeChange()">
+  </app-create-update-user>
+
+  <!-- Delete Confirmation Dialog -->
+  <p-dialog [(visible)]="deleteUserDialog" [style]="{width: '450px'}" [modal]="true" [draggable]="false" [resizable]="false">
+    <ng-template pTemplate="header">
+      <h5>{{ '::ConfirmDelete' | abpLocalization }}</h5>
+    </ng-template>
+
+    <ng-template pTemplate="content">
+      <div class="confirmation-content">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+        <span>{{ '::AreYouSureYouWantToDelete' | abpLocalization }} <strong>{{ user.userName }}</strong>?</span>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+      <button pButton pRipple label="No" icon="pi pi-times" class="p-button-text" (click)="deleteUserDialog = false"></button>
+      <button pButton pRipple label="Yes" icon="pi pi-check" class="p-button-danger" (click)="confirmDelete()"></button>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Reset Password Dialog -->
+  <p-dialog [(visible)]="resetPasswordDialog" [style]="{width: '450px'}" [modal]="true" [draggable]="false" [resizable]="false">
+    <ng-template pTemplate="header">
+      <h5>{{ '::ResetPassword' | abpLocalization }}</h5>
+    </ng-template>
+
+    <ng-template pTemplate="content">
+      <div class="mb-4">
+        <p class="text-gray-600 mb-3">{{'::ResetPasswordForUser' | abpLocalization}} <strong>{{ user.userName }}</strong></p>
+        
+        <div class="mb-3">
+          <label for="newPassword" class="font-bold block mb-2">{{'::NewPassword' | abpLocalization}} *</label>
+          <input id="newPassword" pInputText type="password" [(ngModel)]="resetPasswordForm.newPassword" 
+                 class="w-full" [placeholder]="'::EnterNewPassword' | abpLocalization" />
+        </div>
+
+        <div class="mb-3">
+          <label for="confirmPassword" class="font-bold block mb-2">{{'::ConfirmPassword' | abpLocalization}} *</label>
+          <input id="confirmPassword" pInputText type="password" [(ngModel)]="resetPasswordForm.confirmPassword" 
+                 class="w-full" [placeholder]="'::ConfirmNewPassword' | abpLocalization" />
+        </div>
+
+        <small class="text-gray-600">{{ '::PasswordMustBeAtLeast6CharactersLong' | abpLocalization }}</small>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+      <button pButton pRipple [label]="'::Cancel' | abpLocalization" icon="pi pi-times" class="p-button-text" (click)="hideResetPasswordDialog()"></button>
+      <button pButton pRipple [label]="'::ResetPassword' | abpLocalization" icon="pi pi-check" class="p-button-warning" (click)="resetPassword()"></button>
+    </ng-template>
+  </p-dialog>
+</div>

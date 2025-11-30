@@ -1,0 +1,156 @@
+<p-dialog 
+  [(visible)]="visible" 
+  [style]="{width: '50rem'}" 
+  [modal]="true" 
+  [draggable]="false" 
+  [resizable]="false"
+  (onShow)="onShow()"
+  (onHide)="onHide()">
+  
+  <ng-template pTemplate="header">
+    <h5>{{ isEditMode ? ('::Edit' | abpLocalization) + ' ' + ('::User' | abpLocalization) : ('::New' | abpLocalization) + ' ' + ('::User' | abpLocalization) }}</h5>
+  </ng-template>
+
+  <ng-template pTemplate="content">
+         <form [formGroup]="userForm" (ngSubmit)="onSave()">
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                     <!-- Username Field (Required) -->
+           <div class="col-span-1">
+             <label for="userName" class="font-bold block mb-2">
+               {{ '::UserName' | abpLocalization }} *
+             </label>
+             <input 
+               id="userName" 
+               pInputText 
+               type="text" 
+               formControlName="userName" 
+               class="w-full" 
+               [placeholder]="'::EnterUserName' | abpLocalization" />
+           </div>
+           <div class="col-span-1" *ngIf="!isEditMode">
+             <label for="password" class="font-bold block mb-2">
+               {{ '::Password' | abpLocalization }} *
+             </label>
+             <input 
+               id="password" 
+               pInputText 
+               type="password" 
+               formControlName="password" 
+               class="w-full" 
+               [placeholder]="'::EnterPassword' | abpLocalization" />
+             <small class="text-red-500 text-sm mt-1 block">
+               {{ getFieldError('password') | abpLocalization }}
+             </small>
+             <small class="text-gray-600 text-sm">
+               {{ '::PasswordMinLength' | abpLocalization }}: 6
+             </small>
+           </div>
+
+           <div class="col-span-1">
+             <label for="name" class="font-bold block mb-2">
+               {{ '::Name' | abpLocalization }}
+             </label>
+             <input 
+               id="name" 
+               pInputText 
+               type="text" 
+               formControlName="name" 
+               class="w-full"
+               [placeholder]="'::EnterName' | abpLocalization" />
+           </div>
+
+           <!-- Surname Field -->
+           <div class="col-span-1">
+             <label for="surname" class="font-bold block mb-2">
+               {{ '::Surname' | abpLocalization }}
+             </label>
+             <input 
+               id="surname" 
+               pInputText 
+               type="text" 
+               formControlName="surname" 
+               class="w-full"
+               [placeholder]="'::EnterSurname' | abpLocalization" />
+           </div>
+
+            <div class="col-span-1">
+              <label for="phoneNumber" class="font-bold block mb-2">
+                {{ '::PhoneNumber' | abpLocalization }}
+              </label>
+              <input 
+                id="phoneNumber" 
+                pInputText 
+                type="tel" 
+                formControlName="phoneNumber" 
+                class="w-full"
+                [placeholder]="'::EnterPhoneNumber' | abpLocalization" />
+            </div>
+
+
+            <div class="col-span-1">
+                <label for="roles" class="font-bold block mb-2">
+                    {{ '::Roles' | abpLocalization }}
+                </label>
+                <p-multiSelect
+                    formControlName="roles"
+                    [options]="allRoles"
+                    [placeholder]="'::SelectRoles' | abpLocalization"
+                    [filter]="true"
+                    [filterBy]="'name'"
+                    optionLabel="name"
+                    optionValue="name"
+                    [maxSelectedLabels]="0"
+                    display="chip"
+                    [style]="{width: '100%'}"
+                >
+                    <ng-template pTemplate="item" let-role>
+                        {{ ('::Role:' + role.name) | abpLocalization }}
+                    </ng-template>
+                    <ng-template pTemplate="selectedItem" let-role>
+                        {{ ('::Role:' + role.name) | abpLocalization }}
+                    </ng-template>
+                    <ng-template pTemplate="chip" let-role>
+                        {{ ('::Role:' + role.name) | abpLocalization }}
+                    </ng-template>
+                </p-multiSelect>
+                <small class="text-red-500 text-sm mt-1 block">
+                    {{ getFieldError('roles') | abpLocalization }}
+                </small>
+            </div>
+
+          <!-- Status Field -->
+          <div class="col-span-1">
+            <label for="isActive" class="font-bold block mb-2">
+              {{ '::Status' | abpLocalization }}
+            </label>
+            <p-inputSwitch 
+              formControlName="isActive" 
+              class="mt-1">
+            </p-inputSwitch>
+            <small class="text-gray-600 text-sm">
+              {{ '::Active' | abpLocalization }} / {{ '::Inactive' | abpLocalization }}
+            </small>
+          </div>
+      </div>
+    </form>
+  </ng-template>
+
+       <ng-template pTemplate="footer">
+       <button 
+         pButton 
+         pRipple 
+         [label]="'::Cancel' | abpLocalization" 
+         icon="pi pi-times" 
+         class="p-button-text" 
+         (click)="onCancel()">
+       </button>
+        <button 
+           pButton 
+           pRipple 
+           [label]="'::Save' | abpLocalization" 
+           icon="pi pi-check" 
+           class="p-button-text" 
+           (click)="onSave()">
+         </button>
+     </ng-template>
+</p-dialog>

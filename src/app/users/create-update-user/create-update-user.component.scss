@@ -1,0 +1,83 @@
+:host {
+  display: block;
+}
+
+// Ensure MultiSelect dropdown has proper z-index and positioning
+:host ::ng-deep .cities-multiselect {
+  position: relative;
+  
+  .p-multiselect-panel {
+    z-index: 9999 !important;
+    position: fixed !important;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+  }
+  
+  .p-multiselect-items-wrapper {
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  
+  .p-multiselect-trigger {
+    z-index: 1000;
+  }
+}
+
+// Ensure the dialog has proper overflow handling
+:host ::ng-deep .p-dialog {
+  overflow: visible !important;
+  
+  .p-dialog-content {
+    overflow: visible !important;
+  }
+  
+  .p-dialog-mask {
+    z-index: 9998;
+  }
+}
+
+// Additional styling for better MultiSelect appearance
+:host ::ng-deep .p-multiselect {
+  &.p-focus {
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.5);
+  }
+  
+  .p-multiselect-label {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .p-multiselect-trigger {
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+// Ensure toggle switches are properly styled and visible
+:host ::ng-deep .p-inputswitch {
+  .p-inputswitch-slider {
+    background-color: #e5e7eb;
+    border: 1px solid #d1d5db;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  &.p-inputswitch-checked .p-inputswitch-slider {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+  }
+  
+  .p-inputswitch-slider:before {
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease-in-out;
+  }
+  
+  &.p-inputswitch-checked .p-inputswitch-slider:before {
+    transform: translateX(1.25rem);
+  }
+  
+  &:focus .p-inputswitch-slider {
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.5);
+  }
+}

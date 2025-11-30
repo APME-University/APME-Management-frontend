@@ -1,0 +1,175 @@
+<p-drawer
+  #drawerRef
+  [(visible)]="isVisible"
+  styleClass="w-64"
+  [position]="dir === 'ltr' ? 'left' : 'right'"
+  transitionOptions="300ms ease"
+  (onShow)="onShow()"
+  (onHide)="onHide()"
+>
+  <ng-template #headless>
+    <div class="flex flex-col h-full">
+      <div class="flex items-center justify-between px-6 pt-4 shrink-0 h-16">
+        <span class="inline-flex items-center gap-2">
+          <!-- <svg
+            width="31"
+            height="33"
+            viewBox="0 0 31 33"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            class="block mx-auto"
+          >
+            <path d="..." />
+          </svg> -->
+          <svg width="202" height="40" viewBox="0 0 202 40" fill="none" xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink">
+            <rect width="202" height="40" fill="url(#pattern0_794_618)" />
+            <defs>
+              <pattern id="pattern0_794_618" patternContentUnits="objectBoundingBox" width="1" height="1">
+                <use xlink:href="#image0_794_618" transform="matrix(0.002 0 0 0.0101414 0 -1.90909)" />
+              </pattern>
+              <image id="image0_794_618" width="500" height="500" preserveAspectRatio="none" src="" />
+            </defs>
+          </svg>
+        </span>
+        <span>
+          <p-button
+            type="button"
+            icon="pi pi-times"
+            rounded
+            outlined
+            styleClass="size-8"
+            [ngClass]="{ hidden: !this.isMobile }"
+            (click)="closeCallback($event)"
+          ></p-button>
+        </span>
+      </div>
+      <p-scrollPanel class="overflow-y-auto" styleClass="h-full w-full">
+        <ng-template #content>
+          <ul class="list-none p-4 m-0">
+            @for (item of routes; track $index) {
+            @if (!item.invisible) {
+            <li *abpPermission="item.requiredPolicy">
+              @if (item.isLeaf) {
+                <a
+                    pRipple
+                    [routerLink]="item.path"
+                    [routerLinkActive]="'bg-primary text-white'"
+                    class="flex items-center cursor-pointer p-4 rounded-border text-surface-700 my-app-dark:text-surface-100 hover:bg-surface-100 my-app-dark:hover:bg-surface-700 duration-150 transition-colors p-ripple"
+                  >
+                    <!-- Material Icon -->
+                    @if (isMaterialIcon(item.iconClass)) {
+                      <span [class]="getMaterialIconClass(item.iconClass) + ' me-2'">
+                        {{ getMaterialIconName(item.iconClass) }}
+                      </span>
+                    } @else {
+                      <!-- PrimeIcon -->
+                      <i [class]="getPrimeIconClass(item.iconClass) + ' me-2'"></i>
+                    }
+                    <span class="font-medium">{{ ((item.name ) | abpLocalization)}}</span>
+                  </a>
+                }@else {
+                  <div
+                pRipple
+                pStyleClass="@next"
+                enterFromClass="hidden"
+                enterActiveClass="animate-slidedown"
+                leaveToClass="hidden"
+                leaveActiveClass="animate-slideup"
+                class="p-4 flex items-center justify-between color-primary cursor-pointer p-ripple wwes"
+                  >
+                  <!-- Material Icon -->
+                  @if (isMaterialIcon(item.iconClass)) {
+                    <span [class]="getMaterialIconClass(item.iconClass) + ' me-2'">
+                      {{ getMaterialIconName(item.iconClass) }}
+                    </span>
+                  } @else {
+                    <!-- PrimeIcon -->
+                    <i [class]="getPrimeIconClass(item.iconClass) + ' me-2'"></i>
+                  }
+                  <span class="font-medium">{{ (item.name) | abpLocalization}}</span>
+                  @if (item.children?.length > 0) {
+                <i class="pi pi-chevron-down"></i>
+                }
+                </div>
+                }
+                
+              @if (item.children) {
+              <ul class="list-none p-0 m-0 overflow-hidden">
+                @for (subItem of item.children; track $index) {
+                <li>
+                  <a
+                    pRipple
+                    [routerLink]="subItem.path"
+                    [routerLinkActive]="'bg-primary text-white'"
+                    class="flex items-center cursor-pointer p-4 rounded-border text-surface-700 my-app-dark:text-surface-100 hover:bg-surface-100 my-app-dark:hover:bg-surface-700 duration-150 transition-colors p-ripple"
+                  >
+                    <!-- Material Icon -->
+                    @if (isMaterialIcon(subItem.iconClass)) {
+                      <span [class]="getMaterialIconClass(subItem.iconClass) + ' me-2'">
+                        {{ getMaterialIconName(subItem.iconClass) }}
+                      </span>
+                    } @else {
+                      <!-- PrimeIcon -->
+                      <i [class]="getPrimeIconClass(subItem.iconClass) + ' me-2'"></i>
+                    }
+                    <span class="font-medium">{{ ((subItem.name ) | abpLocalization)}}</span>
+                  </a>
+
+                  @if (subItem.children) {
+                  <ul
+                    class="list-none py-0 pl-4 pr-0 m-0 hidden overflow-y-hidden transition-all duration-[400ms] ease-in-out"
+                  >
+                    @for (subSubItem of subItem.children; track $index) {
+                    <li>
+                      <a
+                        pRipple
+                        class="flex items-center cursor-pointer p-4 rounded-border text-surface-700 my-app-dark:text-surface-100 hover:bg-surface-100 my-app-dark:hover:bg-surface-700 duration-150 transition-colors p-ripple"
+                      >
+                        <!-- Material Icon -->
+                        @if (isMaterialIcon(subSubItem.iconClass)) {
+                          <span [class]="getMaterialIconClass(subSubItem.iconClass) + ' me-2'">
+                            {{ getMaterialIconName(subSubItem.iconClass) }}
+                          </span>
+                        } @else {
+                          <!-- PrimeIcon -->
+                          <i [class]="getPrimeIconClass(subSubItem.iconClass) + ' me-2'"></i>
+                        }
+                        <span class="font-medium">{{ subSubItem.name }}</span>
+                      </a>
+                    </li>
+                    }
+                  </ul>
+                  }
+                </li>
+                }
+              </ul>
+              }
+            </li>
+          }
+            }
+          </ul>
+        </ng-template>
+      </p-scrollPanel>
+      <div class="mt-auto">
+        <hr class="mb-4 mx-4 border-t border-0 border-surface" />
+        <div 
+          class="m-4 flex items-center p-4 gap-3 rounded-lg bg-surface-50 my-app-dark:bg-surface-800 border border-surface-200 my-app-dark:border-surface-700 cursor-pointer hover:bg-surface-100 my-app-dark:hover:bg-surface-700 transition-colors duration-200"
+          (click)="navigateToChangePassword()"
+          pRipple>
+          <div class="flex items-center justify-center w-10 h-10 rounded-full bg-primary-100 my-app-dark:bg-primary-900/30">
+            <i class="pi pi-user text-primary-600 my-app-dark:text-primary-400 text-lg"></i>
+          </div>
+          <div class="flex flex-col flex-1">
+            <span class="text-sm font-medium text-surface-900 my-app-dark:text-surface-100">
+              {{ getCurrentUser() }}
+            </span>
+          </div>
+          <div class="flex items-center">
+            <i class="pi pi-angle-right text-surface-400 my-app-dark:text-surface-500 text-sm"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</p-drawer>

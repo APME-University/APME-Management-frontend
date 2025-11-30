@@ -1,0 +1,30 @@
+<p-toolbar
+  styleClass="h-16 rounded-none text-white py-2 z-1001 transition-all transition-duration-300"
+  Class=" flex-nowrap fixed top-0 end-0 start-0 z-1001"
+  [ngClass]="{ 'md:start-64': isVisible() }"
+>
+  <ng-template #start>
+    <div class="flex items-center gap-2">
+      <button pButton pRipple severity="primary" [rounded]="true" (click)="toggleDrawer()">
+        <i class="pi pi-bars" pButtonIcon></i>
+      </button>
+      <h4 class="text-xl font-bold">{{'::Welcome' | abpLocalization}}</h4>
+    </div>
+  </ng-template>
+
+  <ng-template #center> </ng-template>
+  <ng-template #end>
+    <div class="flex items-center gap-2">
+      <app-connection-status></app-connection-status>
+      <button pButton severity="primary" rounded (click)="toggleLang()">
+        <i class="pi pi-globe" pButtonIcon></i>
+      </button>
+      <app-dark-mode-switcher />
+      <button pButton severity="secondary" rounded (click)="menu.toggle($event)">
+        <i class="pi pi-user" pButtonIcon></i>
+      </button>
+
+      <p-menu #menu [popup]="true" [model]="items" appendTo="body"></p-menu>
+    </div>
+  </ng-template>
+</p-toolbar>

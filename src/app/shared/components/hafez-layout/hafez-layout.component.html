@@ -1,0 +1,13 @@
+<main
+  [ngClass]="{ 'lg:ms-64': isVisible() }"
+  #main
+  class="transition-all transition-duration-300 relative"
+>
+  <app-notification-banner />
+  <app-hafez-header />
+  <section class="container mt-16 py-4">
+    <router-outlet />
+  </section>
+</main>
+<app-hafez-menu />
+<p-scrolltop />
