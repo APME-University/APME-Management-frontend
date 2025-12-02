@@ -55,7 +55,7 @@ import { CoreModule, LocalizationService } from '@abp/ng.core';
           
           <!-- Action buttons -->
           <div class="flex items-center gap-3">
-            <p-button
+            <!-- <p-button
               *ngIf="currentNotification.data?.id"
               [label]="getViewButtonLabel()"
               size="large"
@@ -64,7 +64,7 @@ import { CoreModule, LocalizationService } from '@abp/ng.core';
               class="flex-1"
               (click)="viewItem()"
             ></p-button>
-            
+             -->
             <p-button
               [label]="'::Dismiss' | abpLocalization"
               size="large"
@@ -239,22 +239,22 @@ export class NotificationBannerComponent implements OnInit, OnDestroy {
   }
 
   viewMaintenanceRequest(): void {
-    if (this.currentNotification?.data?.id) {
-      this.router.navigate(['/maintenance-requests', this.currentNotification.data.id]);
-      this.dismissNotification();
-    }
+    // if (this.currentNotification?.data?.id) {
+    //   this.router.navigate(['/maintenance-requests', this.currentNotification.data.id]);
+    //   this.dismissNotification();
+    // }
   }
 
   viewItem(): void {
-    if (this.currentNotification?.data?.id) {
-      if (this.currentNotification.data.type === 'order') {
-        this.router.navigate(['/orders', this.currentNotification.data.id]);
-      } else {
-        // Default to maintenance request for backward compatibility
-        this.router.navigate(['/maintenance-requests', this.currentNotification.data.id]);
-      }
-      this.dismissNotification();
-    }
+    // if (this.currentNotification?.data?.id) {
+    //   if (this.currentNotification.data.type === 'order') {
+    //     this.router.navigate(['/orders', this.currentNotification.data.id]);
+    //   } else {
+    //     // Default to maintenance request for backward compatibility
+    //     this.router.navigate(['/maintenance-requests', this.currentNotification.data.id]);
+    //   }
+    //   this.dismissNotification();
+    // }
   }
 
   getViewButtonLabel(): string {
@@ -262,16 +262,16 @@ export class NotificationBannerComponent implements OnInit, OnDestroy {
   }
 
   getNotificationTitle(): string {
-    if (this.currentNotification?.data?.type === 'order') {
-      return this.localizationService.instant(`::NewOrderReceived`);
-    }
+    // if (this.currentNotification?.data?.type === 'order') {
+    //   return this.localizationService.instant(`::NewOrderReceived`);
+    // }
     return this.localizationService.instant(`::NewMaintenanceRequest`);
   }
 
   getButtonSeverity(): 'success' | 'primary' {
-    if (this.currentNotification?.data?.type === 'order') {
-      return 'success';
-    }
+    // if (this.currentNotification?.data?.type === 'order') {
+    //   return 'success';
+    // }
     return 'primary';
   }
 

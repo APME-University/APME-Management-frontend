@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
 
-import { AuthService } from '../../proxy/auth.service';
+// import { AuthService } from '../../proxy/auth.service';
 import { CreateUpdateUserComponent } from '../create-update-user/create-update-user.component';
 import { IdentityUserCreateDto, IdentityUserDto, IdentityUserService, IdentityUserUpdateDto } from '@abp/ng.identity/proxy';
 
@@ -41,7 +41,7 @@ export class UsersListComponent implements OnInit {
 
   constructor(
     private identityUserService: IdentityUserService,
-    private authService: AuthService,
+    // private authService: AuthService,
     private router: Router,
     private messageService: MessageService,
     private confirmationService: ConfirmationService

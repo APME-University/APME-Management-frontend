@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AddressService } from '../../proxy/customers/addresses/address.service';
-import { LookupDto } from '../../proxy/models';
+// import { AddressService } from '../../proxy/customers/addresses/address.service';
+// import { LookupDto } from '../../proxy/models';
 import { IdentityRoleDto, IdentityUserCreateDto, IdentityUserDto, IdentityUserService, IdentityUserUpdateDto } from '@abp/ng.identity/proxy';
 
 @Component({
@@ -62,7 +62,7 @@ export class CreateUpdateUserComponent implements OnInit {
   
   constructor(
     private fb: FormBuilder,
-    private addressService: AddressService,
+    // private addressService: AddressService,
     private identityUserService: IdentityUserService
   ) {}
 

@@ -4,15 +4,14 @@ import { Injectable } from '@angular/core';
 @Injectable({
   providedIn: 'root',
 })
-export class FirebaseService {
+export class FackService {
   apiName = 'Default';
   
 
-  sendForCustomer = (id: string, title: string, body: string, config?: Partial<Rest.Config>) =>
+  returnNull = (config?: Partial<Rest.Config>) =>
     this.restService.request<any, void>({
       method: 'POST',
-      url: `/api/app/firebase/${id}/send-for-customer`,
-      params: { title, body },
+      url: '/api/app/fack/return-null',
     },
     { apiName: this.apiName,...config });
 

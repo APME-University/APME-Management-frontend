@@ -2,12 +2,12 @@ import { inject, Injectable, OnDestroy } from '@angular/core';
 import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { MaintenanceRequestDto } from '../../proxy/maintenance-requests';
+// import { MaintenanceRequestDto } from '../../proxy/maintenance-requests';
 import { AuthService, LocalizationService } from '@abp/ng.core';
 
 export interface NotificationData {
   message: string;
-  data: MaintenanceRequestDto | { id: string; type: string } | any;
+  // data: MaintenanceRequestDto | { id: string; type: string } | any;
   timestamp: Date;
   type: 'info' | 'success' | 'warning' | 'error';
 }
@@ -64,24 +64,24 @@ export class SignalRService implements OnDestroy {
       this.connectionStatus$.next(false);
     });
 
-    // Listen for maintenance request notifications
-    this.hubConnection.on('ReceiveMaintenanceRequest', (maintenanceRequest: MaintenanceRequestDto) => {      
-      const notification: NotificationData = {
-        message: this.localizationservice.instant(`::ReceivedNewMaintenanceRequest`),
-        data: maintenanceRequest,
-        timestamp: new Date(),
-        type: 'info'
-      };
+    // // Listen for maintenance request notifications
+    // this.hubConnection.on('ReceiveMaintenanceRequest', (maintenanceRequest: MaintenanceRequestDto) => {      
+    //   const notification: NotificationData = {
+    //     message: this.localizationservice.instant(`::ReceivedNewMaintenanceRequest`),
+    //     data: maintenanceRequest,
+    //     timestamp: new Date(),
+    //     type: 'info'
+    //   };
       
-      this.notifications$.next(notification);
-    });
+    //   this.notifications$.next(notification);
+    // });
 
     // Listen for other potential notifications
     this.hubConnection.on('ReceiveNotification', (message: string, data: any) => {
       
       const notification: NotificationData = {
         message: message,
-        data: data,
+        // data: data,
         timestamp: new Date(),
         type: 'info'
       };
@@ -94,7 +94,7 @@ export class SignalRService implements OnDestroy {
       
       const notification: NotificationData = {
         message: this.localizationservice.instant(`::ReceivedNewOrder`),
-        data: { id: orderId, type: 'order' },
+        // data: { id: orderId, type: 'order' },
         timestamp: new Date(),
         type: 'success'
       };
