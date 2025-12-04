@@ -38,6 +38,54 @@
           <!-- Login Form -->
           <form #loginForm="ngForm" (ngSubmit)="onSubmit(loginForm)" class="login-form">
             
+            <!-- Tenant Name Field (Optional) -->
+            <div class="login-field-group group">
+              <label for="tenantName" class="login-field-label">
+                <i class="pi pi-storefront"></i>
+                {{ "::ShopName" | abpLocalization }} ({{ "::Optional" | abpLocalization }})
+              </label>
+              <div class="login-field-wrapper">
+                <input pInputText 
+                       id="tenantName" 
+                       name="tenantName" 
+                       type="text" 
+                       aria-label="tenantName"
+                       class="login-input"
+                       placeholder="Leave empty for HOST login" 
+                       ngModel
+                       [ngClass]="{
+                         'login-input--error': tenantNotFound,
+                         'login-input--success': tenantName.valid && tenantName.touched && !tenantNotFound
+                       }" 
+                       #tenantName="ngModel" 
+                       (ngModelChange)="tenantNotFound = false; tenantNameError = ''" />
+                
+                <!-- Input status icon -->
+                <div class="login-input-icon">
+                  <i class="pi pi-check login-input-icon--success"
+                     *ngIf="tenantName.valid && tenantName.touched && !tenantNotFound"></i>
+                  <i class="pi pi-times login-input-icon--error"
+                     *ngIf="tenantNotFound"></i>
+                </div>
+              </div>
+              
+              <!-- Helper text -->
+              <div class="login-helper-text">
+                <small class="text-gray-500 dark:text-gray-400">
+                  Optional: Enter shop name to login to a specific tenant. Leave empty for HOST login.
+                </small>
+              </div>
+              
+              <!-- Error messages -->
+              <div class="login-error-container">
+                <div class="login-error-message"
+                     *ngIf="tenantNotFound">
+                  <i class="pi pi-exclamation-triangle"></i>
+                  <span>{{ tenantNameError }}</span>
+                </div>
+              </div>
+            </div>
+
             <!-- Username Field -->
             <div class="login-field-group group">
               <label for="username" class="login-field-label">

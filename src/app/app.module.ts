@@ -26,6 +26,8 @@ import { MyCustomErrorHandlerService } from './custom-error-handler.service';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { ar } from "primelocale/js/ar.js";
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { TenantInterceptor } from './core/interceptors/tenant.interceptor';
 @NgModule({
   declarations: [AppComponent],
   imports: [
@@ -73,6 +75,11 @@ import { ar } from "primelocale/js/ar.js";
       useExisting : MyCustomErrorHandlerService,
       multi : true,
       deps : [MessageService]
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: TenantInterceptor,
+      multi: true
     },
     MessageService
   ],

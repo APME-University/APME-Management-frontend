@@ -169,6 +169,16 @@
   }
 }
 
+// Helper text
+.login-helper-text {
+  @apply mt-1 mb-1;
+  
+  small {
+    @apply text-xs text-gray-500 dark:text-gray-400;
+    @apply transition-colors duration-200;
+  }
+}
+
 // Error messages
 .login-error-container {
   @apply min-h-6 mt-2 transition-all duration-200;
