@@ -52,6 +52,12 @@ const routes: Routes = [
     data: ROUTE_DATA_CONFIG['users']
   },
   {
+    path: 'shops',
+    loadChildren: () => import('./shops/shops.module').then(m => m.ShopsModule),
+    canActivate: [authGuard, adminGuard],
+    data: ROUTE_DATA_CONFIG['shops']
+  },
+  {
     path: 'change-password',
     loadComponent: () => import('./shared/components/change-password/change-password.component').then(m => m.ChangePasswordComponent),
     canActivate: [authGuard]

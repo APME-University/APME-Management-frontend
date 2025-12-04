@@ -160,6 +160,15 @@ function configureRoutes() {
         layout : eLayoutType.application,
         order : 14,
         requiredPolicy : 'AbpIdentity.Users'
+      },
+      {
+        path: '/shops',
+        name : "::Menu:Shops",
+        // Using Material Icons - Outlined
+        iconClass : 'material-icons-outlined|store',
+        layout : eLayoutType.application,
+        order : 15,
+        invisible : false
       }
   ]);
 }

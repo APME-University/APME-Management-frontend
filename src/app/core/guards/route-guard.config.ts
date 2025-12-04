@@ -34,6 +34,7 @@ export const ROUTE_GUARD_CONFIG = {
   
   // Admin routes
   'users': adminGuard,
+  'shops': adminGuard,
   'technicians': adminGuard,
   'advertisements': adminGuard,
   'identity': adminGuard,
@@ -97,6 +98,10 @@ export const ROUTE_DATA_CONFIG = {
   },
   'users': { 
     menuName: '::Menu:user',
+    requiredRoles: ['admin', 'Admin']
+  },
+  'shops': { 
+    menuName: '::Menu:Shops',
     requiredRoles: ['admin', 'Admin']
   },
   'advertisements': { 

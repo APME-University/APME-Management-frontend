@@ -57,6 +57,7 @@ export const ROUTE_ROLE_CONFIGURATIONS: RouteRoleConfig[] = [
   {
     routeNamePatterns: [
       '::Menu:user',
+      '::Menu:Shops',
       '::Menu:Technicians'
     ],
     requiredRolePatterns: ['admin', 'Admin']

@@ -1,0 +1,327 @@
+<p-dialog 
+  [(visible)]="visible" 
+  [modal]="true" 
+  [draggable]="false" 
+  [resizable]="false"
+  [closable]="true"
+  [style]="{width: '90vw', maxWidth: '700px'}"
+  styleClass="shop-dialog"
+  (onHide)="hideDialog()">
+  
+  <ng-template pTemplate="header">
+    <div class="flex items-center gap-3 dialog-header">
+      <i class="pi pi-store text-2xl text-primary"></i>
+      <h5 class="m-0">{{ isEditMode ? 'Edit Shop' : 'Create New Shop' }}</h5>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="content">
+    <form [formGroup]="shopForm" (ngSubmit)="onSave()" class="shop-form">
+      <!-- Name Field -->
+      <div class="form-field">
+        <label for="name" class="form-label">
+          Name <span class="text-red-500">*</span>
+        </label>
+        <input 
+          id="name"
+          pInputText 
+          formControlName="name"
+          [class.ng-invalid]="isFieldInvalid('name')"
+          placeholder="Enter shop name"
+          class="w-full"
+          [maxlength]="256" />
+        <small class="p-error" *ngIf="isFieldInvalid('name')">
+          {{ getFieldError('name') }}
+        </small>
+      </div>
+
+      <!-- Slug Field -->
+      <div class="form-field">
+        <div class="flex items-center justify-between mb-2">
+          <label for="slug" class="form-label">
+            Slug <span class="text-red-500">*</span>
+          </label>
+          <div class="flex items-center gap-2">
+            <p-inputSwitch 
+              [(ngModel)]="autoGenerateSlug" 
+              [ngModelOptions]="{standalone: true}"
+              (onChange)="toggleSlugAutoGeneration()">
+            </p-inputSwitch>
+            <small class="text-sm text-secondary">Auto-generate</small>
+          </div>
+        </div>
+        <input 
+          id="slug"
+          pInputText 
+          formControlName="slug"
+          [class.ng-invalid]="isFieldInvalid('slug')"
+          [readonly]="autoGenerateSlug"
+          placeholder="shop-slug"
+          class="w-full"
+          [maxlength]="256" />
+        <small class="p-error" *ngIf="isFieldInvalid('slug')">
+          {{ getFieldError('slug') }}
+        </small>
+        <small class="form-hint" *ngIf="!isFieldInvalid('slug')">
+          URL-friendly identifier for the shop
+        </small>
+      </div>
+
+      <!-- Description Field -->
+      <div class="form-field">
+        <label for="description" class="form-label">Description</label>
+        <textarea 
+          id="description"
+          pInputTextarea 
+          formControlName="description"
+          [class.ng-invalid]="isFieldInvalid('description')"
+          placeholder="Enter shop description"
+          [rows]="4"
+          [maxlength]="descriptionMaxLength"
+          class="w-full">
+        </textarea>
+        <div class="flex justify-between items-center mt-1">
+          <small class="p-error" *ngIf="isFieldInvalid('description')">
+            {{ getFieldError('description') }}
+          </small>
+          <small class="text-sm text-secondary ml-auto">
+            {{ descriptionLength }} / {{ descriptionMaxLength }} characters
+          </small>
+        </div>
+      </div>
+
+      <!-- Logo URL Field -->
+      <div class="form-field">
+        <label for="logoUrl" class="form-label">Logo URL</label>
+        <input 
+          id="logoUrl"
+          pInputText 
+          formControlName="logoUrl"
+          [class.ng-invalid]="isFieldInvalid('logoUrl')"
+          placeholder="https://example.com/logo.png"
+          class="w-full"
+          [maxlength]="512" />
+        <small class="p-error" *ngIf="isFieldInvalid('logoUrl')">
+          {{ getFieldError('logoUrl') }}
+        </small>
+        <small class="form-hint" *ngIf="!isFieldInvalid('logoUrl')">
+          Enter a valid image URL
+        </small>
+        
+        <!-- Logo Preview -->
+        <div class="logo-preview-container mt-3" *ngIf="logoPreview">
+          <div class="logo-preview">
+            <img [src]="logoPreview" alt="Logo preview" (error)="logoPreview = null" />
+            <button 
+              pButton 
+              pRipple 
+              icon="pi pi-times" 
+              class="p-button-rounded p-button-danger p-button-sm remove-logo-btn"
+              (click)="shopForm.patchValue({logoUrl: ''}); logoPreview = null">
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Is Active Toggle -->
+      <div class="form-field">
+        <div class="flex items-center justify-between">
+          <div>
+            <label for="isActive" class="form-label">Status</label>
+            <p class="form-hint m-0">Enable or disable the shop</p>
+          </div>
+          <p-inputSwitch 
+            id="isActive"
+            formControlName="isActive"
+            [style]="{transform: 'scale(1.2)'}">
+          </p-inputSwitch>
+        </div>
+      </div>
+
+      <!-- Tenant Information Section (Only for Create) -->
+      <div *ngIf="!isEditMode" class="tenant-section">
+        <div class="section-divider"></div>
+        <h6 class="section-title">Tenant Information</h6>
+        <p class="section-subtitle">Create a tenant for this shop. The tenant admin will be able to log in and manage the shop.</p>
+
+        <!-- Tenant Name Field -->
+        <div class="form-field">
+          <div class="flex items-center justify-between mb-2">
+            <label for="tenantName" class="form-label">
+              Tenant Name <span class="text-red-500">*</span>
+            </label>
+            <div class="flex items-center gap-2">
+              <p-inputSwitch 
+                [(ngModel)]="autoGenerateTenantName" 
+                [ngModelOptions]="{standalone: true}"
+                (onChange)="toggleTenantNameAutoGeneration()">
+              </p-inputSwitch>
+              <small class="text-sm text-secondary">Auto-generate</small>
+            </div>
+          </div>
+          <input 
+            id="tenantName"
+            pInputText 
+            formControlName="tenantName"
+            [class.ng-invalid]="isFieldInvalid('tenantName')"
+            [readonly]="autoGenerateTenantName"
+            placeholder="tenant-name"
+            class="w-full"
+            [maxlength]="64" />
+          <small class="p-error" *ngIf="isFieldInvalid('tenantName')">
+            {{ getFieldError('tenantName') }}
+          </small>
+          <small class="form-hint" *ngIf="!isFieldInvalid('tenantName')">
+            Unique identifier for the tenant
+          </small>
+        </div>
+
+        <!-- Admin Email Field -->
+        <div class="form-field">
+          <label for="adminEmail" class="form-label">
+            Admin Email <span class="text-red-500">*</span>
+          </label>
+          <input 
+            id="adminEmail"
+            pInputText 
+            type="email"
+            formControlName="adminEmail"
+            [class.ng-invalid]="isFieldInvalid('adminEmail')"
+            placeholder="admin@example.com"
+            class="w-full"
+            [maxlength]="256" />
+          <small class="p-error" *ngIf="isFieldInvalid('adminEmail')">
+            {{ getFieldError('adminEmail') || (shopForm.get('adminEmail')?.errors?.['email'] ? 'Invalid email format' : '') }}
+          </small>
+        </div>
+
+        <!-- Admin Password Field -->
+        <div class="form-field">
+          <label for="adminPassword" class="form-label">
+            Admin Password <span class="text-red-500">*</span>
+          </label>
+          <input 
+            id="adminPassword"
+            pInputText 
+            type="password"
+            formControlName="adminPassword"
+            [class.ng-invalid]="isFieldInvalid('adminPassword')"
+            placeholder="Enter password (min 6 characters)"
+            class="w-full"
+            [maxlength]="128" />
+          <small class="p-error" *ngIf="isFieldInvalid('adminPassword')">
+            {{ getFieldError('adminPassword') || (shopForm.get('adminPassword')?.errors?.['minlength'] ? 'Password must be at least 6 characters' : '') }}
+          </small>
+          <div *ngIf="passwordStrength && shopForm.get('adminPassword')?.value" class="password-strength mt-2">
+            <small class="text-sm">Password strength: </small>
+            <span [class]="'strength-' + passwordStrength">{{ passwordStrength | titlecase }}</span>
+          </div>
+        </div>
+
+        <!-- Confirm Password Field -->
+        <div class="form-field">
+          <label for="confirmPassword" class="form-label">
+            Confirm Password <span class="text-red-500">*</span>
+          </label>
+          <input 
+            id="confirmPassword"
+            pInputText 
+            type="password"
+            formControlName="confirmPassword"
+            [class.ng-invalid]="isFieldInvalid('confirmPassword') || shopForm.errors?.['passwordMismatch']"
+            placeholder="Confirm password"
+            class="w-full"
+            [maxlength]="128" />
+          <small class="p-error" *ngIf="shopForm.errors?.['passwordMismatch'] && shopForm.get('confirmPassword')?.touched">
+            Passwords do not match
+          </small>
+          <small class="p-error" *ngIf="isFieldInvalid('confirmPassword') && !shopForm.errors?.['passwordMismatch']">
+            {{ getFieldError('confirmPassword') }}
+          </small>
+        </div>
+
+        <!-- Admin Username Field -->
+        <div class="form-field">
+          <label for="adminUserName" class="form-label">Admin Username</label>
+          <input 
+            id="adminUserName"
+            pInputText 
+            formControlName="adminUserName"
+            [class.ng-invalid]="isFieldInvalid('adminUserName')"
+            placeholder="Leave empty to use email as username"
+            class="w-full"
+            [maxlength]="256" />
+          <small class="form-hint">
+            Optional. Defaults to admin email if not provided.
+          </small>
+        </div>
+
+        <!-- Admin First Name Field -->
+        <div class="form-field">
+          <label for="adminFirstName" class="form-label">Admin First Name</label>
+          <input 
+            id="adminFirstName"
+            pInputText 
+            formControlName="adminFirstName"
+            [class.ng-invalid]="isFieldInvalid('adminFirstName')"
+            placeholder="First name"
+            class="w-full"
+            [maxlength]="64" />
+        </div>
+
+        <!-- Admin Last Name Field -->
+        <div class="form-field">
+          <label for="adminLastName" class="form-label">Admin Last Name</label>
+          <input 
+            id="adminLastName"
+            pInputText 
+            formControlName="adminLastName"
+            [class.ng-invalid]="isFieldInvalid('adminLastName')"
+            placeholder="Last name"
+            class="w-full"
+            [maxlength]="64" />
+        </div>
+      </div>
+
+      <!-- Settings Field (JSON) -->
+      <div class="form-field">
+        <label for="settings" class="form-label">Settings (JSON)</label>
+        <textarea 
+          id="settings"
+          pInputTextarea 
+          formControlName="settings"
+          placeholder='{"key": "value"}'
+          [rows]="3"
+          class="w-full font-mono text-sm">
+        </textarea>
+        <small class="form-hint">
+          Optional JSON settings for the shop
+        </small>
+      </div>
+    </form>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-2 dialog-footer">
+      <button 
+        pButton 
+        pRipple 
+        label="Cancel" 
+        icon="pi pi-times" 
+        class="p-button-text"
+        [disabled]="loading"
+        (click)="hideDialog()">
+      </button>
+      <button 
+        pButton 
+        pRipple 
+        [label]="isEditMode ? 'Update' : 'Create'" 
+        icon="pi pi-check" 
+        class="p-button-success"
+        [disabled]="shopForm.invalid || loading"
+        (click)="onSave()">
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>
+

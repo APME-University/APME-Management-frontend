@@ -1,0 +1,369 @@
+:host {
+  display: block;
+}
+
+// Dialog Styles
+.shop-dialog ::ng-deep .p-dialog-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--surface-border);
+  background: var(--surface-card);
+}
+
+.shop-dialog ::ng-deep .p-dialog-content {
+  padding: 1.5rem;
+  background: var(--surface-card);
+  max-height: calc(90vh - 200px);
+  overflow-y: auto;
+}
+
+.shop-dialog ::ng-deep .p-dialog-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--surface-border);
+  background: var(--surface-card);
+}
+
+.dialog-header {
+  color: var(--text-color);
+}
+
+.dialog-footer {
+  width: 100%;
+}
+
+// Form Styles
+.shop-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-label {
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.form-hint {
+  color: var(--text-color-secondary);
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.text-secondary {
+  color: var(--text-color-secondary);
+}
+
+.text-red-500 {
+  color: #ef4444;
+}
+
+.text-primary {
+  color: var(--primary-color);
+}
+
+// Input Styles
+::ng-deep .p-inputtext,
+::ng-deep .p-inputtextarea {
+  width: 100%;
+  background: var(--surface-0);
+  border: 1px solid var(--surface-border);
+  color: var(--text-color);
+  transition: all 0.2s ease;
+}
+
+::ng-deep .p-inputtext:focus,
+::ng-deep .p-inputtextarea:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.2);
+}
+
+::ng-deep .p-inputtext.ng-invalid,
+::ng-deep .p-inputtextarea.ng-invalid {
+  border-color: #ef4444;
+}
+
+::ng-deep .p-inputtext.ng-invalid:focus,
+::ng-deep .p-inputtextarea.ng-invalid:focus {
+  box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.2);
+}
+
+::ng-deep .p-inputtext[readonly] {
+  background: var(--surface-50);
+  cursor: not-allowed;
+}
+
+// Logo Preview
+.logo-preview-container {
+  margin-top: 0.75rem;
+}
+
+.logo-preview {
+  position: relative;
+  display: inline-block;
+  width: 120px;
+  height: 120px;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  background: var(--surface-100);
+  border: 2px solid var(--surface-border);
+  transition: all 0.2s ease;
+}
+
+.logo-preview:hover {
+  border-color: var(--primary-color);
+  transform: scale(1.05);
+}
+
+.logo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.remove-logo-btn {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.logo-preview:hover .remove-logo-btn {
+  opacity: 1;
+}
+
+// Input Switch
+::ng-deep .p-inputswitch {
+  margin: 0;
+}
+
+::ng-deep .p-inputswitch .p-inputswitch-slider {
+  background: var(--surface-300);
+  transition: background-color 0.2s ease;
+}
+
+::ng-deep .p-inputswitch.p-inputswitch-checked .p-inputswitch-slider {
+  background: var(--primary-color);
+}
+
+// Error Messages
+.p-error {
+  color: #ef4444;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+// Utility Classes
+.flex {
+  display: flex;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.justify-end {
+  justify-content: flex-end;
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}
+
+.gap-3 {
+  gap: 0.75rem;
+}
+
+.m-0 {
+  margin: 0;
+}
+
+.mt-1 {
+  margin-top: 0.25rem;
+}
+
+.mt-3 {
+  margin-top: 0.75rem;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+}
+
+.font-mono {
+  font-family: monospace;
+}
+
+.ml-auto {
+  margin-left: auto;
+}
+
+// Tenant Section
+.tenant-section {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 2px solid var(--surface-border);
+}
+
+.section-divider {
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0 0 0.5rem 0;
+}
+
+.section-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-color-secondary);
+  margin: 0 0 1.5rem 0;
+}
+
+// Password Strength Indicator
+.password-strength {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.strength-weak {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.strength-medium {
+  color: #f59e0b;
+  font-weight: 600;
+}
+
+.strength-strong {
+  color: #10b981;
+  font-weight: 600;
+}
+
+// Credentials Dialog
+.credentials-dialog ::ng-deep .p-dialog-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--surface-border);
+  background: var(--surface-card);
+}
+
+.credentials-dialog ::ng-deep .p-dialog-content {
+  padding: 1.5rem;
+  background: var(--surface-card);
+}
+
+.credentials-dialog ::ng-deep .p-dialog-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--surface-border);
+  background: var(--surface-card);
+}
+
+.credentials-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.warning-box {
+  background: var(--surface-50);
+  border: 1px solid var(--surface-border);
+  border-left: 4px solid #f59e0b;
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  color: var(--text-color);
+}
+
+.credential-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.credential-label {
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 0.875rem;
+}
+
+.credential-value {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--surface-50);
+  padding: 0.75rem;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--surface-border);
+}
+
+.credential-value code {
+  flex: 1;
+  font-family: monospace;
+  font-size: 0.875rem;
+  color: var(--text-color);
+  word-break: break-all;
+}
+
+.copy-btn {
+  flex-shrink: 0;
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .shop-dialog ::ng-deep .p-dialog {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    margin: 1rem;
+  }
+
+  .shop-dialog ::ng-deep .p-dialog-content {
+    padding: 1rem;
+    max-height: calc(90vh - 150px);
+  }
+
+  .shop-form {
+    gap: 1rem;
+  }
+
+  .logo-preview {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+// Loading State
+::ng-deep .p-button[loading] {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+

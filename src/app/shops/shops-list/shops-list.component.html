@@ -1,0 +1,363 @@
+<div class="shops-container">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
+  <!-- Header Card -->
+  <div class="header-card">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="page-title">Shops Management</h1>
+        <p class="page-subtitle">Manage and configure your e-commerce shops</p>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <p-toolbar styleClass="toolbar-custom">
+      <ng-template pTemplate="left">
+        <div class="flex gap-2 flex-wrap">
+          <button 
+            pButton 
+            pRipple 
+            label="New Shop" 
+            icon="pi pi-plus" 
+            class="p-button-success"
+            (click)="openNew()">
+          </button>
+          <button 
+            pButton 
+            pRipple 
+            label="Activate Selected" 
+            icon="pi pi-check-circle" 
+            class="p-button-help"
+            [disabled]="selectedShops.length === 0"
+            (click)="bulkActivate()">
+          </button>
+          <button 
+            pButton 
+            pRipple 
+            label="Deactivate Selected" 
+            icon="pi pi-times-circle" 
+            class="p-button-warning"
+            [disabled]="selectedShops.length === 0"
+            (click)="bulkDeactivate()">
+          </button>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="right">
+        <div class="flex gap-2 items-center flex-wrap">
+          <p-dropdown 
+            [options]="statusFilterOptions" 
+            [(ngModel)]="isActiveFilter"
+            placeholder="Filter by Status"
+            [showClear]="true"
+            styleClass="w-48"
+            (onChange)="onStatusFilterChange()">
+          </p-dropdown>
+          <span class="p-input-icon-left search-input-wrapper">
+            <i class="pi pi-search"></i>
+            <input 
+              pInputText 
+              type="text" 
+              placeholder="Search shops..." 
+              (input)="onGlobalFilter($event)" />
+          </span>
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <!-- Shops Table Card -->
+  <div class="table-card">
+    <p-table 
+      #dt 
+      [value]="shops" 
+      [rows]="maxResultCount" 
+      [totalRecords]="totalRecords"
+      [loading]="loading"
+      [paginator]="true" 
+      [showCurrentPageReport]="true"
+      [rowsPerPageOptions]="[10, 25, 50, 100]"
+      [sortMode]="'single'"
+      (onLazyLoad)="onPageChange($event)"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      responsiveLayout="scroll"
+      [(selection)]="selectedShops"
+      [rowHover]="true"
+      styleClass="p-datatable-striped shops-table"
+      [globalFilterFields]="['name', 'slug', 'description']">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 3rem">
+            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+          </th>
+          <th pSortableColumn="name" style="min-width: 200px">
+            Name <p-sortIcon field="name"></p-sortIcon>
+          </th>
+          <th pSortableColumn="slug" style="min-width: 150px">
+            Slug <p-sortIcon field="slug"></p-sortIcon>
+          </th>
+          <th style="min-width: 150px">Tenant</th>
+          <th style="min-width: 250px">Description</th>
+          <th pSortableColumn="isActive" style="min-width: 120px">
+            Status <p-sortIcon field="isActive"></p-sortIcon>
+          </th>
+          <th pSortableColumn="creationTime" style="min-width: 150px">
+            Created <p-sortIcon field="creationTime"></p-sortIcon>
+          </th>
+          <th style="min-width: 180px">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-shop>
+        <tr>
+          <td>
+            <p-tableCheckbox [value]="shop"></p-tableCheckbox>
+          </td>
+          <td>
+            <div class="flex items-center gap-3">
+              <div class="shop-logo" *ngIf="shop.logoUrl">
+                <img [src]="shop.logoUrl" [alt]="shop.name" />
+              </div>
+              <div>
+                <div class="font-semibold shop-name">{{ shop.name }}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="shop-slug">{{ shop.slug }}</span>
+          </td>
+          <td>
+            <span class="shop-tenant" *ngIf="shop.tenantName">{{ shop.tenantName }}</span>
+            <span class="text-secondary text-sm" *ngIf="!shop.tenantName">-</span>
+          </td>
+          <td>
+            <span class="shop-description" [title]="shop.description">
+              {{ shop.description || '-' }}
+            </span>
+          </td>
+          <td>
+            <p-tag 
+              [value]="getStatusLabel(shop.isActive)" 
+              [severity]="getSeverity(shop.isActive)"
+              [rounded]="true">
+            </p-tag>
+          </td>
+          <td>
+            <span class="text-sm">{{ shop.creationTime | date:'short' }}</span>
+          </td>
+          <td>
+            <div class="flex gap-2 actions-group">
+              <button 
+                pButton 
+                pRipple 
+                icon="pi pi-pencil" 
+                class="p-button-rounded p-button-success p-button-sm action-btn" 
+                pTooltip="Edit Shop"
+                tooltipPosition="top"
+                (click)="editShop(shop)">
+              </button>
+              <button 
+                pButton 
+                pRipple 
+                [icon]="shop.isActive ? 'pi pi-eye-slash' : 'pi pi-eye'" 
+                [class]="shop.isActive ? 'p-button-rounded p-button-warning p-button-sm action-btn' : 'p-button-rounded p-button-help p-button-sm action-btn'" 
+                [pTooltip]="shop.isActive ? 'Deactivate' : 'Activate'"
+                tooltipPosition="top"
+                (click)="shop.isActive ? deactivateShop(shop) : activateShop(shop)"
+                type="button">
+              </button>
+              <button 
+                pButton 
+                pRipple 
+                icon="pi pi-trash" 
+                class="p-button-rounded p-button-danger p-button-sm action-btn" 
+                pTooltip="Delete Shop"
+                tooltipPosition="top"
+                (click)="deleteShop(shop)">
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="8" class="empty-state">
+            <div class="flex flex-col items-center justify-center py-12">
+              <i class="pi pi-store text-6xl mb-4 empty-icon"></i>
+              <h3 class="text-xl font-semibold mb-2">No Shops Found</h3>
+              <p class="text-sm mb-4">Get started by creating your first shop</p>
+              <button 
+                pButton 
+                pRipple 
+                label="Create Shop" 
+                icon="pi pi-plus" 
+                class="p-button-success"
+                (click)="openNew()">
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="loadingbody">
+        <tr>
+          <td colspan="8">
+            <div class="flex items-center justify-center py-8">
+              <p-skeleton width="100%" height="2rem"></p-skeleton>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Create/Edit Shop Dialog -->
+  <app-create-update-shop
+    #createUpdateShop
+    [(visible)]="shopDialog"
+    [shop]="shop"
+    [isEditMode]="isEditMode"
+    (save)="onShopSave($event)"
+    (visibleChange)="onDialogVisibilityChange($event)">
+  </app-create-update-shop>
+
+  <!-- Delete Confirmation Dialog -->
+  <p-dialog 
+    [(visible)]="deleteShopDialog" 
+    [style]="{width: '450px'}" 
+    [modal]="true" 
+    [draggable]="false" 
+    [resizable]="false"
+    [closable]="true"
+    styleClass="delete-dialog">
+    <ng-template pTemplate="header">
+      <div class="flex items-center gap-3">
+        <i class="pi pi-exclamation-triangle text-2xl text-red-500"></i>
+        <h5 class="m-0">Confirm Delete</h5>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="content">
+      <div class="confirmation-content">
+        <p class="m-0">
+          Are you sure you want to delete <strong>{{ shop.name }}</strong>? This action cannot be undone.
+        </p>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+      <button 
+        pButton 
+        pRipple 
+        label="Cancel" 
+        icon="pi pi-times" 
+        class="p-button-text" 
+        (click)="deleteShopDialog = false">
+      </button>
+      <button 
+        pButton 
+        pRipple 
+        label="Delete" 
+        icon="pi pi-check" 
+        class="p-button-danger" 
+        (click)="confirmDelete()">
+      </button>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Credentials Display Dialog -->
+  <p-dialog 
+    [(visible)]="credentialsDialog" 
+    [modal]="true" 
+    [draggable]="false" 
+    [resizable]="false"
+    [closable]="true"
+    [style]="{width: '90vw', maxWidth: '500px'}"
+    styleClass="credentials-dialog">
+    
+    <ng-template pTemplate="header">
+      <div class="flex items-center gap-3 dialog-header">
+        <i class="pi pi-key text-2xl text-primary"></i>
+        <h5 class="m-0">Shop Tenant Credentials</h5>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="content" *ngIf="createdCredentials">
+      <div class="credentials-content">
+        <div class="warning-box mb-4">
+          <i class="pi pi-exclamation-triangle mr-2"></i>
+          <strong>Important:</strong> Please save these credentials securely. You will need them to log in as the shop admin.
+        </div>
+
+        <div class="credential-item">
+          <label class="credential-label">Tenant Name:</label>
+          <div class="credential-value">
+            <code>{{ createdCredentials.tenantName }}</code>
+            <button 
+              pButton 
+              pRipple 
+              icon="pi pi-copy" 
+              class="p-button-rounded p-button-text p-button-sm copy-btn"
+              (click)="copyToClipboard(createdCredentials.tenantName)"
+              pTooltip="Copy to clipboard">
+            </button>
+          </div>
+        </div>
+
+        <div class="credential-item">
+          <label class="credential-label">Admin Email:</label>
+          <div class="credential-value">
+            <code>{{ createdCredentials.adminEmail }}</code>
+            <button 
+              pButton 
+              pRipple 
+              icon="pi pi-copy" 
+              class="p-button-rounded p-button-text p-button-sm copy-btn"
+              (click)="copyToClipboard(createdCredentials.adminEmail)"
+              pTooltip="Copy to clipboard">
+            </button>
+          </div>
+        </div>
+
+        <div class="credential-item">
+          <label class="credential-label">Admin Password:</label>
+          <div class="credential-value">
+            <code>{{ createdCredentials.adminPassword }}</code>
+            <button 
+              pButton 
+              pRipple 
+              icon="pi pi-copy" 
+              class="p-button-rounded p-button-text p-button-sm copy-btn"
+              (click)="copyToClipboard(createdCredentials.adminPassword)"
+              pTooltip="Copy to clipboard">
+            </button>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+      <div class="flex justify-between w-full">
+        <button 
+          pButton 
+          pRipple 
+          label="Download" 
+          icon="pi pi-download" 
+          class="p-button-outlined"
+          (click)="downloadCredentials()">
+        </button>
+        <button 
+          pButton 
+          pRipple 
+          label="Close" 
+          icon="pi pi-check" 
+          class="p-button-success"
+          (click)="credentialsDialog = false; createdCredentials = null">
+        </button>
+      </div>
+    </ng-template>
+  </p-dialog>
+</div>
+

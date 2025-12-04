@@ -1,2 +1,3 @@
 import * as FackService from './fack-service';
-export { FackService };
+import * as Shops from './shops';
+export { FackService, Shops };

@@ -27,7 +27,8 @@ export class SignalRService implements OnDestroy {
   localizationservice = inject(LocalizationService);
   auth = inject(AuthService);
   constructor() {
-    this.initializeConnection();
+    // SignalR disabled
+    // this.initializeConnection();
   }
 
   private initializeConnection(): void {
