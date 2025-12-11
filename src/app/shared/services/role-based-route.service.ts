@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { ConfigStateService, TreeNode, ABP } from '@abp/ng.core';
-import { Observable, map } from 'rxjs';
+import { Observable, map, combineLatest } from 'rxjs';
 import { ROUTE_ROLE_CONFIGURATIONS } from '../../core/route-role.config';
+import { TenantMenuFilterService } from './tenant-menu-filter.service';
 
 /**
  * Configuration for role-based route access
@@ -22,6 +23,7 @@ export interface RouteRoleConfig {
 })
 export class RoleBasedRouteService {
   private readonly configState = inject(ConfigStateService);
+  private readonly tenantMenuFilter = inject(TenantMenuFilterService);
 
   /**
    * Dynamic route-role configuration
@@ -83,11 +85,17 @@ export class RoleBasedRouteService {
   }
 
   /**
-   * Filter routes based on user roles
+   * Filter routes based on user roles and tenant context
    */
   filterRoutesByRoles(routes: TreeNode<ABP.Route>[]): Observable<TreeNode<ABP.Route>[]> {
-    return this.getCurrentUserRoles().pipe(
-      map(userRoles => this.filterRoutesRecursive(routes, userRoles))
+    // First filter by tenant context, then by roles
+    return combineLatest([
+      this.tenantMenuFilter.filterRoutesByTenant(routes),
+      this.getCurrentUserRoles()
+    ]).pipe(
+      map(([tenantFilteredRoutes, userRoles]) => 
+        this.filterRoutesRecursive(tenantFilteredRoutes, userRoles)
+      )
     );
   }
 

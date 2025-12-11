@@ -11,7 +11,7 @@ import { MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { DarkModeSwitcherComponent } from 'src/app/shared/components/dark-mode-switcher/dark-mode-switcher.component';
-import { AuthService, CoreModule, LocalizationService } from '@abp/ng.core';
+import { AuthService, CoreModule, LocalizationService, SessionStateService, ConfigStateService } from '@abp/ng.core';
 import { Router } from '@angular/router';
 import { AbpTenantService } from '../../proxy/abp-tenant';
 import { setTenantId, clearTenantId } from '../../core/interceptors/tenant.interceptor';
@@ -46,6 +46,8 @@ export class LoginComponent implements OnInit {
   localization = inject(LocalizationService);
   readonly _router = inject(Router);
   tenantService = inject(AbpTenantService);
+  sessionStateService = inject(SessionStateService);
+  configState = inject(ConfigStateService);
   isInvalidLogin: boolean = false;
   tenantNotFound: boolean = false;
   tenantNameError: string = '';
@@ -62,16 +64,31 @@ export class LoginComponent implements OnInit {
     this.tenantNameError = '';
 
     const { tenantName, username, password } = loginForm.value;
+    
+    // Determine redirect URL based on tenant context (like athletes-hub)
+    const redirectUrl = tenantName?.trim() ? 'tenant/dashboard' : 'host/dashboard';
+
+    // Clear tenant context first
+    this.sessionStateService.setTenant(null);
+    clearTenantId();
 
     // If tenant name is provided, resolve tenant first
     if (tenantName && tenantName.trim()) {
       this.tenantService.findTenantByName(tenantName.trim()).subscribe({
         next: (result) => {
           if (result.success && result.tenantId) {
-            // Set tenant context
+            // Set tenant context using SessionStateService (like athletes-hub)
+            this.sessionStateService.setTenant({
+              isAvailable: true,
+              id: result.tenantId,
+              name: result.name || tenantName.trim(),
+            });
+            // Refresh app state after setting tenant (like athletes-hub)
+            this.configState.refreshAppState();
+            // Set tenant ID for interceptor
             setTenantId(result.tenantId);
-            // Proceed with login
-            this.performLogin(username, password);
+            // Proceed with login using redirectUrl
+            this.performLogin(username, password, redirectUrl);
           } else {
             // Tenant not found
             this.tenantNotFound = true;
@@ -98,19 +115,21 @@ export class LoginComponent implements OnInit {
     } else {
       // No tenant name provided, login to HOST
       clearTenantId();
-      this.performLogin(username, password);
+      this.performLogin(username, password, redirectUrl);
     }
   }
 
-  private performLogin(username: string, password: string): void {
+  private performLogin(username: string, password: string, redirectUrl: string): void {
+    // Use redirectUrl in login params (like athletes-hub)
     this.authService.login({
       username: username,
       password: password,
+      redirectUrl: redirectUrl,
     }).subscribe({
       next: (response) => {
         this.isInvalidLogin = false;
         this.isLoading = false;
-        this._router.navigate(['/']);
+        // ABP will handle the redirect automatically via redirectUrl
       },
       error: (error) => {
         this.messageService.add({

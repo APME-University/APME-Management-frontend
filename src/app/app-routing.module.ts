@@ -8,6 +8,7 @@ import {
   adminGuard,
   roleBasedGuard
 } from './core/guards/role-based.guard';
+import { tenantGuard, tenantAdminGuard } from './core/guards/tenant.guard';
 import { ROUTE_DATA_CONFIG } from './core/guards/route-guard.config';
 
 const routes: Routes = [
@@ -54,8 +55,80 @@ const routes: Routes = [
   {
     path: 'shops',
     loadChildren: () => import('./shops/shops.module').then(m => m.ShopsModule),
-    canActivate: [authGuard, adminGuard],
-    data: ROUTE_DATA_CONFIG['shops']
+    canActivate: [authGuard, tenantGuard, adminGuard],
+    data: { ...ROUTE_DATA_CONFIG['shops'], isTenant: false }
+  },
+  // HOST Admin Routes
+  {
+    path: 'host',
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./host/dashboard/dashboard.component').then(m => m.DashboardComponent),
+        canActivate: [authGuard, tenantGuard, adminGuard],
+        data: { menuName: '::Menu:HostDashboard', isTenant: false }
+      },
+      {
+        path: 'promo-codes',
+        loadComponent: () => import('./host/promo-codes/promo-codes.component').then(m => m.PromoCodesComponent),
+        canActivate: [authGuard, tenantGuard, adminGuard],
+        data: { menuName: '::Menu:PromoCodes', isTenant: false }
+      },
+      {
+        path: 'addresses',
+        loadComponent: () => import('./host/addresses/addresses.component').then(m => m.AddressesComponent),
+        canActivate: [authGuard, tenantGuard, adminGuard],
+        data: { menuName: '::Menu:Addresses', isTenant: false }
+      },
+      {
+        path: 'payments',
+        loadComponent: () => import('./host/payments/payments.component').then(m => m.PaymentsComponent),
+        canActivate: [authGuard, tenantGuard, adminGuard],
+        data: { menuName: '::Menu:Payments', isTenant: false }
+      }
+    ]
+  },
+  // Tenant Admin Routes
+  {
+    path: 'tenant',
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./tenant/dashboard/dashboard.component').then(m => m.DashboardComponent),
+        canActivate: [authGuard, tenantGuard, adminGuard],
+        data: { menuName: '::Menu:TenantDashboard', isTenant: true }
+      },
+      {
+        path: 'categories',
+        loadComponent: () => import('./tenant/categories/categories.component').then(m => m.CategoriesComponent),
+        canActivate: [authGuard, tenantGuard, adminGuard],
+        data: { menuName: '::Menu:TenantCategories', isTenant: true }
+      },
+      {
+        path: 'products',
+        loadComponent: () => import('./tenant/products/products.component').then(m => m.ProductsComponent),
+        canActivate: [authGuard, tenantGuard, adminGuard],
+        data: { menuName: '::Menu:TenantProducts', isTenant: true }
+      },
+      {
+        path: 'orders',
+        loadComponent: () => import('./tenant/orders/orders.component').then(m => m.OrdersComponent),
+        canActivate: [authGuard, tenantGuard, adminGuard],
+        data: { menuName: '::Menu:TenantOrders', isTenant: true }
+      },
+      {
+        path: 'customers',
+        loadComponent: () => import('./tenant/customers/customers.component').then(m => m.CustomersComponent),
+        canActivate: [authGuard, tenantGuard, adminGuard],
+        data: { menuName: '::Menu:TenantCustomers', isTenant: true }
+      },
+      {
+        path: 'settings',
+        loadComponent: () => import('./tenant/settings/settings.component').then(m => m.SettingsComponent),
+        canActivate: [authGuard, tenantGuard, adminGuard],
+        data: { menuName: '::Menu:TenantSettings', isTenant: true }
+      }
+    ]
   },
   {
     path: 'change-password',

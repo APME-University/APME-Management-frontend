@@ -49,7 +49,8 @@ function configureRoutes() {
         iconClass: 'material-icons-outlined|inventory_2',
         order: 1,
         layout: eLayoutType.application,
-      },
+        isTenant: true
+      } as any,
       {
         path: '/categories',
         name : "::Menu:Categories",
@@ -68,90 +69,7 @@ function configureRoutes() {
         order : 3,
         parentName :'::Menu:Catalog'
       },
-      {
-        path: '/maintenance-requests-list',
-        name : "::Menu:maintenance-requests-list",
-        // Using Material Icons - Outlined
-        iconClass : 'material-icons-outlined|build',
-        layout : eLayoutType.application,
-        order : 4,
-        parentName :'::Menu:maintenance-requests'
-      },
-      {
-        path: '/maintenance-requests/scheduled',
-        name : "::Menu:maintenance-requests-scheduled",
-        // Using Material Icons - Round
-        iconClass : 'material-icons-round|schedule',
-        layout : eLayoutType.application,
-        order : 5,
-        parentName :'::Menu:maintenance-requests'
-      },
-      {
-        path: '/maintenance-requests',
-        name : "::Menu:maintenance-requests",
-        // Using Material Icons - Filled (default)
-        iconClass : 'material-icons|construction',
-        layout : eLayoutType.application,
-        order : 6
-      },
-      {
-        path: '/diagnoses',
-        name : "::Menu:diagnosis",
-        // Using Material Icons - Sharp
-        iconClass : 'material-icons-sharp|medical_services',
-        layout : eLayoutType.application,
-        order : 11
-      },
-      {
-        path: '/technicians',
-        name : "::Menu:Technicians",
-        // Using Material Icons - Outlined
-        iconClass : 'material-icons-outlined|engineering',
-        layout : eLayoutType.application,
-        order : 8
-      },
-      {
-        path: '/customers',
-        name : "::Menu:Customers",
-        // Using Material Icons - Round
-        iconClass : 'material-icons-round|people',
-        layout : eLayoutType.application,
-        order : 9
-      },
-      {
-        path: '/common-issues',
-        name : "::Menu:CommonIssues",
-        // Using Material Icons - Outlined
-        iconClass : 'material-icons-outlined|help_outline',
-        layout : eLayoutType.application,
-        order : 10
-      },
-      {
-        path: '/complaints',
-        name : "::Menu:Complaints",
-        // Using Material Icons - Filled
-        iconClass : 'material-icons|report_problem',
-        layout : eLayoutType.application,
-        order : 7,
-      },
-      {
-        path: '/orders',
-        name : "::Menu:orders",
-        // Using Material Icons - Round
-        iconClass : 'material-icons-round|shopping_cart',
-        layout : eLayoutType.application,
-        order : 12,
-        invisible : false
-      },
-      {
-        path: '/advertisements',
-        name : "::Menu:advertisements",
-        // Using Material Icons - Outlined
-        iconClass : 'material-icons-outlined|campaign',
-        layout : eLayoutType.application,
-        order : 13,
-        invisible : false
-      },
+      
       {
         path: '/users',
         name : "::Menu:user",
@@ -168,7 +86,100 @@ function configureRoutes() {
         iconClass : 'material-icons-outlined|store',
         layout : eLayoutType.application,
         order : 15,
-        invisible : false
-      }
+        invisible : false,
+        isTenant: false  // HOST admin only
+      } as any,
+      // HOST Admin Routes
+      {
+        path: '/host/dashboard',
+        name: '::Menu:HostDashboard',
+        iconClass: 'material-icons-outlined|dashboard',
+        layout: eLayoutType.application,
+        order: 1,
+        isTenant: false
+      } as any,
+      {
+        path: '/host/promo-codes',
+        name: '::Menu:PromoCodes',
+        iconClass: 'material-icons-outlined|local_offer',
+        layout: eLayoutType.application,
+        order: 16,
+        isTenant: false
+      } as any,
+      {
+        path: '/host/addresses',
+        name: '::Menu:Addresses',
+        iconClass: 'material-icons-outlined|location_on',
+        layout: eLayoutType.application,
+        order: 17,
+        isTenant: false
+      } as any,
+      {
+        path: '/host/payments',
+        name: '::Menu:Payments',
+        iconClass: 'material-icons-outlined|payment',
+        layout: eLayoutType.application,
+        order: 18,
+        isTenant: false
+      } as any,
+      // Tenant Admin Routes
+      {
+        path: '/tenant/dashboard',
+        name: '::Menu:TenantDashboard',
+        iconClass: 'material-icons-outlined|dashboard',
+        layout: eLayoutType.application,
+        order: 1,
+        isTenant: true
+      } as any,
+      {
+        path: '/tenant/categories',
+        name: '::Menu:TenantCategories',
+        iconClass: 'material-icons-round|category',
+        layout: eLayoutType.application,
+        order: 2,
+        isTenant: true,
+        parentName: '::Menu:TenantCatalog'
+      } as any,
+      {
+        path: '/tenant/products',
+        name: '::Menu:TenantProducts',
+        iconClass: PrimeIcons.OBJECTS_COLUMN,
+        layout: eLayoutType.application,
+        order: 3,
+        isTenant: true,
+        parentName: '::Menu:TenantCatalog'
+      } as any,
+      {
+        path: '/tenant/orders',
+        name: '::Menu:TenantOrders',
+        iconClass: 'material-icons-round|shopping_cart',
+        layout: eLayoutType.application,
+        order: 4,
+        isTenant: true
+      } as any,
+      {
+        path: '/tenant/customers',
+        name: '::Menu:TenantCustomers',
+        iconClass: 'material-icons-round|people',
+        layout: eLayoutType.application,
+        order: 5,
+        isTenant: true
+      } as any,
+      {
+        path: '/tenant/settings',
+        name: '::Menu:TenantSettings',
+        iconClass: 'material-icons-outlined|settings',
+        layout: eLayoutType.application,
+        order: 6,
+        isTenant: true
+      } as any,
+      {
+        path: '/tenant',
+        name: '::Menu:TenantCatalog',
+        iconClass: 'material-icons-outlined|inventory_2',
+        layout: eLayoutType.application,
+        order: 2,
+        isTenant: true
+      } as any
   ]);
 }

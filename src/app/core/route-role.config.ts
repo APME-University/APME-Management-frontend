@@ -61,6 +61,32 @@ export const ROUTE_ROLE_CONFIGURATIONS: RouteRoleConfig[] = [
       '::Menu:Technicians'
     ],
     requiredRolePatterns: ['admin', 'Admin']
+  },
+  
+  // HOST Admin-only routes (tenant filtering handled by route metadata)
+  {
+    routeNamePatterns: [
+      '::Menu:HostDashboard',
+      '::Menu:Shops',
+      '::Menu:PromoCodes',
+      '::Menu:Addresses',
+      '::Menu:Payments'
+    ],
+    requiredRolePatterns: ['admin', 'Admin']
+  },
+  
+  // Tenant Admin-only routes (tenant filtering handled by route metadata)
+  {
+    routeNamePatterns: [
+      '::Menu:TenantDashboard',
+      '::Menu:TenantCatalog',
+      '::Menu:TenantCategories',
+      '::Menu:TenantProducts',
+      '::Menu:TenantOrders',
+      '::Menu:TenantCustomers',
+      '::Menu:TenantSettings'
+    ],
+    requiredRolePatterns: ['admin', 'Admin']
   }
 ];
 
