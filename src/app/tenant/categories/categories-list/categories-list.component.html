@@ -1,0 +1,247 @@
+<div class="categories-container">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
+  <!-- Header Card -->
+  <div class="header-card">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="page-title">
+          <i class="pi pi-tags mr-3"></i>
+          Categories Management
+        </h1>
+        <p class="page-subtitle">Organize your products with categories and subcategories</p>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <p-toolbar styleClass="toolbar-custom">
+      <ng-template pTemplate="left">
+        <div class="flex gap-2 flex-wrap">
+          <p-button 
+            label="New Category" 
+            icon="pi pi-plus" 
+            (onClick)="openNew()"
+            [rounded]="true"
+            class="p-button-success">
+          </p-button>
+          <p-button 
+            label="Bulk Activate" 
+            icon="pi pi-check-circle" 
+            [disabled]="selectedCategories.length === 0"
+            [rounded]="true"
+            [text]="true"
+            (onClick)="bulkActivate()">
+          </p-button>
+          <p-button 
+            label="Bulk Deactivate" 
+            icon="pi pi-times-circle" 
+            [disabled]="selectedCategories.length === 0"
+            [rounded]="true"
+            [text]="true"
+            (onClick)="bulkDeactivate()">
+          </p-button>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="right">
+        <div class="flex gap-2 items-center flex-wrap">
+          <p-dropdown 
+            [options]="statusFilterOptions" 
+            [(ngModel)]="isActiveFilter"
+            placeholder="Filter by Status"
+            [showClear]="true"
+            styleClass="w-48"
+            (onChange)="onStatusFilterChange()">
+          </p-dropdown>
+          <span class="p-input-icon-left search-input-wrapper">
+            <i class="pi pi-search"></i>
+            <input 
+              pInputText 
+              type="text" 
+              [value]="filterValue"
+              (input)="onGlobalFilter($event)"
+              placeholder="Search categories..." 
+              class="w-full" />
+          </span>
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <!-- Categories Table Card -->
+  <div class="table-card">
+    <p-table 
+      #dt 
+      [value]="categories" 
+      [rows]="maxResultCount" 
+      [totalRecords]="totalRecords"
+      [loading]="loading"
+      [paginator]="true" 
+      [showCurrentPageReport]="true"
+      [rowsPerPageOptions]="[10, 25, 50, 100]"
+      [sortMode]="'single'"
+      (onLazyLoad)="onPageChange($event)"
+      (onSort)="onSort($event)"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} categories"
+      responsiveLayout="scroll"
+      [(selection)]="selectedCategories"
+      [rowHover]="true"
+      styleClass="p-datatable-striped categories-table"
+      [globalFilterFields]="['name', 'slug', 'description']">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 3rem">
+            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+          </th>
+          <th pSortableColumn="name" style="min-width: 100px">
+            Image
+          </th>
+          <th pSortableColumn="name" style="min-width: 200px">
+            Name <p-sortIcon field="name"></p-sortIcon>
+          </th>
+          <th pSortableColumn="slug" style="min-width: 150px">
+            Slug <p-sortIcon field="slug"></p-sortIcon>
+          </th>
+          <th style="min-width: 150px">Parent Category</th>
+          <th pSortableColumn="displayOrder" style="min-width: 100px">
+            Order <p-sortIcon field="displayOrder"></p-sortIcon>
+          </th>
+          <th pSortableColumn="isActive" style="min-width: 120px">
+            Status <p-sortIcon field="isActive"></p-sortIcon>
+          </th>
+          <th style="min-width: 150px">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-category>
+        <tr>
+          <td>
+            <p-tableCheckbox [value]="category"></p-tableCheckbox>
+          </td>
+          <td>
+            <div class="category-image-wrapper">
+              <img 
+                [src]="getImageUrl(category.imageUrl)" 
+                [alt]="category.name"
+                class="category-thumbnail"
+                (error)="onImageError($event)" />
+              <div class="image-overlay-badge" *ngIf="!category.imageUrl">
+                <i class="pi pi-image text-xs"></i>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div class="flex flex-col">
+              <span class="font-semibold text-gray-900 dark:text-gray-100">{{ category.name }}</span>
+              <span class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2" *ngIf="category.description">
+                {{ category.description }}
+              </span>
+            </div>
+          </td>
+          <td>
+            <code class="slug-badge">{{ category.slug }}</code>
+          </td>
+          <td>
+            <span *ngIf="category.parentId" class="parent-badge">
+              <i class="pi pi-sitemap mr-1"></i>
+              {{ getParentName(category.parentId) }}
+            </span>
+            <span *ngIf="!category.parentId" class="text-gray-400 dark:text-gray-500">
+              <i class="pi pi-minus mr-1"></i>Root
+            </span>
+          </td>
+          <td>
+            <span class="order-badge">{{ category.displayOrder }}</span>
+          </td>
+          <td>
+            <p-tag 
+              [value]="category.isActive ? 'Active' : 'Inactive'" 
+              [severity]="category.isActive ? 'success' : 'danger'"
+              [rounded]="true">
+            </p-tag>
+          </td>
+          <td>
+            <div class="flex gap-1">
+              <p-button 
+                icon="pi pi-pencil" 
+                [rounded]="true"
+                [text]="true"
+                [severity]="'info'"
+                (onClick)="editCategory(category)"
+                pTooltip="Edit Category"
+                tooltipPosition="top"
+                [style]="{'width': '2rem', 'height': '2rem'}">
+              </p-button>
+              <p-button 
+                [icon]="category.isActive ? 'pi pi-eye-slash' : 'pi pi-eye'" 
+                [rounded]="true"
+                [text]="true"
+                [severity]="category.isActive ? 'warn' : 'success'"
+                (onClick)="toggleActive(category)"
+                [pTooltip]="category.isActive ? 'Deactivate' : 'Activate'"
+                tooltipPosition="top"
+                [style]="{'width': '2rem', 'height': '2rem'}">
+              </p-button>
+              <p-button 
+                icon="pi pi-trash" 
+                [rounded]="true"
+                [text]="true"
+                [severity]="'danger'"
+                (onClick)="confirmDeleteCategory(category)"
+                pTooltip="Delete Category"
+                tooltipPosition="top"
+                [style]="{'width': '2rem', 'height': '2rem'}">
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="8" class="text-center py-12">
+            <div class="empty-state">
+              <div class="empty-state-icon">
+                <i class="pi pi-inbox text-6xl text-gray-300 dark:text-gray-600"></i>
+              </div>
+              <h3 class="empty-state-title">No Categories Found</h3>
+              <p class="empty-state-message">Get started by creating your first category</p>
+              <p-button 
+                label="Create Category" 
+                icon="pi pi-plus" 
+                (onClick)="openNew()"
+                [rounded]="true"
+                class="mt-4">
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="loadingbody">
+        <tr>
+          <td colspan="8">
+            <div class="flex items-center justify-center py-8">
+              <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4"></p-progressSpinner>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Create/Update Dialog -->
+  <app-create-update-category
+    #createUpdateCategory
+    [visible]="categoryDialog"
+    [category]="category"
+    [isEditMode]="isEditMode"
+    (visibleChange)="hideDialog()"
+    (save)="onCategorySave($event)">
+  </app-create-update-category>
+
+  <!-- Delete Confirmation Dialog -->
+  <p-confirmDialog></p-confirmDialog>
+</div>
+

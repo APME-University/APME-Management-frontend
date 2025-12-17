@@ -52,23 +52,25 @@ function configureRoutes() {
         isTenant: true
       } as any,
       {
-        path: '/categories',
+        path: '/tenant/categories',
         name : "::Menu:Categories",
         // Using Material Icons - Round variant
         iconClass: 'material-icons-round|category',
         layout : eLayoutType.application,
         order : 2,
         parentName :'::Menu:Catalog',
-      },
+        isTenant: true
+      } as any,
       {
-        path: '/products',
+        path: '/tenant/products',
         name : "::Menu:Products",
         // Using PrimeIcons (traditional way)
         iconClass : PrimeIcons.OBJECTS_COLUMN,
         layout : eLayoutType.application,
         order : 3,
-        parentName :'::Menu:Catalog'
-      },
+        parentName :'::Menu:Catalog',
+        isTenant: true
+      } as any,
       
       {
         path: '/users',

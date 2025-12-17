@@ -1,0 +1,104 @@
+.categories-container {
+  @apply min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-6;
+}
+
+.header-card {
+  @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6;
+}
+
+.page-title {
+  @apply text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2 flex items-center;
+  
+  i {
+    @apply text-primary-600 dark:text-primary-400;
+  }
+}
+
+.page-subtitle {
+  @apply text-gray-600 dark:text-gray-400 text-sm;
+}
+
+.table-card {
+  @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden;
+}
+
+.category-image-wrapper {
+  @apply relative w-16 h-16 rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700;
+  
+  .category-thumbnail {
+    @apply w-full h-full object-cover;
+  }
+  
+  .image-overlay-badge {
+    @apply absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-700;
+    
+    i {
+      @apply text-gray-400 dark:text-gray-500;
+    }
+  }
+}
+
+.slug-badge {
+  @apply px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs font-mono;
+}
+
+.parent-badge {
+  @apply inline-flex items-center px-2 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded text-sm;
+}
+
+.order-badge {
+  @apply inline-flex items-center justify-center w-8 h-8 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-sm font-semibold;
+}
+
+.empty-state {
+  @apply flex flex-col items-center justify-center py-12;
+  
+  .empty-state-icon {
+    @apply mb-4;
+  }
+  
+  .empty-state-title {
+    @apply text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2;
+  }
+  
+  .empty-state-message {
+    @apply text-gray-500 dark:text-gray-400 mb-4;
+  }
+}
+
+::ng-deep {
+  .toolbar-custom {
+    @apply bg-transparent border-0 p-0;
+  }
+  
+  .search-input-wrapper {
+    @apply w-full sm:w-auto;
+    
+    input {
+      @apply w-full sm:w-64;
+    }
+  }
+  
+  .categories-table {
+    .p-datatable-thead > tr > th {
+      @apply bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-semibold border-b-2 border-gray-200 dark:border-gray-700;
+    }
+    
+    .p-datatable-tbody > tr {
+      @apply border-b border-gray-100 dark:border-gray-800 transition-colors;
+      
+      &:hover {
+        @apply bg-gray-50 dark:bg-gray-700/50;
+      }
+    }
+    
+    .p-datatable-tbody > tr > td {
+      @apply py-4;
+    }
+  }
+  
+  .p-tag {
+    @apply px-3 py-1;
+  }
+}
+

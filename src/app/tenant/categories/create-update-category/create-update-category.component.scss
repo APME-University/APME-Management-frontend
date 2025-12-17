@@ -1,0 +1,66 @@
+.category-dialog {
+  ::ng-deep {
+    .p-dialog-content {
+      @apply p-6;
+    }
+  }
+}
+
+.dialog-header {
+  @apply text-gray-900 dark:text-gray-100;
+}
+
+.category-form {
+  @apply space-y-4;
+}
+
+.form-field {
+  @apply mb-4;
+}
+
+.form-label {
+  @apply block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300;
+}
+
+.form-hint {
+  @apply block mt-1 text-xs text-gray-500 dark:text-gray-400;
+}
+
+.image-preview-wrapper {
+  @apply flex justify-center;
+}
+
+.image-preview-card {
+  @apply relative inline-block rounded-xl overflow-hidden border-2 border-gray-200 dark:border-gray-700 shadow-lg;
+  
+  .preview-image {
+    @apply w-48 h-48 object-cover;
+  }
+  
+  .image-actions {
+    @apply absolute top-2 right-2;
+  }
+}
+
+::ng-deep {
+  .p-fileupload-basic {
+    .p-button {
+      @apply w-full justify-center;
+    }
+  }
+}
+
+::ng-deep {
+  .p-inputswitch {
+    @apply scale-110;
+  }
+  
+  .p-dropdown {
+    @apply w-full;
+  }
+  
+  .p-inputnumber {
+    @apply w-full;
+  }
+}
+

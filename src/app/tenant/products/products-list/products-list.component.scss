@@ -1,0 +1,128 @@
+.products-container {
+  @apply min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-6;
+}
+
+.header-card {
+  @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6;
+}
+
+.page-title {
+  @apply text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2 flex items-center;
+  
+  i {
+    @apply text-primary-600 dark:text-primary-400;
+  }
+}
+
+.page-subtitle {
+  @apply text-gray-600 dark:text-gray-400 text-sm;
+}
+
+.table-card {
+  @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden;
+}
+
+.product-image-wrapper {
+  @apply relative w-16 h-16 rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700;
+  
+  .product-thumbnail {
+    @apply w-full h-full object-cover;
+  }
+  
+  .image-overlay-badge {
+    @apply absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-700;
+    
+    i {
+      @apply text-gray-400 dark:text-gray-500;
+    }
+  }
+  
+  .image-count-badge {
+    @apply absolute top-1 right-1 bg-black bg-opacity-60 text-white text-xs px-1.5 py-0.5 rounded flex items-center gap-1;
+  }
+}
+
+.sku-badge {
+  @apply px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs font-mono;
+}
+
+.stock-indicator {
+  @apply inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-sm font-medium;
+  
+  &.stock-out {
+    @apply bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300;
+  }
+  
+  &.stock-low {
+    @apply bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300;
+  }
+  
+  &.stock-ok {
+    @apply bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300;
+  }
+}
+
+.price-original {
+  @apply text-xs text-gray-400 dark:text-gray-500 line-through;
+}
+
+.price-sale {
+  @apply text-sm font-semibold text-red-600 dark:text-red-400;
+}
+
+.sale-badge {
+  @apply px-1.5 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded text-xs font-semibold;
+}
+
+.empty-state {
+  @apply flex flex-col items-center justify-center py-12;
+  
+  .empty-state-icon {
+    @apply mb-4;
+  }
+  
+  .empty-state-title {
+    @apply text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2;
+  }
+  
+  .empty-state-message {
+    @apply text-gray-500 dark:text-gray-400 mb-4;
+  }
+}
+
+::ng-deep {
+  .toolbar-custom {
+    @apply bg-transparent border-0 p-0;
+  }
+  
+  .search-input-wrapper {
+    @apply w-full sm:w-auto;
+    
+    input {
+      @apply w-full sm:w-64;
+    }
+  }
+  
+  .products-table {
+    .p-datatable-thead > tr > th {
+      @apply bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-semibold border-b-2 border-gray-200 dark:border-gray-700;
+    }
+    
+    .p-datatable-tbody > tr {
+      @apply border-b border-gray-100 dark:border-gray-800 transition-colors;
+      
+      &:hover {
+        @apply bg-gray-50 dark:bg-gray-700/50;
+      }
+    }
+    
+    .p-datatable-tbody > tr > td {
+      @apply py-4;
+    }
+  }
+  
+  .p-tag {
+    @apply px-3 py-1;
+  }
+}
+

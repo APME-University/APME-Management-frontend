@@ -1,0 +1,210 @@
+<p-dialog 
+  [(visible)]="visible" 
+  [modal]="true" 
+  [draggable]="false" 
+  [resizable]="false"
+  [closable]="true"
+  [style]="{width: '90vw', maxWidth: '700px'}"
+  styleClass="category-dialog"
+  (onHide)="hideDialog()">
+  
+  <ng-template pTemplate="header">
+    <div class="flex items-center gap-3 dialog-header">
+      <i class="pi pi-tags text-2xl text-primary"></i>
+      <h5 class="m-0">{{ isEditMode ? 'Edit Category' : 'Create New Category' }}</h5>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="content">
+    <form [formGroup]="categoryForm" (ngSubmit)="onSave()" class="category-form">
+      <!-- Name Field -->
+      <div class="form-field">
+        <label for="name" class="form-label">
+          Name <span class="text-red-500">*</span>
+        </label>
+        <input 
+          id="name"
+          pInputText 
+          formControlName="name"
+          [class.ng-invalid]="isFieldInvalid('name')"
+          placeholder="Enter category name"
+          class="w-full"
+          [maxlength]="256" />
+        <small class="p-error" *ngIf="isFieldInvalid('name')">
+          {{ getFieldError('name') }}
+        </small>
+      </div>
+
+      <!-- Slug Field -->
+      <div class="form-field">
+        <div class="flex items-center justify-between mb-2">
+          <label for="slug" class="form-label">
+            Slug <span class="text-red-500">*</span>
+          </label>
+          <div class="flex items-center gap-2">
+            <p-inputSwitch 
+              [(ngModel)]="autoGenerateSlug" 
+              [ngModelOptions]="{standalone: true}"
+              (onChange)="toggleSlugAutoGeneration()">
+            </p-inputSwitch>
+            <small class="text-sm text-secondary">Auto-generate</small>
+          </div>
+        </div>
+        <input 
+          id="slug"
+          pInputText 
+          formControlName="slug"
+          [class.ng-invalid]="isFieldInvalid('slug')"
+          [readonly]="autoGenerateSlug"
+          placeholder="category-slug"
+          class="w-full"
+          [maxlength]="256" />
+        <small class="p-error" *ngIf="isFieldInvalid('slug')">
+          {{ getFieldError('slug') }}
+        </small>
+        <small class="form-hint" *ngIf="!isFieldInvalid('slug')">
+          URL-friendly identifier for the category
+        </small>
+      </div>
+
+      <!-- Description Field -->
+      <div class="form-field">
+        <label for="description" class="form-label">Description</label>
+        <textarea 
+          id="description"
+          pInputTextarea 
+          formControlName="description"
+          [class.ng-invalid]="isFieldInvalid('description')"
+          placeholder="Enter category description"
+          [rows]="4"
+          [maxlength]="descriptionMaxLength"
+          class="w-full">
+        </textarea>
+        <div class="flex justify-between items-center mt-1">
+          <small class="p-error" *ngIf="isFieldInvalid('description')">
+            {{ getFieldError('description') }}
+          </small>
+          <small class="text-sm text-secondary ml-auto">
+            {{ descriptionLength }} / {{ descriptionMaxLength }} characters
+          </small>
+        </div>
+      </div>
+
+      <!-- Parent Category Field -->
+      <div class="form-field">
+        <label for="parentId" class="form-label">Parent Category</label>
+        <p-dropdown 
+          id="parentId"
+          formControlName="parentId"
+          [options]="parentCategories"
+          optionLabel="name"
+          optionValue="id"
+          [showClear]="true"
+          placeholder="Select parent category (optional)"
+          [filter]="true"
+          filterBy="name"
+          class="w-full">
+        </p-dropdown>
+        <small class="form-hint">
+          Optional. Select a parent category to create a hierarchical structure.
+        </small>
+      </div>
+
+      <!-- Display Order Field -->
+      <div class="form-field">
+        <label for="displayOrder" class="form-label">Display Order</label>
+        <p-inputNumber 
+          id="displayOrder"
+          formControlName="displayOrder"
+          [class.ng-invalid]="isFieldInvalid('displayOrder')"
+          [min]="0"
+          [showButtons]="true"
+          class="w-full">
+        </p-inputNumber>
+        <small class="p-error" *ngIf="isFieldInvalid('displayOrder')">
+          {{ getFieldError('displayOrder') }}
+        </small>
+        <small class="form-hint" *ngIf="!isFieldInvalid('displayOrder')">
+          Lower numbers appear first in the category list
+        </small>
+      </div>
+
+      <!-- Image Upload Field -->
+      <div class="form-field">
+        <label for="image" class="form-label">Category Image</label>
+        <p-fileUpload 
+          mode="basic"
+          name="image"
+          accept="image/*"
+          [maxFileSize]="5242880"
+          [auto]="false"
+          chooseLabel="Choose Image"
+          chooseIcon="pi pi-upload"
+          [showUploadButton]="false"
+          [showCancelButton]="false"
+          (onSelect)="onFileSelect($event)"
+          styleClass="w-full">
+        </p-fileUpload>
+        
+        <!-- Image Preview -->
+        <div class="image-preview-wrapper mt-4" *ngIf="imagePreview">
+          <div class="image-preview-card">
+            <img [src]="imagePreview" alt="Category image preview" class="preview-image" />
+            <div class="image-actions">
+              <p-button 
+                icon="pi pi-times" 
+                [rounded]="true"
+                [text]="true"
+                [severity]="'danger'"
+                (onClick)="removeImage()"
+                pTooltip="Remove image"
+                tooltipPosition="top"
+                [style]="{'width': '2.5rem', 'height': '2.5rem'}">
+              </p-button>
+            </div>
+          </div>
+        </div>
+
+        <small class="form-hint mt-2 block">
+          <i class="pi pi-info-circle mr-1"></i>
+          Supported formats: JPG, PNG, WebP, GIF. Maximum file size: 5MB
+        </small>
+      </div>
+
+      <!-- Is Active Toggle -->
+      <div class="form-field">
+        <div class="flex items-center justify-between">
+          <div>
+            <label for="isActive" class="form-label">Status</label>
+            <p class="form-hint m-0">Enable or disable the category</p>
+          </div>
+          <p-inputSwitch 
+            id="isActive"
+            formControlName="isActive"
+            [style]="{transform: 'scale(1.2)'}">
+          </p-inputSwitch>
+        </div>
+      </div>
+    </form>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-2">
+      <p-button 
+        label="Cancel" 
+        icon="pi pi-times" 
+        [text]="true"
+        (onClick)="hideDialog()"
+        [disabled]="loading || uploadingImage">
+      </p-button>
+      <p-button 
+        label="{{ isEditMode ? 'Update' : 'Create' }}" 
+        icon="pi pi-check" 
+        (onClick)="onSave()"
+        [loading]="loading || uploadingImage"
+        [disabled]="categoryForm.invalid">
+      </p-button>
+    </div>
+  </ng-template>
+</p-dialog>
+
