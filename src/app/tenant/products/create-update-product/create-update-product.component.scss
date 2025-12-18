@@ -417,6 +417,109 @@
   @apply space-y-4;
 }
 
+// Attributes Table Styles
+::ng-deep {
+  .attributes-table {
+    @apply w-full;
+    
+    .p-datatable-wrapper {
+      @apply border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden;
+    }
+    
+    .p-datatable-thead > tr > th {
+      @apply bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 text-left font-semibold text-sm text-gray-700 dark:text-gray-300;
+    }
+    
+    .p-datatable-tbody > tr {
+      @apply border-b border-gray-100 dark:border-gray-700 transition-colors duration-150;
+      
+      &:hover {
+        @apply bg-gray-50 dark:bg-gray-800/50;
+      }
+      
+      &.attribute-row-selected {
+        @apply bg-blue-50 dark:bg-blue-900/20;
+        
+        &:hover {
+          @apply bg-blue-100 dark:bg-blue-900/30;
+        }
+      }
+      
+      &.attribute-row-error {
+        @apply bg-red-50/30 dark:bg-red-900/10;
+      }
+      
+      &.attribute-row-required {
+        @apply border-l-4 border-l-primary-500 dark:border-l-primary-400;
+      }
+      
+      > td {
+        @apply px-4 py-3 text-sm;
+      }
+    }
+  }
+}
+
+.attribute-name-cell {
+  @apply flex items-center gap-2 flex-wrap;
+  
+  .attribute-name-text {
+    @apply font-medium text-gray-900 dark:text-gray-100;
+  }
+  
+  .attribute-name-required {
+    @apply text-red-500 dark:text-red-400 font-bold;
+  }
+  
+  .attribute-type-tag {
+    @apply ml-2;
+    
+    ::ng-deep .p-tag {
+      @apply text-xs px-2 py-0.5 flex items-center gap-1;
+      
+      .tag-icon {
+        @apply text-xs;
+      }
+    }
+  }
+}
+
+.attribute-value-cell {
+  @apply w-full;
+  
+  .attribute-input-wrapper {
+    @apply w-full;
+  }
+  
+  .attribute-value-input {
+    @apply w-full transition-all duration-200;
+    
+    &:disabled {
+      @apply bg-gray-50 dark:bg-gray-800 cursor-not-allowed opacity-60;
+    }
+    
+    &.ng-invalid.ng-touched {
+      @apply border-red-500 dark:border-red-400;
+    }
+  }
+  
+  .attribute-value-switch {
+    @apply scale-110;
+    
+    &:disabled {
+      @apply opacity-60;
+    }
+  }
+  
+  .attribute-error-message {
+    @apply flex items-center gap-1 mt-1 text-xs text-red-600 dark:text-red-400 font-medium;
+    
+    i {
+      @apply text-xs;
+    }
+  }
+}
+
 // Enhanced Attributes Grid Layout
 .attributes-grid {
   @apply grid grid-cols-1 lg:grid-cols-2 gap-4;

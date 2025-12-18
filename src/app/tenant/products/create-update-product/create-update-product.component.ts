@@ -86,6 +86,8 @@ export class CreateUpdateProductComponent implements OnInit {
   // Dynamic attributes
   productAttributes: ProductAttributeDto[] = [];
   attributeFormGroup: FormGroup = this.fb.group({});
+  selectedAttributes: { [key: string]: boolean } = {}; // Track which attributes are selected
+  selectAll: boolean = false; // Select all checkbox state
   attributesLoading: boolean = false;
   
   // Expose enum to template
@@ -154,10 +156,12 @@ export class CreateUpdateProductComponent implements OnInit {
     const attributeControls: { [key: string]: FormControl } = {};
     
     this.productAttributes.forEach(attr => {
+      // Initialize selected state based on existing values or required status
+      const existingValue = this.parseAttributesJson(this.product?.attributes)[attr.name];
+      this.selectedAttributes[attr.name] = !!existingValue || attr.isRequired;
+      
+      // Conditional validators - only validate if attribute is selected
       const validators = [];
-      if (attr.isRequired) {
-        validators.push(Validators.required);
-      }
       
       // Add data type specific validators
       switch (attr.dataType) {
@@ -165,23 +169,87 @@ export class CreateUpdateProductComponent implements OnInit {
           validators.push(Validators.pattern(/^-?\d*\.?\d+$/));
           break;
         case ProductAttributeDataType.Text:
-          // Text validation: prevent only whitespace for required fields
-          if (attr.isRequired) {
-            validators.push(Validators.pattern(/\S/));
-          }
+          // Text validation: prevent only whitespace
+          validators.push(Validators.pattern(/\S/));
           break;
         case ProductAttributeDataType.Date:
           // Date validation handled by PrimeNG Calendar
           break;
       }
       
-      attributeControls[attr.name] = new FormControl('', validators);
+      attributeControls[attr.name] = new FormControl(existingValue || '', validators);
+      
+      // Disable control if not selected
+      if (!this.selectedAttributes[attr.name]) {
+        attributeControls[attr.name].disable();
+      }
     });
     
     this.attributeFormGroup = this.fb.group(attributeControls);
     
     // Add the attributeFormGroup to the main form
     this.productForm.setControl('attributeValues', this.attributeFormGroup);
+    
+    // Initialize select all state
+    this.initializeSelectAllState();
+  }
+  
+  /**
+   * Toggle attribute selection
+   */
+  toggleAttributeSelection(attrName: string, event: any) {
+    const isSelected = event.checked;
+    this.selectedAttributes[attrName] = isSelected;
+    
+    // Update select all state
+    this.updateSelectAllState();
+    
+    const control = this.attributeFormGroup.get(attrName);
+    if (control) {
+      if (isSelected) {
+        control.enable();
+        // Auto-focus the value input after a short delay
+        setTimeout(() => {
+          const inputElement = document.getElementById(`attr_value_${attrName}`);
+          if (inputElement) {
+            inputElement.focus();
+          }
+        }, 100);
+      } else {
+        control.setValue('');
+        control.disable();
+        control.markAsUntouched();
+      }
+    }
+  }
+  
+  /**
+   * Update select all checkbox state
+   */
+  updateSelectAllState() {
+    const selectableAttributes = this.productAttributes.filter(attr => !attr.isRequired);
+    if (selectableAttributes.length === 0) {
+      this.selectAll = false;
+      return;
+    }
+    this.selectAll = selectableAttributes.every(attr => this.selectedAttributes[attr.name]);
+  }
+  
+  /**
+   * Check if attribute is selected
+   */
+  isAttributeSelected(attrName: string): boolean {
+    return !!this.selectedAttributes[attrName];
+  }
+  
+  /**
+   * Check if selected attribute has validation error
+   */
+  isSelectedAttributeInvalid(attrName: string): boolean {
+    if (!this.selectedAttributes[attrName]) {
+      return false;
+    }
+    return this.isAttributeFieldInvalid(attrName);
   }
   
   /**
@@ -249,18 +317,16 @@ export class CreateUpdateProductComponent implements OnInit {
    */
   serializeAttributesToJson(): string | null {
     const attributeValues = this.attributeFormGroup.value;
-    const hasValues = Object.values(attributeValues).some(val => 
-      val !== null && val !== undefined && val !== ''
-    );
     
-    if (!hasValues) {
-      return null;
-    }
-    
-    // Build typed attribute object
+    // Build typed attribute object - only include selected attributes
     const typedAttributes: { [key: string]: any } = {};
     
     this.productAttributes.forEach(attr => {
+      // Only include if attribute is selected
+      if (!this.selectedAttributes[attr.name]) {
+        return;
+      }
+      
       const value = attributeValues[attr.name];
       
       // Skip empty values
@@ -452,10 +518,58 @@ export class CreateUpdateProductComponent implements OnInit {
     if (!this.attributeFormGroup) {
       return false;
     }
-    return Object.keys(this.attributeFormGroup.controls).some(key => {
+    // Only check errors for selected attributes
+    return Object.keys(this.selectedAttributes).some(key => {
+      if (!this.selectedAttributes[key]) {
+        return false; // Skip unselected attributes
+      }
       const control = this.attributeFormGroup.get(key);
       return control ? control.invalid && (control.dirty || control.touched || this.submitted) : false;
     });
+  }
+  
+  /**
+   * Get attribute value input ID for auto-focus
+   */
+  getAttributeValueInputId(attrName: string): string {
+    return `attr_value_${attrName}`;
+  }
+  
+  /**
+   * Toggle select all attributes
+   */
+  toggleSelectAll(event: any) {
+    const isSelected = event.checked;
+    this.selectAll = isSelected;
+    
+    this.productAttributes.forEach(attr => {
+      // Don't toggle required attributes
+      if (!attr.isRequired) {
+        this.selectedAttributes[attr.name] = isSelected;
+        const control = this.attributeFormGroup.get(attr.name);
+        if (control) {
+          if (isSelected) {
+            control.enable();
+          } else {
+            control.setValue('');
+            control.disable();
+            control.markAsUntouched();
+          }
+        }
+      }
+    });
+  }
+  
+  /**
+   * Initialize select all state
+   */
+  initializeSelectAllState() {
+    const selectableAttributes = this.productAttributes.filter(attr => !attr.isRequired);
+    if (selectableAttributes.length === 0) {
+      this.selectAll = false;
+      return;
+    }
+    this.selectAll = selectableAttributes.every(attr => this.selectedAttributes[attr.name]);
   }
   
   /**
@@ -657,10 +771,12 @@ export class CreateUpdateProductComponent implements OnInit {
       attributes: null,
     });
     
-    // Reset attribute form group
+    // Reset attribute form group and selection
     if (this.attributeFormGroup) {
       this.attributeFormGroup.reset();
     }
+    this.selectedAttributes = {};
+    this.selectAll = false;
     
     // Initialize images (following Court pattern)
     this.initializeImages();

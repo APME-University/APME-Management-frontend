@@ -9,6 +9,7 @@ import { CreateUpdateProductComponent } from './create-update-product/create-upd
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { CheckboxModule } from 'primeng/checkbox';
 import { Textarea } from 'primeng/inputtextarea';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { DropdownModule } from 'primeng/dropdown';
@@ -40,6 +41,7 @@ import { ProductAttributesDisplayComponent } from '../../shared/components/produ
     TableModule,
     ButtonModule,
     InputTextModule,
+    CheckboxModule,
     Textarea,
     InputSwitchModule,
     DropdownModule,

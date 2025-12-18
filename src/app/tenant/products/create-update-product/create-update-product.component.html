@@ -411,135 +411,137 @@
         
         <!-- Attributes Form -->
         <div class="attributes-form" [formGroup]="attributeFormGroup" *ngIf="!attributesLoading && productAttributes.length > 0">
-          <div class="attributes-grid">
-            <div 
-              class="attribute-card"
-              [class.attribute-card-error]="isAttributeFieldInvalid(attr.name)"
-              [class.attribute-card-required]="attr.isRequired"
-              *ngFor="let attr of productAttributes; trackBy: trackByAttributeName; let i = index">
-              
-              <!-- Card Header -->
-              <div class="attribute-card-header">
-                <div class="attribute-header-content">
-                  <div class="attribute-label-group">
-                    <label [for]="'attr_' + attr.name" class="attribute-label">
-                      <span class="attribute-label-text">{{ attr.displayName }}</span>
-                      <span class="attribute-label-required" *ngIf="attr.isRequired" aria-label="Required">*</span>
-                      <p-tag 
-                        *ngIf="!attr.isRequired"
-                        value="Optional"
-                        severity="secondary"
-                        [rounded]="true"
-                        styleClass="attribute-optional-tag">
-                      </p-tag>
-                    </label>
-                    <span class="attribute-type-badge">
-                      <i [class]="getAttributeTypeIcon(attr.dataType)"></i>
-                      <span>{{ getDataTypeLabel(attr.dataType) }}</span>
-                    </span>
+          <p-table 
+            [value]="productAttributes" 
+            [responsive]="true"
+            styleClass="attributes-table"
+            [tableStyle]="{'min-width': '50rem'}"
+            [rowHover]="true">
+            
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="width: 60px;" class="text-center">
+                  <p-checkbox 
+                    [ngModel]="selectAll"
+                    [ngModelOptions]="{standalone: true}"
+                    (onChange)="toggleSelectAll($event)"
+                    [binary]="true">
+                  </p-checkbox>
+                </th>
+                <th>Attribute Name</th>
+                <th>Value</th>
+              </tr>
+            </ng-template>
+            
+            <ng-template pTemplate="body" let-attr>
+              <tr 
+                [class.attribute-row-selected]="isAttributeSelected(attr.name)"
+                [class.attribute-row-error]="isSelectedAttributeInvalid(attr.name)"
+                [class.attribute-row-required]="attr.isRequired">
+                <td class="text-center">
+                  <p-checkbox 
+                    [ngModel]="selectedAttributes[attr.name]"
+                    [ngModelOptions]="{standalone: true}"
+                    (onChange)="toggleAttributeSelection(attr.name, $event)"
+                    [binary]="true"
+                    [disabled]="attr.isRequired">
+                  </p-checkbox>
+                </td>
+                <td>
+                  <div class="attribute-name-cell">
+                    <span class="attribute-name-text">{{ attr.displayName }}</span>
+                    <span class="attribute-name-required" *ngIf="attr.isRequired" aria-label="Required">*</span>
+                    <p-tag 
+                      [value]="getDataTypeLabel(attr.dataType)"
+                      [severity]="'secondary'"
+                      [rounded]="true"
+                      styleClass="attribute-type-tag">
+                      <i [class]="getAttributeTypeIcon(attr.dataType)" class="tag-icon"></i>
+                    </p-tag>
                   </div>
-                </div>
-              </div>
-              
-              <!-- Card Body -->
-              <div class="attribute-card-body">
-                <!-- Text Input -->
-                <div *ngIf="attr.dataType === ProductAttributeDataType.Text" class="attribute-input-wrapper">
-                  <span class="p-input-icon-left input-wrapper-full">
-                    <i class="pi pi-pencil input-icon"></i>
-                    <input 
-                      [id]="'attr_' + attr.name"
-                      pInputText 
-                      [formControlName]="attr.name"
-                      [class.ng-invalid]="isAttributeFieldInvalid(attr.name)"
-                      [class.ng-valid]="!isAttributeFieldInvalid(attr.name) && attributeFormGroup.get(attr.name)?.value"
-                      [placeholder]="'Enter ' + attr.displayName.toLowerCase()"
-                      [attr.aria-required]="attr.isRequired"
-                      [attr.aria-invalid]="isAttributeFieldInvalid(attr.name)"
-                      [attr.aria-describedby]="'attr_' + attr.name + '_error'"
-                      class="form-input attribute-input"
-                      autocomplete="off" />
-                  </span>
-                </div>
-                
-                <!-- Number Input -->
-                <div *ngIf="attr.dataType === ProductAttributeDataType.Number" class="attribute-input-wrapper">
-                  <span class="input-number-wrapper-full">
-                    <p-inputNumber 
-                      [id]="'attr_' + attr.name"
-                      [formControlName]="attr.name"
-                      [class.ng-invalid]="isAttributeFieldInvalid(attr.name)"
-                      [class.ng-valid]="!isAttributeFieldInvalid(attr.name) && attributeFormGroup.get(attr.name)?.value"
-                      [min]="0"
-                      [showButtons]="true"
-                      [placeholder]="'Enter ' + attr.displayName.toLowerCase()"
-                      [attr.aria-required]="attr.isRequired"
-                      [attr.aria-invalid]="isAttributeFieldInvalid(attr.name)"
-                      [attr.aria-describedby]="'attr_' + attr.name + '_error'"
-                      class="form-input-number attribute-input">
-                    </p-inputNumber>
-                  </span>
-                </div>
-                
-                <!-- Boolean (Switch) Input -->
-                <div *ngIf="attr.dataType === ProductAttributeDataType.Boolean" class="attribute-input-wrapper attribute-switch-wrapper">
-                  <div class="switch-container-full">
-                    <p-inputSwitch 
-                      [id]="'attr_' + attr.name"
-                      [formControlName]="attr.name"
-                      [attr.aria-required]="attr.isRequired"
-                      [attr.aria-invalid]="isAttributeFieldInvalid(attr.name)"
-                      [attr.aria-describedby]="'attr_' + attr.name + '_error'"
-                      class="attribute-switch">
-                    </p-inputSwitch>
-                    <span class="switch-label">
-                      <span class="switch-label-off" *ngIf="!attributeFormGroup.get(attr.name)?.value">No</span>
-                      <span class="switch-label-on" *ngIf="attributeFormGroup.get(attr.name)?.value">Yes</span>
-                    </span>
+                </td>
+                <td>
+                  <div class="attribute-value-cell">
+                    <!-- Text Input -->
+                    <div *ngIf="attr.dataType === ProductAttributeDataType.Text" class="attribute-input-wrapper">
+                      <input 
+                        [id]="getAttributeValueInputId(attr.name)"
+                        pInputText 
+                        [formControlName]="attr.name"
+                        [disabled]="!isAttributeSelected(attr.name)"
+                        [class.ng-invalid]="isSelectedAttributeInvalid(attr.name)"
+                        [placeholder]="'Enter ' + attr.displayName.toLowerCase()"
+                        [attr.aria-required]="attr.isRequired"
+                        [attr.aria-invalid]="isSelectedAttributeInvalid(attr.name)"
+                        class="attribute-value-input"
+                        autocomplete="off" />
+                    </div>
+                    
+                    <!-- Number Input -->
+                    <div *ngIf="attr.dataType === ProductAttributeDataType.Number" class="attribute-input-wrapper">
+                      <p-inputNumber 
+                        [id]="getAttributeValueInputId(attr.name)"
+                        [formControlName]="attr.name"
+                        [disabled]="!isAttributeSelected(attr.name)"
+                        [class.ng-invalid]="isSelectedAttributeInvalid(attr.name)"
+                        [min]="0"
+                        [showButtons]="true"
+                        [placeholder]="'Enter ' + attr.displayName.toLowerCase()"
+                        [attr.aria-required]="attr.isRequired"
+                        [attr.aria-invalid]="isSelectedAttributeInvalid(attr.name)"
+                        class="attribute-value-input">
+                      </p-inputNumber>
+                    </div>
+                    
+                    <!-- Boolean (Switch) Input -->
+                    <div *ngIf="attr.dataType === ProductAttributeDataType.Boolean" class="attribute-input-wrapper">
+                      <p-inputSwitch 
+                        [id]="getAttributeValueInputId(attr.name)"
+                        [formControlName]="attr.name"
+                        [disabled]="!isAttributeSelected(attr.name)"
+                        [attr.aria-required]="attr.isRequired"
+                        class="attribute-value-switch">
+                      </p-inputSwitch>
+                    </div>
+                    
+                    <!-- Date Input -->
+                    <div *ngIf="attr.dataType === ProductAttributeDataType.Date" class="attribute-input-wrapper">
+                      <p-calendar 
+                        [id]="getAttributeValueInputId(attr.name)"
+                        [formControlName]="attr.name"
+                        [disabled]="!isAttributeSelected(attr.name)"
+                        [class.ng-invalid]="isSelectedAttributeInvalid(attr.name)"
+                        dateFormat="yy-mm-dd"
+                        [showIcon]="true"
+                        [placeholder]="'Select ' + attr.displayName.toLowerCase()"
+                        [attr.aria-required]="attr.isRequired"
+                        [attr.aria-invalid]="isSelectedAttributeInvalid(attr.name)"
+                        styleClass="attribute-value-input">
+                      </p-calendar>
+                    </div>
+                    
+                    <!-- Validation Error -->
+                    <small 
+                      class="attribute-error-message" 
+                      *ngIf="isSelectedAttributeInvalid(attr.name)"
+                      role="alert"
+                      aria-live="polite">
+                      <i class="pi pi-exclamation-circle"></i>
+                      {{ getAttributeFieldError(attr.name) }}
+                    </small>
                   </div>
-                </div>
-                
-                <!-- Date Input -->
-                <div *ngIf="attr.dataType === ProductAttributeDataType.Date" class="attribute-input-wrapper">
-                  <span class="input-wrapper-full">
-                    <p-calendar 
-                      [id]="'attr_' + attr.name"
-                      [formControlName]="attr.name"
-                      [class.ng-invalid]="isAttributeFieldInvalid(attr.name)"
-                      [class.ng-valid]="!isAttributeFieldInvalid(attr.name) && attributeFormGroup.get(attr.name)?.value"
-                      dateFormat="yy-mm-dd"
-                      [showIcon]="true"
-                      [placeholder]="'Select ' + attr.displayName.toLowerCase()"
-                      [attr.aria-required]="attr.isRequired"
-                      [attr.aria-invalid]="isAttributeFieldInvalid(attr.name)"
-                      [attr.aria-describedby]="'attr_' + attr.name + '_error'"
-                      styleClass="form-calendar attribute-input">
-                    </p-calendar>
-                  </span>
-                </div>
-              </div>
-              
-              <!-- Card Footer (Error/Hint) -->
-              <div class="attribute-card-footer">
-                <small 
-                  class="form-error" 
-                  *ngIf="isAttributeFieldInvalid(attr.name)"
-                  [id]="'attr_' + attr.name + '_error'"
-                  role="alert"
-                  aria-live="polite">
-                  <i class="pi pi-exclamation-circle"></i>
-                  {{ getAttributeFieldError(attr.name) }}
-                </small>
-                <small 
-                  class="form-hint" 
-                  *ngIf="!isAttributeFieldInvalid(attr.name) && getAttributeFieldHint(attr.name)"
-                  [id]="'attr_' + attr.name + '_hint'">
-                  <i class="pi pi-info-circle"></i>
-                  {{ getAttributeFieldHint(attr.name) }}
-                </small>
-              </div>
-            </div>
-          </div>
+                </td>
+              </tr>
+            </ng-template>
+            
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="3" class="text-center p-4">
+                  <p class="text-gray-500 dark:text-gray-400">No attributes available</p>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
           
           <!-- Form Summary -->
           <div class="attributes-summary" *ngIf="productAttributes.length > 0">
@@ -548,7 +550,7 @@
               <div class="summary-text">
                 <p class="summary-title">Product Attributes</p>
                 <p class="summary-description">
-                  These attributes are defined for your shop. Required fields are marked with <span class="required-indicator">*</span>.
+                  Select attributes to include in this product. Required attributes are pre-selected and cannot be deselected.
                 </p>
               </div>
             </div>
