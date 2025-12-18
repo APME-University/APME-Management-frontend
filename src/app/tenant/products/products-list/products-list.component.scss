@@ -1,128 +1,368 @@
+// Container
 .products-container {
-  @apply min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-6;
+  @apply min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 md:p-6 lg:p-8;
 }
 
-.header-card {
-  @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6;
+// Header Section
+.header-section {
+  @apply mb-6 space-y-4;
+}
+
+.header-content {
+  @apply flex items-start justify-between flex-wrap gap-4;
+}
+
+.header-text {
+  @apply flex-1 min-w-0;
 }
 
 .page-title {
-  @apply text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2 flex items-center;
+  @apply flex items-center gap-3 mb-3 text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100;
   
-  i {
-    @apply text-primary-600 dark:text-primary-400;
+  .title-icon-wrapper {
+    @apply flex items-center justify-center w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 shadow-sm;
+  }
+  
+  .title-text {
+    @apply tracking-tight;
   }
 }
 
 .page-subtitle {
-  @apply text-gray-600 dark:text-gray-400 text-sm;
+  @apply text-base md:text-lg text-gray-600 dark:text-gray-400 leading-relaxed;
 }
 
-.table-card {
+// Toolbar Section
+.toolbar-section {
+  @apply flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 p-5 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700;
+}
+
+.toolbar-left {
+  @apply flex items-center gap-3 flex-wrap;
+}
+
+.toolbar-right {
+  @apply flex items-center gap-3 flex-wrap;
+}
+
+.filter-group {
+  @apply flex items-center gap-3 flex-wrap flex-1 lg:flex-initial;
+}
+
+.selection-badge {
+  @apply px-3 py-1.5 rounded-lg bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800;
+  
+  .badge-text {
+    @apply text-sm font-medium text-primary-700 dark:text-primary-300;
+  }
+}
+
+.search-wrapper {
+  @apply relative flex-1 lg:flex-initial;
+  
+  .search-icon {
+    @apply absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 z-10;
+  }
+  
+  .search-input {
+    @apply w-full lg:w-64 pl-10 pr-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-transparent transition-all;
+  }
+}
+
+// Table Section
+.table-section {
   @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden;
 }
 
-.product-image-wrapper {
-  @apply relative w-16 h-16 rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700;
+// Table Styles
+::ng-deep {
+  .products-datatable {
+    .p-datatable-wrapper {
+      @apply overflow-x-auto;
+    }
+    
+    .p-datatable-thead > tr > th {
+      @apply bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 font-semibold text-sm uppercase tracking-wider border-b-2 border-gray-200 dark:border-gray-700 px-4 py-4;
+      
+      .header-label {
+        @apply flex items-center gap-2;
+        
+        .header-icon {
+          @apply text-gray-500 dark:text-gray-400 text-sm;
+        }
+      }
+      
+      &:first-child {
+        @apply pl-6;
+      }
+      
+      &:last-child {
+        @apply pr-6;
+      }
+    }
+    
+    .p-datatable-tbody > tr {
+      @apply border-b border-gray-100 dark:border-gray-800 transition-all duration-200;
+      
+      &:hover {
+        @apply bg-gray-50 dark:bg-gray-700/30;
+      }
+      
+      &.p-highlight {
+        @apply bg-primary-50 dark:bg-primary-900/20;
+      }
+    }
+    
+    .p-datatable-tbody > tr > td {
+      @apply px-4 py-5 text-gray-900 dark:text-gray-100;
+      
+      &:first-child {
+        @apply pl-6;
+      }
+      
+      &:last-child {
+        @apply pr-6;
+      }
+    }
+    
+    .p-paginator {
+      @apply bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700 px-6 py-4;
+    }
+    
+    .p-paginator-bottom {
+      @apply border-t-0;
+    }
+  }
+}
+
+// Table Cells
+.checkbox-column,
+.checkbox-cell {
+  @apply w-12;
+}
+
+.image-column,
+.image-cell {
+  @apply w-24;
+}
+
+.name-column,
+.name-cell {
+  @apply min-w-[250px] max-w-[350px];
+}
+
+.sku-column,
+.sku-cell {
+  @apply min-w-[120px];
+}
+
+.price-column,
+.price-cell {
+  @apply min-w-[120px];
+}
+
+.stock-column,
+.stock-cell {
+  @apply w-32;
+}
+
+.status-column,
+.status-cell {
+  @apply w-32;
+}
+
+.published-column,
+.published-cell {
+  @apply w-32;
+}
+
+.actions-column,
+.actions-cell {
+  @apply w-40;
+}
+
+// Product Image
+.product-image-container {
+  @apply relative w-16 h-16 rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700 shadow-sm transition-all hover:shadow-md;
   
-  .product-thumbnail {
+  .product-image {
     @apply w-full h-full object-cover;
   }
   
-  .image-overlay-badge {
-    @apply absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-700;
+  .image-placeholder {
+    @apply absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800;
     
     i {
-      @apply text-gray-400 dark:text-gray-500;
+      @apply text-2xl text-gray-400 dark:text-gray-500;
     }
   }
   
   .image-count-badge {
-    @apply absolute top-1 right-1 bg-black bg-opacity-60 text-white text-xs px-1.5 py-0.5 rounded flex items-center gap-1;
+    @apply absolute bottom-0 right-0 px-1.5 py-0.5 bg-black/60 text-white text-xs font-medium rounded-tl-lg flex items-center gap-1;
+    
+    i {
+      @apply text-xs;
+    }
   }
 }
 
-.sku-badge {
-  @apply px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs font-mono;
+// Name Content
+.name-content {
+  @apply flex flex-col gap-1;
+  
+  .name-text {
+    @apply font-semibold text-gray-900 dark:text-gray-100 text-sm leading-tight;
+  }
+  
+  .description-text {
+    @apply text-xs text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed;
+  }
+  
+  .price-row {
+    @apply flex items-center gap-2 mt-1;
+    
+    .price-original {
+      @apply text-xs text-gray-400 dark:text-gray-500 line-through;
+    }
+    
+    .price-sale {
+      @apply text-sm font-semibold text-red-600 dark:text-red-400;
+    }
+    
+    .sale-badge {
+      @apply px-1.5 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded text-xs font-medium;
+    }
+  }
 }
 
-.stock-indicator {
-  @apply inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-sm font-medium;
+// SKU Code
+.sku-code {
+  @apply px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md text-xs font-mono border border-gray-200 dark:border-gray-600;
+}
+
+// Price Content
+.price-content {
+  @apply flex flex-col gap-0.5;
   
-  &.stock-out {
-    @apply bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300;
+  .price-main {
+    @apply font-semibold text-gray-900 dark:text-gray-100 text-sm;
+  }
+  
+  .price-compare {
+    @apply text-xs text-gray-400 dark:text-gray-500;
+  }
+}
+
+// Stock Indicator
+.stock-indicator {
+  @apply inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium border;
+  
+  i {
+    @apply text-xs;
+  }
+  
+  &.stock-high {
+    @apply bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800;
+  }
+  
+  &.stock-medium {
+    @apply bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800;
   }
   
   &.stock-low {
-    @apply bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300;
+    @apply bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800;
   }
   
-  &.stock-ok {
-    @apply bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300;
+  &.stock-out {
+    @apply bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800;
   }
 }
 
-.price-original {
-  @apply text-xs text-gray-400 dark:text-gray-500 line-through;
+// Status Tag
+.status-tag {
+  @apply px-3 py-1 text-xs font-medium;
 }
 
-.price-sale {
-  @apply text-sm font-semibold text-red-600 dark:text-red-400;
+// Action Buttons
+.action-buttons {
+  @apply flex items-center gap-1.5;
 }
 
-.sale-badge {
-  @apply px-1.5 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded text-xs font-semibold;
+.action-btn {
+  @apply w-8 h-8 transition-all duration-200;
+  
+  &:hover {
+    @apply scale-110;
+  }
+}
+
+// Empty State
+.empty-state-cell {
+  @apply py-16 px-6;
 }
 
 .empty-state {
-  @apply flex flex-col items-center justify-center py-12;
+  @apply flex flex-col items-center justify-center text-center max-w-md mx-auto;
+  
+  .empty-state-icon-wrapper {
+    @apply mb-6 p-6 rounded-full bg-gray-100 dark:bg-gray-800;
+  }
   
   .empty-state-icon {
-    @apply mb-4;
+    @apply text-6xl text-gray-300 dark:text-gray-600;
   }
   
   .empty-state-title {
     @apply text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2;
   }
   
-  .empty-state-message {
-    @apply text-gray-500 dark:text-gray-400 mb-4;
+  .empty-state-description {
+    @apply text-gray-500 dark:text-gray-400 mb-6 leading-relaxed;
+  }
+  
+  .empty-state-action {
+    @apply mt-2;
   }
 }
 
-::ng-deep {
-  .toolbar-custom {
-    @apply bg-transparent border-0 p-0;
+// Loading State
+.loading-cell {
+  @apply py-16 px-6;
+}
+
+.loading-wrapper {
+  @apply flex flex-col items-center justify-center gap-4;
+  
+  .loading-spinner {
+    @apply mb-2;
   }
   
-  .search-input-wrapper {
-    @apply w-full sm:w-auto;
-    
-    input {
-      @apply w-full sm:w-64;
-    }
+  .loading-text {
+    @apply text-sm text-gray-500 dark:text-gray-400;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .toolbar-section {
+    @apply flex-col items-stretch;
   }
   
-  .products-table {
-    .p-datatable-thead > tr > th {
-      @apply bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-semibold border-b-2 border-gray-200 dark:border-gray-700;
-    }
-    
-    .p-datatable-tbody > tr {
-      @apply border-b border-gray-100 dark:border-gray-800 transition-colors;
-      
-      &:hover {
-        @apply bg-gray-50 dark:bg-gray-700/50;
-      }
-    }
-    
-    .p-datatable-tbody > tr > td {
-      @apply py-4;
-    }
+  .toolbar-left,
+  .toolbar-right {
+    @apply w-full;
   }
   
-  .p-tag {
-    @apply px-3 py-1;
+  .filter-group {
+    @apply flex-col w-full;
+  }
+  
+  .search-wrapper {
+    @apply w-full;
+    
+    .search-input {
+      @apply w-full;
+    }
   }
 }
 

@@ -1,15 +1,14 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ProductsRoutingModule } from './products-routing.module';
-import { ProductsListComponent } from './products-list/products-list.component';
-import { CreateUpdateProductComponent } from './create-update-product/create-update-product.component';
+import { ProductAttributesRoutingModule } from './product-attributes-routing.module';
+import { ProductAttributesListComponent } from './product-attributes-list/product-attributes-list.component';
+import { CreateUpdateProductAttributeComponent } from './create-update-product-attribute/create-update-product-attribute.component';
 
 // PrimeNG Modules
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { Textarea } from 'primeng/inputtextarea';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -18,29 +17,21 @@ import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TooltipModule } from 'primeng/tooltip';
-import { ToolbarModule } from 'primeng/toolbar';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { FileUploadModule } from 'primeng/fileupload';
-import { CalendarModule } from 'primeng/calendar';
-import { CardModule } from 'primeng/card';
-import { DividerModule } from 'primeng/divider';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { ProductAttributesDisplayComponent } from '../../shared/components/product-attributes-display/product-attributes-display.component';
 
 @NgModule({
   declarations: [
-    ProductsListComponent,
-    CreateUpdateProductComponent,
+    ProductAttributesListComponent,
+    CreateUpdateProductAttributeComponent,
   ],
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    ProductsRoutingModule,
+    ProductAttributesRoutingModule,
     TableModule,
     ButtonModule,
     InputTextModule,
-    Textarea,
     InputSwitchModule,
     DropdownModule,
     InputNumberModule,
@@ -49,18 +40,10 @@ import { ProductAttributesDisplayComponent } from '../../shared/components/produ
     ToastModule,
     ConfirmDialogModule,
     TooltipModule,
-    ToolbarModule,
-    ProgressSpinnerModule,
-    FileUploadModule,
-    CalendarModule,
-    CardModule,
-    DividerModule,
-    ProductAttributesDisplayComponent,
   ],
   providers: [
     MessageService,
     ConfirmationService,
   ],
 })
-export class ProductsModule {}
-
+export class ProductAttributesModule {}

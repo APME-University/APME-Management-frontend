@@ -1,0 +1,212 @@
+<div class="product-attributes-container">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-text">
+        <h1 class="page-title">
+          <span class="title-icon-wrapper">
+            <i class="pi pi-tags"></i>
+          </span>
+          <span class="title-text">Product Attributes Management</span>
+        </h1>
+        <p class="page-subtitle">
+          Define custom attributes for your products (e.g., Color, Size, Material)
+        </p>
+      </div>
+    </div>
+
+    <!-- Action Toolbar -->
+    <div class="toolbar-section">
+      <div class="toolbar-left">
+        <p-button 
+          [label]="'New Attribute'"
+          icon="pi pi-plus" 
+          (onClick)="openNew()"
+          [rounded]="true"
+          class="btn-primary">
+        </p-button>
+        <div class="selection-badge" *ngIf="selectedProductAttributes.length > 0">
+          <span class="badge-text">{{ selectedProductAttributes.length }} selected</span>
+        </div>
+      </div>
+      <div class="toolbar-right">
+        <div class="filter-group">
+          <p-dropdown 
+            [options]="dataTypeFilterOptions" 
+            [(ngModel)]="dataTypeFilter"
+            [placeholder]="'Filter by Type'"
+            [showClear]="true"
+            class="data-type-filter"
+            (onChange)="onDataTypeFilterChange()">
+          </p-dropdown>
+          <span class="p-input-icon-left search-wrapper">
+            <i class="pi pi-search search-icon"></i>
+            <input 
+              pInputText 
+              type="text" 
+              [value]="filterValue"
+              (input)="onGlobalFilter($event)"
+              [placeholder]="'Search attributes...'" 
+              class="search-input" />
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Attributes Table Section -->
+  <div class="table-section">
+    <p-table 
+      #dt 
+      [value]="productAttributes" 
+      [rows]="maxResultCount" 
+      [totalRecords]="totalRecords"
+      [loading]="loading"
+      [paginator]="true" 
+      [showCurrentPageReport]="true"
+      [rowsPerPageOptions]="[10, 25, 50, 100]"
+      [sortMode]="'single'"
+      (onLazyLoad)="onPageChange($event)"
+      (onSort)="onSort($event)"
+      [currentPageReportTemplate]="'Showing {first} to {last} of {totalRecords} attributes'"
+      responsiveLayout="scroll"
+      [(selection)]="selectedProductAttributes"
+      [rowHover]="true"
+      styleClass="product-attributes-datatable"
+      [globalFilterFields]="['name', 'displayName']">
+      
+      <ng-template pTemplate="header">
+        <tr class="table-header-row">
+          <th class="checkbox-column">
+            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+          </th>
+          <th class="name-column" pSortableColumn="name">
+            <span class="header-label">
+              <span>Name</span>
+              <p-sortIcon field="name"></p-sortIcon>
+            </span>
+          </th>
+          <th class="display-name-column" pSortableColumn="displayName">
+            <span class="header-label">
+              <span>Display Name</span>
+              <p-sortIcon field="displayName"></p-sortIcon>
+            </span>
+          </th>
+          <th class="data-type-column">
+            <span class="header-label">
+              <span>Data Type</span>
+            </span>
+          </th>
+          <th class="required-column">
+            <span class="header-label">
+              <span>Required</span>
+            </span>
+          </th>
+          <th class="display-order-column" pSortableColumn="displayOrder">
+            <span class="header-label">
+              <span>Order</span>
+              <p-sortIcon field="displayOrder"></p-sortIcon>
+            </span>
+          </th>
+          <th class="actions-column">
+            <span class="header-label">
+              <span>Actions</span>
+            </span>
+          </th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-productAttribute>
+        <tr class="table-row">
+          <td class="checkbox-cell">
+            <p-tableCheckbox [value]="productAttribute"></p-tableCheckbox>
+          </td>
+          <td class="name-cell">
+            <code class="name-code">{{ productAttribute.name }}</code>
+          </td>
+          <td class="display-name-cell">
+            <span class="display-name-text">{{ productAttribute.displayName }}</span>
+          </td>
+          <td class="data-type-cell">
+            <p-tag 
+              [value]="getDataTypeLabel(productAttribute.dataType)"
+              [severity]="getDataTypeSeverity(productAttribute.dataType)"
+              [rounded]="true"
+              class="data-type-tag">
+            </p-tag>
+          </td>
+          <td class="required-cell">
+            <p-tag 
+              [value]="productAttribute.isRequired ? 'Yes' : 'No'"
+              [severity]="productAttribute.isRequired ? 'success' : 'secondary'"
+              [rounded]="true"
+              class="required-tag">
+            </p-tag>
+          </td>
+          <td class="display-order-cell">
+            <span class="order-text">{{ productAttribute.displayOrder }}</span>
+          </td>
+          <td class="actions-cell">
+            <div class="action-buttons">
+              <p-button 
+                icon="pi pi-pencil" 
+                [rounded]="true"
+                [text]="true"
+                [severity]="'info'"
+                (onClick)="editProductAttribute(productAttribute)"
+                [pTooltip]="'Edit Attribute'"
+                tooltipPosition="top"
+                class="action-btn">
+              </p-button>
+              <p-button 
+                icon="pi pi-trash" 
+                [rounded]="true"
+                [text]="true"
+                [severity]="'danger'"
+                (onClick)="deleteProductAttribute(productAttribute)"
+                [pTooltip]="'Delete Attribute'"
+                tooltipPosition="top"
+                class="action-btn">
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="empty-message-cell">
+            <div class="empty-state">
+              <i class="pi pi-inbox empty-icon"></i>
+              <h3 class="empty-title">No Product Attributes Found</h3>
+              <p class="empty-description">
+                Get started by creating your first product attribute.
+              </p>
+              <p-button 
+                [label]="'Create Attribute'"
+                icon="pi pi-plus"
+                (onClick)="openNew()"
+                [rounded]="true"
+                class="empty-action-btn">
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Create/Update Dialog -->
+  <app-create-update-product-attribute
+    #createUpdateProductAttribute
+    [(visible)]="productAttributeDialog"
+    [productAttribute]="productAttribute"
+    [isEditMode]="isEditMode"
+    [existingAttributesList]="productAttributes"
+    (save)="onSave($event)"
+    (visibleChange)="hideDialog()">
+  </app-create-update-product-attribute>
+</div>

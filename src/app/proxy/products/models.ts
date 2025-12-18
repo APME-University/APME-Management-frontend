@@ -1,27 +1,14 @@
-export interface ProductDto {
-  id: string;
+import type { ProductAttributeDataType } from './product-attribute-data-type.enum';
+import type { IRemoteStreamContent } from '../volo/abp/content/models';
+import type { FullAuditedEntityDto, PagedAndSortedResultRequestDto } from '@abp/ng.core';
+
+export interface CreateUpdateProductAttributeDto {
   shopId: string;
-  categoryId?: string;
   name: string;
-  slug: string;
-  description?: string;
-  sku: string;
-  price: number;
-  compareAtPrice?: number;
-  stockQuantity: number;
-  isActive: boolean;
-  isPublished: boolean;
-  attributes?: string;
-  primaryImageUrl?: string;
-  imageUrls?: string[];
-  isInStock?: boolean;
-  isOnSale?: boolean;
-  hasImages?: boolean;
-  imageCount?: number;
-  creationTime?: string;
-  creatorId?: string;
-  lastModificationTime?: string;
-  lastModifierId?: string;
+  displayName: string;
+  dataType: ProductAttributeDataType;
+  isRequired: boolean;
+  displayOrder: number;
 }
 
 export interface CreateUpdateProductDto {
@@ -37,30 +24,50 @@ export interface CreateUpdateProductDto {
   isActive: boolean;
   isPublished: boolean;
   attributes?: string;
+  image: IRemoteStreamContent;
 }
 
-export interface GetProductListInput {
+export interface GetProductAttributeListInput extends PagedAndSortedResultRequestDto {
+  filter?: string;
+  shopId?: string;
+  dataType?: ProductAttributeDataType;
+}
+
+export interface GetProductListInput extends PagedAndSortedResultRequestDto {
   filter?: string;
   shopId?: string;
   categoryId?: string;
   isActive?: boolean;
   isPublished?: boolean;
-  minPrice?: number;
-  maxPrice?: number;
-  sorting?: string;
-  skipCount?: number;
-  maxResultCount?: number;
+  inStock?: boolean;
 }
 
-export interface PagedResultDto<T> {
-  items?: T[];
-  totalCount?: number;
+export interface ProductAttributeDto extends FullAuditedEntityDto<string> {
+  shopId?: string;
+  name?: string;
+  displayName?: string;
+  dataType?: ProductAttributeDataType;
+  isRequired: boolean;
+  displayOrder: number;
 }
 
-export interface SetPrimaryImageRequest {
-  imageUrl: string;
+export interface ProductDto extends FullAuditedEntityDto<string> {
+  shopId?: string;
+  categoryId?: string;
+  name?: string;
+  slug?: string;
+  description?: string;
+  sku?: string;
+  price: number;
+  compareAtPrice?: number;
+  stockQuantity: number;
+  isActive: boolean;
+  isPublished: boolean;
+  attributes?: string;
+  primaryImageUrl?: string;
+  imageUrls: string[];
+  isInStock: boolean;
+  isOnSale: boolean;
+  hasImages: boolean;
+  imageCount: number;
 }
-
-
-
-

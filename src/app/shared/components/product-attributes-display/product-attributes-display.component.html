@@ -1,0 +1,70 @@
+<div *ngIf="hasAttributes()" class="product-attributes">
+  <p-card 
+    [style]="{'box-shadow': 'none'}"
+    styleClass="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+    
+    <ng-template pTemplate="header">
+      <div class="flex items-center gap-2 px-6 py-4 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
+        <i class="pi pi-tags text-primary-600 dark:text-primary-400"></i>
+        <h6 class="m-0 text-lg font-semibold text-gray-900 dark:text-gray-100">
+          Product Attributes
+        </h6>
+      </div>
+    </ng-template>
+    
+    <!-- Loading State -->
+    <div *ngIf="loading" class="flex items-center justify-center gap-3 py-12 px-6">
+      <p-progressSpinner 
+        [style]="{'width': '32px', 'height': '32px'}"
+        strokeWidth="4"
+        animationDuration=".8s">
+      </p-progressSpinner>
+      <span class="text-sm text-gray-600 dark:text-gray-400 font-medium">
+        Loading attributes...
+      </span>
+    </div>
+    
+    <!-- Attributes Grid -->
+    <div *ngIf="!loading && getAttributeEntries().length > 0" class="p-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div 
+          *ngFor="let entry of getAttributeEntries(); let last = last"
+          class="flex flex-col gap-2 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200">
+          
+          <div class="flex items-center gap-2 mb-1">
+            <i class="pi pi-circle-fill text-primary-500 dark:text-primary-400 text-xs"></i>
+            <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+              {{ entry.displayName }}
+            </span>
+          </div>
+          
+          <div class="flex items-center gap-2">
+            <p-tag 
+              *ngIf="entry.dataType === ProductAttributeDataType.Boolean"
+              [value]="formatAttributeValue(entry.name, entry.value)"
+              [severity]="entry.value ? 'success' : 'secondary'"
+              [rounded]="true"
+              styleClass="text-sm font-medium">
+            </p-tag>
+            <span 
+              *ngIf="entry.dataType !== ProductAttributeDataType.Boolean"
+              class="text-base font-semibold text-gray-900 dark:text-gray-100">
+              {{ formatAttributeValue(entry.name, entry.value) }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Empty State (if attributes exist but no definitions found) -->
+    <div 
+      *ngIf="!loading && getAttributeEntries().length === 0 && hasAttributes()"
+      class="flex flex-col items-center justify-center gap-3 py-12 px-6 text-center">
+      <i class="pi pi-info-circle text-4xl text-gray-400 dark:text-gray-500"></i>
+      <p class="m-0 text-sm text-gray-600 dark:text-gray-400 font-medium">
+        Attributes are available but definitions are not loaded.
+      </p>
+    </div>
+    
+  </p-card>
+</div>

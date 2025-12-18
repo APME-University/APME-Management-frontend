@@ -111,6 +111,12 @@ const routes: Routes = [
         data: { menuName: '::Menu:Products', isTenant: true }
       },
       {
+        path: 'product-attributes',
+        loadChildren: () => import('./tenant/product-attributes/product-attributes.module').then(m => m.ProductAttributesModule),
+        canActivate: [authGuard, tenantGuard, adminGuard],
+        data: { menuName: '::Menu:ProductAttributes', isTenant: true }
+      },
+      {
         path: 'orders',
         loadComponent: () => import('./tenant/orders/orders.component').then(m => m.OrdersComponent),
         canActivate: [authGuard, tenantGuard, adminGuard],

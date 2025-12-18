@@ -4,6 +4,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
 import { ProductService, ProductDto, CreateUpdateProductDto, GetProductListInput } from '../../../proxy/products';
 import { CreateUpdateProductComponent } from '../create-update-product/create-update-product.component';
+import { ShopContextService } from '../../../core/services/shop-context.service';
 
 @Component({
   selector: 'app-products-list',
@@ -49,7 +50,8 @@ export class ProductsListComponent implements OnInit {
     private productService: ProductService,
     private router: Router,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private shopContextService: ShopContextService
   ) {}
 
   ngOnInit() {
@@ -58,8 +60,10 @@ export class ProductsListComponent implements OnInit {
 
   loadProducts() {
     this.loading = true;
+    const shopId = this.shopContextService.getCurrentShopId();
     const input: GetProductListInput = {
       filter: this.filterValue,
+      shopId: shopId || undefined,
       isActive: this.isActiveFilter !== null ? this.isActiveFilter : undefined,
       isPublished: this.isPublishedFilter !== null ? this.isPublishedFilter : undefined,
       categoryId: this.categoryFilter || undefined,
@@ -129,6 +133,7 @@ export class ProductsListComponent implements OnInit {
   }
 
   confirmDeleteProduct(product: ProductDto) {
+    this.product = { ...product };
     this.confirmationService.confirm({
       message: `Are you sure you want to delete "${product.name}"? This action cannot be undone.`,
       header: 'Confirm Deletion',
@@ -141,6 +146,16 @@ export class ProductsListComponent implements OnInit {
   }
 
   performDelete() {
+    if (!this.product?.id) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Product ID is missing',
+        life: 3000,
+      });
+      return;
+    }
+
     this.loading = true;
     this.productService.delete(this.product.id).subscribe({
       next: () => {
@@ -220,7 +235,7 @@ export class ProductsListComponent implements OnInit {
   }
 
   toggleActive(product: ProductDto) {
-    const updateDto: CreateUpdateProductDto = {
+    const updateDto = {
       shopId: product.shopId,
       categoryId: product.categoryId,
       name: product.name,
@@ -233,7 +248,7 @@ export class ProductsListComponent implements OnInit {
       isActive: !product.isActive,
       isPublished: product.isPublished,
       attributes: product.attributes,
-    };
+    } as CreateUpdateProductDto;
 
     this.productService.update(product.id, updateDto).subscribe({
       next: (updatedProduct) => {
@@ -261,7 +276,7 @@ export class ProductsListComponent implements OnInit {
   }
 
   togglePublished(product: ProductDto) {
-    const updateDto: CreateUpdateProductDto = {
+    const updateDto = {
       shopId: product.shopId,
       categoryId: product.categoryId,
       name: product.name,
@@ -274,7 +289,7 @@ export class ProductsListComponent implements OnInit {
       isActive: product.isActive,
       isPublished: !product.isPublished,
       attributes: product.attributes,
-    };
+    } as CreateUpdateProductDto;
 
     this.productService.update(product.id, updateDto).subscribe({
       next: (updatedProduct) => {
@@ -301,19 +316,187 @@ export class ProductsListComponent implements OnInit {
     });
   }
 
-  onProductSave(event: { product: CreateUpdateProductDto; isEditMode: boolean }) {
+  onProductSave(event: { product: CreateUpdateProductDto; isEditMode: boolean; imageFiles: Array<File | string> }) {
     this.submitted = true;
     this.loading = true;
 
-    const imageFiles = this.createUpdateProductComponent.imageFiles;
-
     if (event.isEditMode) {
-      this.productService.update(this.product.id, event.product).subscribe({
-        next: (updatedProduct) => {
-          // Upload images if provided
-          if (imageFiles && imageFiles.length > 0) {
-            this.uploadProductImages(updatedProduct.id, imageFiles);
-          } else {
+      // Update product - handle image updates following Court pattern
+      this.handleProductUpdate(event.product, event.imageFiles);
+    } else {
+      // Create product with images in single request using FormData
+      this.handleProductCreate(event.product, event.imageFiles);
+    }
+  }
+
+  /**
+   * Handle product creation (following Court pattern)
+   */
+  private handleProductCreate(productDto: CreateUpdateProductDto, imageFiles: Array<File | string>) {
+    const formData = new FormData();
+    
+    // Append all product properties to FormData
+    formData.append('shopId', productDto.shopId);
+    if (productDto.categoryId) {
+      formData.append('categoryId', productDto.categoryId);
+    }
+    formData.append('name', productDto.name);
+    formData.append('slug', productDto.slug);
+    formData.append('sku', productDto.sku);
+    formData.append('price', productDto.price.toString());
+    if (productDto.compareAtPrice) {
+      formData.append('compareAtPrice', productDto.compareAtPrice.toString());
+    }
+    formData.append('stockQuantity', productDto.stockQuantity.toString());
+    formData.append('isActive', productDto.isActive.toString());
+    formData.append('isPublished', productDto.isPublished.toString());
+    if (productDto.description) {
+      formData.append('description', productDto.description);
+    }
+    if (productDto.attributes) {
+      formData.append('attributes', productDto.attributes);
+    }
+    
+    // Append image files (only File objects, not strings) - following Court pattern
+    // Send as "images" array to match backend IList<IRemoteStreamContent>? Images
+    imageFiles.forEach((item) => {
+      if (item instanceof File) {
+        formData.append('images', item, item.name);
+      }
+    });
+    
+    this.productService.create(formData).subscribe({
+      next: (createdProduct) => {
+        // Upload additional images if provided (skip first one as it's already uploaded)
+        const additionalImages = imageFiles.filter((item, index) => 
+          item instanceof File && index > 0
+        ) as File[];
+        
+        if (additionalImages.length > 0) {
+          this.uploadProductImages(createdProduct.id, additionalImages);
+        } else {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Product created successfully',
+            life: 3000,
+          });
+          this.productDialog = false;
+          this.product = {} as ProductDto;
+          this.loadProducts();
+        }
+      },
+      error: (error) => {
+        console.error('Error creating product:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: error.error?.error?.message || 'Failed to create product',
+          life: 3000,
+        });
+        this.loading = false;
+      },
+    });
+  }
+
+  /**
+   * Handle product update (following Court pattern)
+   */
+  private handleProductUpdate(productDto: CreateUpdateProductDto, imageFiles: Array<File | string>) {
+    // Get current product images to compare
+    const currentImages = this.product.imageUrls || [];
+    
+    // Find images that were removed (exist in current but not in imageFiles)
+    const removedImages = currentImages.filter(currentUrl => 
+      !imageFiles.some(item => typeof item === 'string' && item === currentUrl)
+    );
+    
+    // Create FormData for update
+    const formData = new FormData();
+    
+    // Append all product properties to FormData
+    formData.append('shopId', productDto.shopId);
+    if (productDto.categoryId) {
+      formData.append('categoryId', productDto.categoryId);
+    }
+    formData.append('name', productDto.name);
+    formData.append('slug', productDto.slug);
+    formData.append('sku', productDto.sku);
+    formData.append('price', productDto.price.toString());
+    if (productDto.compareAtPrice) {
+      formData.append('compareAtPrice', productDto.compareAtPrice.toString());
+    }
+    formData.append('stockQuantity', productDto.stockQuantity.toString());
+    formData.append('isActive', productDto.isActive.toString());
+    formData.append('isPublished', productDto.isPublished.toString());
+    if (productDto.description) {
+      formData.append('description', productDto.description);
+    }
+    if (productDto.attributes) {
+      formData.append('attributes', productDto.attributes);
+    }
+    
+    // Append new image files (only File objects) - following Court pattern
+    // Send as "images" array to match backend IList<IRemoteStreamContent>? Images
+    imageFiles.forEach((item) => {
+      if (item instanceof File) {
+        formData.append('images', item, item.name);
+      }
+    });
+    
+    this.productService.update(this.product.id, formData).subscribe({
+      next: (updatedProduct) => {
+        // Delete removed images from backend
+        if (removedImages.length > 0) {
+          this.deleteRemovedImages(updatedProduct.id, removedImages);
+        }
+        
+        // Upload additional new images (Files that aren't primary)
+        const newImageFiles = imageFiles.filter((item, index) => 
+          item instanceof File && index > 0
+        ) as File[];
+        
+        if (newImageFiles.length > 0) {
+          this.uploadProductImages(updatedProduct.id, newImageFiles);
+        } else if (removedImages.length === 0) {
+          // No new images and no removals - update complete
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Product updated successfully',
+            life: 3000,
+          });
+          this.productDialog = false;
+          this.product = {} as ProductDto;
+          this.loadProducts();
+        }
+      },
+      error: (error) => {
+        console.error('Error updating product:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: error.error?.error?.message || 'Failed to update product',
+          life: 3000,
+        });
+        this.loading = false;
+      },
+    });
+  }
+
+  /**
+   * Delete removed images from backend (following Court pattern)
+   */
+  private deleteRemovedImages(productId: string, imageUrls: string[]) {
+    let deleteCount = 0;
+    const totalDeletes = imageUrls.length;
+
+    imageUrls.forEach(imageUrl => {
+      this.productService.deleteProductImage(productId, imageUrl).subscribe({
+        next: () => {
+          deleteCount++;
+          if (deleteCount === totalDeletes) {
+            // All deletions complete
             this.messageService.add({
               severity: 'success',
               summary: 'Success',
@@ -326,27 +509,14 @@ export class ProductsListComponent implements OnInit {
           }
         },
         error: (error) => {
-          console.error('Error updating product:', error);
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: error.error?.error?.message || 'Failed to update product',
-            life: 3000,
-          });
-          this.loading = false;
-        },
-      });
-    } else {
-      this.productService.create(event.product).subscribe({
-        next: (createdProduct) => {
-          // Upload images if provided
-          if (imageFiles && imageFiles.length > 0) {
-            this.uploadProductImages(createdProduct.id, imageFiles);
-          } else {
+          console.error('Error deleting image:', error);
+          deleteCount++;
+          // Continue even if one deletion fails
+          if (deleteCount === totalDeletes) {
             this.messageService.add({
               severity: 'success',
               summary: 'Success',
-              detail: 'Product created successfully',
+              detail: 'Product updated successfully (some images may not have been removed)',
               life: 3000,
             });
             this.productDialog = false;
@@ -354,18 +524,8 @@ export class ProductsListComponent implements OnInit {
             this.loadProducts();
           }
         },
-        error: (error) => {
-          console.error('Error creating product:', error);
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: error.error?.error?.message || 'Failed to create product',
-            life: 3000,
-          });
-          this.loading = false;
-        },
       });
-    }
+    });
   }
 
   uploadProductImages(productId: string, files: File[]) {
@@ -373,7 +533,7 @@ export class ProductsListComponent implements OnInit {
     const totalFiles = files.length;
 
     files.forEach((file, index) => {
-      this.productService.uploadImage(productId, file, index === 0).subscribe({
+      this.productService.uploadProductImage(productId, file as any, index === 0).subscribe({
         next: () => {
           uploadCount++;
           if (uploadCount === totalFiles) {

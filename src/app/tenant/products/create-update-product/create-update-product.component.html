@@ -6,118 +6,159 @@
   [closable]="true"
   [style]="{width: '90vw', maxWidth: '900px'}"
   styleClass="product-dialog"
+  [breakpoints]="{'960px': '95vw', '640px': '100vw'}"
   (onHide)="hideDialog()">
   
   <ng-template pTemplate="header">
-    <div class="flex items-center gap-3 dialog-header">
-      <i class="pi pi-box text-2xl text-primary"></i>
-      <h5 class="m-0">{{ isEditMode ? 'Edit Product' : 'Create New Product' }}</h5>
+    <div class="dialog-header">
+      <div class="dialog-header-content">
+        <div class="dialog-icon-wrapper">
+          <i class="pi pi-box"></i>
+        </div>
+        <div class="dialog-title-wrapper">
+          <h5 class="dialog-title">{{ isEditMode ? 'Edit Product' : 'Create New Product' }}</h5>
+          <p class="dialog-subtitle">{{ isEditMode ? 'Update product information' : 'Add a new product to your catalog' }}</p>
+        </div>
+      </div>
     </div>
   </ng-template>
 
   <ng-template pTemplate="content">
-    <form [formGroup]="productForm" (ngSubmit)="onSave()" class="product-form">
+    <form [formGroup]="productForm" (ngSubmit)="onSave()" class="product-form" novalidate>
       <!-- Basic Information Section -->
       <div class="form-section">
         <h6 class="section-title">
-          <i class="pi pi-info-circle mr-2"></i>
-          Basic Information
+          <i class="pi pi-info-circle"></i>
+          <span>Basic Information</span>
         </h6>
         
         <!-- Name Field -->
         <div class="form-field">
           <label for="name" class="form-label">
-            Name <span class="text-red-500">*</span>
+            <span class="label-text">Product Name</span>
+            <span class="label-required">*</span>
           </label>
-          <input 
-            id="name"
-            pInputText 
-            formControlName="name"
-            [class.ng-invalid]="isFieldInvalid('name')"
-            placeholder="Enter product name"
-            class="w-full"
-            [maxlength]="256" />
-          <small class="p-error" *ngIf="isFieldInvalid('name')">
+          <span class="p-input-icon-left input-wrapper">
+            <i class="pi pi-box input-icon"></i>
+            <input 
+              id="name"
+              pInputText 
+              formControlName="name"
+              [class.ng-invalid]="isFieldInvalid('name')"
+              [placeholder]="'Enter product name'"
+              class="form-input"
+              [maxlength]="256" />
+          </span>
+          <small class="form-error" *ngIf="isFieldInvalid('name')">
+            <i class="pi pi-exclamation-circle"></i>
             {{ getFieldError('name') }}
           </small>
         </div>
 
         <!-- Slug Field -->
         <div class="form-field">
-          <div class="flex items-center justify-between mb-2">
+          <div class="form-label-row">
             <label for="slug" class="form-label">
-              Slug <span class="text-red-500">*</span>
+              <span class="label-text">Slug</span>
+              <span class="label-required">*</span>
             </label>
-            <div class="flex items-center gap-2">
+            <div class="auto-generate-toggle">
               <p-inputSwitch 
                 [(ngModel)]="autoGenerateSlug" 
                 [ngModelOptions]="{standalone: true}"
-                (onChange)="toggleSlugAutoGeneration()">
+                (onChange)="toggleSlugAutoGeneration()"
+                class="toggle-switch">
               </p-inputSwitch>
-              <small class="text-sm text-secondary">Auto-generate</small>
+              <span class="toggle-label">Auto-generate</span>
             </div>
           </div>
-          <input 
-            id="slug"
-            pInputText 
-            formControlName="slug"
-            [class.ng-invalid]="isFieldInvalid('slug')"
-            [readonly]="autoGenerateSlug"
-            placeholder="product-slug"
-            class="w-full"
-            [maxlength]="256" />
-          <small class="p-error" *ngIf="isFieldInvalid('slug')">
+          <span class="p-input-icon-left input-wrapper">
+            <i class="pi pi-link input-icon"></i>
+            <input 
+              id="slug"
+              pInputText 
+              formControlName="slug"
+              [class.ng-invalid]="isFieldInvalid('slug')"
+              [readonly]="autoGenerateSlug"
+              [placeholder]="'product-slug'"
+              class="form-input"
+              [class.readonly]="autoGenerateSlug"
+              [maxlength]="256" />
+          </span>
+          <small class="form-error" *ngIf="isFieldInvalid('slug')">
+            <i class="pi pi-exclamation-circle"></i>
             {{ getFieldError('slug') }}
+          </small>
+          <small class="form-hint" *ngIf="!isFieldInvalid('slug')">
+            <i class="pi pi-info-circle"></i>
+            URL-friendly identifier for the product
           </small>
         </div>
 
         <!-- SKU Field -->
         <div class="form-field">
-          <div class="flex items-center justify-between mb-2">
+          <div class="form-label-row">
             <label for="sku" class="form-label">
-              SKU <span class="text-red-500">*</span>
+              <span class="label-text">SKU</span>
+              <span class="label-required">*</span>
             </label>
-            <div class="flex items-center gap-2">
+            <div class="auto-generate-toggle">
               <p-inputSwitch 
                 [(ngModel)]="autoGenerateSku" 
                 [ngModelOptions]="{standalone: true}"
-                (onChange)="toggleSkuAutoGeneration()">
+                (onChange)="toggleSkuAutoGeneration()"
+                class="toggle-switch">
               </p-inputSwitch>
-              <small class="text-sm text-secondary">Auto-generate</small>
+              <span class="toggle-label">Auto-generate</span>
             </div>
           </div>
-          <input 
-            id="sku"
-            pInputText 
-            formControlName="sku"
-            [class.ng-invalid]="isFieldInvalid('sku')"
-            [readonly]="autoGenerateSku"
-            placeholder="PRODUCT-SKU"
-            class="w-full"
-            [maxlength]="128" />
-          <small class="p-error" *ngIf="isFieldInvalid('sku')">
+          <span class="p-input-icon-left input-wrapper">
+            <i class="pi pi-barcode input-icon"></i>
+            <input 
+              id="sku"
+              pInputText 
+              formControlName="sku"
+              [class.ng-invalid]="isFieldInvalid('sku')"
+              [readonly]="autoGenerateSku"
+              [placeholder]="'PRODUCT-SKU'"
+              class="form-input"
+              [class.readonly]="autoGenerateSku"
+              [maxlength]="128" />
+          </span>
+          <small class="form-error" *ngIf="isFieldInvalid('sku')">
+            <i class="pi pi-exclamation-circle"></i>
             {{ getFieldError('sku') }}
+          </small>
+          <small class="form-hint" *ngIf="!isFieldInvalid('sku')">
+            <i class="pi pi-info-circle"></i>
+            Stock Keeping Unit identifier
           </small>
         </div>
 
         <!-- Description Field -->
         <div class="form-field">
-          <label for="description" class="form-label">Description</label>
-          <textarea 
-            id="description"
-            pInputTextarea 
-            formControlName="description"
-            [class.ng-invalid]="isFieldInvalid('description')"
-            placeholder="Enter product description"
-            [rows]="4"
-            [maxlength]="descriptionMaxLength"
-            class="w-full">
-          </textarea>
-          <div class="flex justify-between items-center mt-1">
-            <small class="p-error" *ngIf="isFieldInvalid('description')">
+          <label for="description" class="form-label">
+            <span class="label-text">Description</span>
+            <span class="label-optional">(Optional)</span>
+          </label>
+          <span class="textarea-wrapper">
+            <textarea 
+              id="description"
+              pInputTextarea 
+              formControlName="description"
+              [class.ng-invalid]="isFieldInvalid('description')"
+              [placeholder]="'Enter product description'"
+              [rows]="4"
+              [maxlength]="descriptionMaxLength"
+              class="form-textarea">
+            </textarea>
+          </span>
+          <div class="textarea-footer">
+            <small class="form-error" *ngIf="isFieldInvalid('description')">
+              <i class="pi pi-exclamation-circle"></i>
               {{ getFieldError('description') }}
             </small>
-            <small class="text-sm text-secondary ml-auto">
+            <small class="character-count" [class.warning]="descriptionLength > descriptionMaxLength * 0.9">
               {{ descriptionLength }} / {{ descriptionMaxLength }} characters
             </small>
           </div>
@@ -125,206 +166,450 @@
 
         <!-- Category Field -->
         <div class="form-field">
-          <label for="categoryId" class="form-label">Category</label>
-          <p-dropdown 
-            id="categoryId"
-            formControlName="categoryId"
-            [options]="categories"
-            optionLabel="name"
-            optionValue="id"
-            [showClear]="true"
-            placeholder="Select category (optional)"
-            [filter]="true"
-            filterBy="name"
-            class="w-full">
-          </p-dropdown>
+          <label for="categoryId" class="form-label">
+            <span class="label-text">Category</span>
+            <span class="label-optional">(Optional)</span>
+          </label>
+          <span class="dropdown-wrapper">
+            <p-dropdown 
+              id="categoryId"
+              formControlName="categoryId"
+              [options]="categories"
+              optionLabel="name"
+              optionValue="id"
+              [showClear]="true"
+              [placeholder]="'Select category'"
+              [filter]="true"
+              filterBy="name"
+              filterPlaceholder="Search categories..."
+              class="form-dropdown">
+              <ng-template let-category pTemplate="item">
+                <div class="dropdown-item">
+                  <i class="pi pi-folder"></i>
+                  <span>{{ category.name }}</span>
+                </div>
+              </ng-template>
+            </p-dropdown>
+          </span>
+          <small class="form-hint">
+            <i class="pi pi-info-circle"></i>
+            Select a category to organize this product
+          </small>
         </div>
       </div>
 
       <!-- Pricing Section -->
       <div class="form-section">
         <h6 class="section-title">
-          <i class="pi pi-dollar mr-2"></i>
-          Pricing & Inventory
+          <i class="pi pi-dollar"></i>
+          <span>Pricing & Inventory</span>
         </h6>
         
         <!-- Price Field -->
         <div class="form-field">
           <label for="price" class="form-label">
-            Price <span class="text-red-500">*</span>
+            <span class="label-text">Price</span>
+            <span class="label-required">*</span>
           </label>
-          <p-inputNumber 
-            id="price"
-            formControlName="price"
-            [class.ng-invalid]="isFieldInvalid('price')"
-            [min]="0"
-            [maxFractionDigits]="2"
-            [showButtons]="true"
-            mode="currency"
-            currency="USD"
-            class="w-full">
-          </p-inputNumber>
-          <small class="p-error" *ngIf="isFieldInvalid('price')">
+          <span class="input-number-wrapper">
+            <p-inputNumber 
+              id="price"
+              formControlName="price"
+              [class.ng-invalid]="isFieldInvalid('price')"
+              [min]="0"
+              [maxFractionDigits]="2"
+              [showButtons]="true"
+              mode="currency"
+              currency="USD"
+              [placeholder]="'0.00'"
+              class="form-input-number">
+            </p-inputNumber>
+          </span>
+          <small class="form-error" *ngIf="isFieldInvalid('price')">
+            <i class="pi pi-exclamation-circle"></i>
             {{ getFieldError('price') }}
           </small>
         </div>
 
         <!-- Compare At Price Field -->
         <div class="form-field">
-          <label for="compareAtPrice" class="form-label">Compare At Price</label>
-          <p-inputNumber 
-            id="compareAtPrice"
-            formControlName="compareAtPrice"
-            [min]="0"
-            [maxFractionDigits]="2"
-            [showButtons]="true"
-            mode="currency"
-            currency="USD"
-            class="w-full">
-          </p-inputNumber>
+          <label for="compareAtPrice" class="form-label">
+            <span class="label-text">Compare At Price</span>
+            <span class="label-optional">(Optional)</span>
+          </label>
+          <span class="input-number-wrapper">
+            <p-inputNumber 
+              id="compareAtPrice"
+              formControlName="compareAtPrice"
+              [min]="0"
+              [maxFractionDigits]="2"
+              [showButtons]="true"
+              mode="currency"
+              currency="USD"
+              [placeholder]="'0.00'"
+              class="form-input-number">
+            </p-inputNumber>
+          </span>
           <small class="form-hint">
+            <i class="pi pi-info-circle"></i>
             Original price before discount (optional)
           </small>
         </div>
-      </div>
 
         <!-- Stock Quantity Field -->
         <div class="form-field">
           <label for="stockQuantity" class="form-label">
-            <i class="pi pi-box mr-1"></i>
-            Stock Quantity <span class="text-red-500">*</span>
+            <span class="label-text">Stock Quantity</span>
+            <span class="label-required">*</span>
           </label>
-          <p-inputNumber 
-            id="stockQuantity"
-            formControlName="stockQuantity"
-            [class.ng-invalid]="isFieldInvalid('stockQuantity')"
-            [min]="0"
-            [showButtons]="true"
-            class="w-full">
-          </p-inputNumber>
-          <small class="p-error" *ngIf="isFieldInvalid('stockQuantity')">
+          <span class="input-number-wrapper">
+            <p-inputNumber 
+              id="stockQuantity"
+              formControlName="stockQuantity"
+              [class.ng-invalid]="isFieldInvalid('stockQuantity')"
+              [min]="0"
+              [showButtons]="true"
+              [placeholder]="'0'"
+              class="form-input-number">
+            </p-inputNumber>
+          </span>
+          <small class="form-error" *ngIf="isFieldInvalid('stockQuantity')">
+            <i class="pi pi-exclamation-circle"></i>
             {{ getFieldError('stockQuantity') }}
           </small>
           <small class="form-hint" *ngIf="!isFieldInvalid('stockQuantity')">
+            <i class="pi pi-box"></i>
             Current available stock quantity
           </small>
         </div>
+      </div>
 
-      <!-- Images Section -->
+      <!-- Images Section (Following Court Pattern) -->
       <div class="form-section">
         <h6 class="section-title">
-          <i class="pi pi-images mr-2"></i>
-          Product Images
+          <i class="pi pi-images"></i>
+          <span>Product Images</span>
         </h6>
         
         <div class="image-upload-section">
-          <p-fileUpload 
-            mode="advanced"
-            name="images[]"
-            accept="image/*"
-            [maxFileSize]="5242880"
-            [multiple]="true"
-            [auto]="false"
-            chooseLabel="Select Images"
-            chooseIcon="pi pi-upload"
-            [showUploadButton]="false"
-            [showCancelButton]="false"
-            (onSelect)="onFileSelect($event)"
-            styleClass="w-full">
-          </p-fileUpload>
-
-          <!-- Image Gallery Preview -->
-          <div class="image-gallery-wrapper mt-4" *ngIf="imagePreviews.length > 0">
-            <div class="gallery-header">
-              <span class="gallery-count">
-                <i class="pi pi-images mr-1"></i>
-                {{ imagePreviews.length }} image(s) selected
-              </span>
-              <small class="gallery-hint">First image will be set as primary</small>
-            </div>
-            
-            <div class="image-gallery">
-              <div 
-                class="image-item" 
-                *ngFor="let preview of imagePreviews; let i = index"
-                [class.primary]="i === 0">
-                <div class="image-container">
-                  <img [src]="preview" alt="Product image preview" class="gallery-image" />
-                  <div class="image-overlay">
-                    <div class="image-actions">
-                      <p-button 
-                        icon="pi pi-star" 
-                        [rounded]="true"
-                        [text]="true"
-                        [severity]="i === 0 ? 'warn' : undefined"
-                        (onClick)="setPrimaryImage(i)"
-                        [pTooltip]="i === 0 ? 'Primary Image' : 'Set as Primary'"
-                        tooltipPosition="top"
-                        [style]="{'width': '2rem', 'height': '2rem'}"
-                        [disabled]="i === 0">
-                      </p-button>
-                      <p-button 
-                        icon="pi pi-times" 
-                        [rounded]="true"
-                        [text]="true"
-                        [severity]="'danger'"
-                        (onClick)="removeImage(i)"
-                        pTooltip="Remove image"
-                        tooltipPosition="top"
-                        [style]="{'width': '2rem', 'height': '2rem'}">
-                      </p-button>
-                    </div>
-                  </div>
-                  <div class="image-badge" *ngIf="i === 0">
-                    <i class="pi pi-star-fill"></i>
-                    Primary
-                  </div>
-                  <div class="image-index">{{ i + 1 }}</div>
+          <label class="form-label mb-3">
+            <span class="label-text">Product Images</span>
+            <span class="label-optional">(Optional)</span>
+          </label>
+          
+          <!-- Image Gallery (Hybrid: File | string) - Following Court Pattern -->
+          <div class="image-gallery-list">
+            <div 
+              class="image-slot-container" 
+              *ngFor="let item of imageFiles; let i = index">
+              <input
+                type="file"
+                class="custom-file-input"
+                hidden
+                (change)="handleImageChange($event, i)"
+                accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+                #imageFileInput
+              />
+              <div class="image-slot-wrapper group">
+                <img
+                  *ngIf="imagePreviews[i]"
+                  [src]="imagePreviews[i]"
+                  class="image-preview"
+                  [alt]="'Product image ' + (i + 1)"
+                  (error)="handleImageError($event)"
+                />
+                <div *ngIf="!imagePreviews[i]" class="image-placeholder">
+                  <i class="pi pi-image"></i>
                 </div>
+                <div class="image-slot-overlay">
+                  <div class="image-slot-actions">
+                    <!-- Set Primary Button (only if not first and has image) -->
+                    <p-button 
+                      *ngIf="i !== 0 && item"
+                      icon="pi pi-star" 
+                      [rounded]="true"
+                      [text]="true"
+                      (onClick)="setPrimaryImage(i)"
+                      [pTooltip]="'Set as Primary'"
+                      tooltipPosition="top"
+                      class="image-action-btn">
+                    </p-button>
+                    <!-- Remove Button (only if has image) -->
+                    <p-button 
+                      *ngIf="item"
+                      icon="pi pi-times" 
+                      [rounded]="true"
+                      [text]="true"
+                      [severity]="'danger'"
+                      (onClick)="removeImageSlot(i)"
+                      [pTooltip]="'Remove image'"
+                      tooltipPosition="top"
+                      class="image-action-btn">
+                    </p-button>
+                    <!-- Upload Button (only if empty) -->
+                    <p-button 
+                      *ngIf="!item"
+                      icon="pi pi-upload" 
+                      [rounded]="true"
+                      [text]="true"
+                      (onClick)="imageFileInput.click()"
+                      [pTooltip]="'Upload image'"
+                      tooltipPosition="top"
+                      class="image-action-btn">
+                    </p-button>
+                  </div>
+                </div>
+                <!-- Primary Badge -->
+                <div class="primary-badge" *ngIf="i === 0 && item">
+                  <i class="pi pi-star-fill"></i>
+                  <span>Primary</span>
+                </div>
+                <!-- Image Index -->
+                <div class="image-index" *ngIf="item">{{ i + 1 }}</div>
               </div>
             </div>
           </div>
+          
+          <!-- Add Another Image Button -->
+          <div class="image-gallery-footer">
+            <button 
+              type="button" 
+              class="btn-add-image" 
+              (click)="addImageSlot()">
+              <i class="pi pi-plus"></i>
+              <span>Add Another Image</span>
+            </button>
+          </div>
 
-          <small class="form-hint mt-2 block">
-            <i class="pi pi-info-circle mr-1"></i>
-            Supported formats: JPG, PNG, WebP, GIF. Maximum file size: 5MB per image. You can select multiple images.
+          <small class="form-hint">
+            <i class="pi pi-info-circle"></i>
+            Supported formats: JPG, PNG, WebP, GIF. Maximum file size: 5MB per image. First image will be set as primary.
           </small>
+        </div>
+      </div>
+
+      <!-- Current Attributes Display (Read-only, shown when editing) -->
+      <div class="form-section" *ngIf="isEditMode && product">
+        <app-product-attributes-display 
+          [product]="product"
+          [shopId]="product.shopId || productForm.get('shopId')?.value">
+        </app-product-attributes-display>
+      </div>
+
+      <!-- Dynamic Attributes Section -->
+      <div class="form-section">
+        <h6 class="section-title">
+          <i class="pi pi-tags"></i>
+          <span>Product Attributes</span>
+        </h6>
+        
+        <!-- Loading State -->
+        <div class="attributes-loading" *ngIf="attributesLoading">
+          <i class="pi pi-spin pi-spinner"></i>
+          <span>Loading attributes...</span>
+        </div>
+        
+        <!-- Attributes Form -->
+        <div class="attributes-form" [formGroup]="attributeFormGroup" *ngIf="!attributesLoading && productAttributes.length > 0">
+          <div class="attributes-grid">
+            <div 
+              class="attribute-card"
+              [class.attribute-card-error]="isAttributeFieldInvalid(attr.name)"
+              [class.attribute-card-required]="attr.isRequired"
+              *ngFor="let attr of productAttributes; trackBy: trackByAttributeName; let i = index">
+              
+              <!-- Card Header -->
+              <div class="attribute-card-header">
+                <div class="attribute-header-content">
+                  <div class="attribute-label-group">
+                    <label [for]="'attr_' + attr.name" class="attribute-label">
+                      <span class="attribute-label-text">{{ attr.displayName }}</span>
+                      <span class="attribute-label-required" *ngIf="attr.isRequired" aria-label="Required">*</span>
+                      <p-tag 
+                        *ngIf="!attr.isRequired"
+                        value="Optional"
+                        severity="secondary"
+                        [rounded]="true"
+                        styleClass="attribute-optional-tag">
+                      </p-tag>
+                    </label>
+                    <span class="attribute-type-badge">
+                      <i [class]="getAttributeTypeIcon(attr.dataType)"></i>
+                      <span>{{ getDataTypeLabel(attr.dataType) }}</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Card Body -->
+              <div class="attribute-card-body">
+                <!-- Text Input -->
+                <div *ngIf="attr.dataType === ProductAttributeDataType.Text" class="attribute-input-wrapper">
+                  <span class="p-input-icon-left input-wrapper-full">
+                    <i class="pi pi-pencil input-icon"></i>
+                    <input 
+                      [id]="'attr_' + attr.name"
+                      pInputText 
+                      [formControlName]="attr.name"
+                      [class.ng-invalid]="isAttributeFieldInvalid(attr.name)"
+                      [class.ng-valid]="!isAttributeFieldInvalid(attr.name) && attributeFormGroup.get(attr.name)?.value"
+                      [placeholder]="'Enter ' + attr.displayName.toLowerCase()"
+                      [attr.aria-required]="attr.isRequired"
+                      [attr.aria-invalid]="isAttributeFieldInvalid(attr.name)"
+                      [attr.aria-describedby]="'attr_' + attr.name + '_error'"
+                      class="form-input attribute-input"
+                      autocomplete="off" />
+                  </span>
+                </div>
+                
+                <!-- Number Input -->
+                <div *ngIf="attr.dataType === ProductAttributeDataType.Number" class="attribute-input-wrapper">
+                  <span class="input-number-wrapper-full">
+                    <p-inputNumber 
+                      [id]="'attr_' + attr.name"
+                      [formControlName]="attr.name"
+                      [class.ng-invalid]="isAttributeFieldInvalid(attr.name)"
+                      [class.ng-valid]="!isAttributeFieldInvalid(attr.name) && attributeFormGroup.get(attr.name)?.value"
+                      [min]="0"
+                      [showButtons]="true"
+                      [placeholder]="'Enter ' + attr.displayName.toLowerCase()"
+                      [attr.aria-required]="attr.isRequired"
+                      [attr.aria-invalid]="isAttributeFieldInvalid(attr.name)"
+                      [attr.aria-describedby]="'attr_' + attr.name + '_error'"
+                      class="form-input-number attribute-input">
+                    </p-inputNumber>
+                  </span>
+                </div>
+                
+                <!-- Boolean (Switch) Input -->
+                <div *ngIf="attr.dataType === ProductAttributeDataType.Boolean" class="attribute-input-wrapper attribute-switch-wrapper">
+                  <div class="switch-container-full">
+                    <p-inputSwitch 
+                      [id]="'attr_' + attr.name"
+                      [formControlName]="attr.name"
+                      [attr.aria-required]="attr.isRequired"
+                      [attr.aria-invalid]="isAttributeFieldInvalid(attr.name)"
+                      [attr.aria-describedby]="'attr_' + attr.name + '_error'"
+                      class="attribute-switch">
+                    </p-inputSwitch>
+                    <span class="switch-label">
+                      <span class="switch-label-off" *ngIf="!attributeFormGroup.get(attr.name)?.value">No</span>
+                      <span class="switch-label-on" *ngIf="attributeFormGroup.get(attr.name)?.value">Yes</span>
+                    </span>
+                  </div>
+                </div>
+                
+                <!-- Date Input -->
+                <div *ngIf="attr.dataType === ProductAttributeDataType.Date" class="attribute-input-wrapper">
+                  <span class="input-wrapper-full">
+                    <p-calendar 
+                      [id]="'attr_' + attr.name"
+                      [formControlName]="attr.name"
+                      [class.ng-invalid]="isAttributeFieldInvalid(attr.name)"
+                      [class.ng-valid]="!isAttributeFieldInvalid(attr.name) && attributeFormGroup.get(attr.name)?.value"
+                      dateFormat="yy-mm-dd"
+                      [showIcon]="true"
+                      [placeholder]="'Select ' + attr.displayName.toLowerCase()"
+                      [attr.aria-required]="attr.isRequired"
+                      [attr.aria-invalid]="isAttributeFieldInvalid(attr.name)"
+                      [attr.aria-describedby]="'attr_' + attr.name + '_error'"
+                      styleClass="form-calendar attribute-input">
+                    </p-calendar>
+                  </span>
+                </div>
+              </div>
+              
+              <!-- Card Footer (Error/Hint) -->
+              <div class="attribute-card-footer">
+                <small 
+                  class="form-error" 
+                  *ngIf="isAttributeFieldInvalid(attr.name)"
+                  [id]="'attr_' + attr.name + '_error'"
+                  role="alert"
+                  aria-live="polite">
+                  <i class="pi pi-exclamation-circle"></i>
+                  {{ getAttributeFieldError(attr.name) }}
+                </small>
+                <small 
+                  class="form-hint" 
+                  *ngIf="!isAttributeFieldInvalid(attr.name) && getAttributeFieldHint(attr.name)"
+                  [id]="'attr_' + attr.name + '_hint'">
+                  <i class="pi pi-info-circle"></i>
+                  {{ getAttributeFieldHint(attr.name) }}
+                </small>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Form Summary -->
+          <div class="attributes-summary" *ngIf="productAttributes.length > 0">
+            <div class="summary-content">
+              <i class="pi pi-info-circle summary-icon"></i>
+              <div class="summary-text">
+                <p class="summary-title">Product Attributes</p>
+                <p class="summary-description">
+                  These attributes are defined for your shop. Required fields are marked with <span class="required-indicator">*</span>.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Empty State -->
+        <div class="attributes-empty" *ngIf="!attributesLoading && productAttributes.length === 0">
+          <div class="empty-content">
+            <i class="pi pi-info-circle empty-icon"></i>
+            <p class="empty-title">No product attributes are defined for this shop.</p>
+            <small class="empty-description">Define product attributes to add custom properties to your products.</small>
+            <p-button 
+              label="Manage Product Attributes"
+              icon="pi pi-cog"
+              [rounded]="true"
+              [outlined]="true"
+              (onClick)="navigateToProductAttributes()"
+              styleClass="mt-4">
+            </p-button>
+          </div>
         </div>
       </div>
 
       <!-- Publishing Section -->
       <div class="form-section">
         <h6 class="section-title">
-          <i class="pi pi-globe mr-2"></i>
-          Publishing & Status
+          <i class="pi pi-globe"></i>
+          <span>Publishing & Status</span>
         </h6>
         
         <!-- Is Active Toggle -->
-        <div class="form-field">
-          <div class="flex items-center justify-between">
-            <div>
-              <label for="isActive" class="form-label">Active Status</label>
-              <p class="form-hint m-0">Enable or disable the product</p>
+        <div class="form-field form-field-switch">
+          <div class="switch-container">
+            <div class="switch-label-group">
+              <label for="isActive" class="form-label">
+                <span class="label-text">Active Status</span>
+              </label>
+              <p class="form-hint">Enable or disable the product</p>
             </div>
             <p-inputSwitch 
               id="isActive"
               formControlName="isActive"
-              [style]="{transform: 'scale(1.2)'}">
+              class="status-switch">
             </p-inputSwitch>
           </div>
         </div>
 
         <!-- Is Published Toggle -->
-        <div class="form-field">
-          <div class="flex items-center justify-between">
-            <div>
-              <label for="isPublished" class="form-label">Published Status</label>
-              <p class="form-hint m-0">Make product visible to customers</p>
+        <div class="form-field form-field-switch">
+          <div class="switch-container">
+            <div class="switch-label-group">
+              <label for="isPublished" class="form-label">
+                <span class="label-text">Published Status</span>
+              </label>
+              <p class="form-hint">Make product visible to customers</p>
             </div>
             <p-inputSwitch 
               id="isPublished"
               formControlName="isPublished"
-              [style]="{transform: 'scale(1.2)'}">
+              class="status-switch">
             </p-inputSwitch>
           </div>
         </div>
@@ -333,22 +618,27 @@
   </ng-template>
 
   <ng-template pTemplate="footer">
-    <div class="flex justify-end gap-2">
+    <div class="dialog-footer">
       <p-button 
-        label="Cancel" 
+        [label]="'Cancel'"
         icon="pi pi-times" 
         [text]="true"
         (onClick)="hideDialog()"
-        [disabled]="loading || uploadingImages">
+        [disabled]="loading || uploadingImages"
+        class="footer-btn footer-btn-cancel">
       </p-button>
       <p-button 
-        label="{{ isEditMode ? 'Update' : 'Create' }}" 
+        [label]="isEditMode ? 'Update Product' : 'Create Product'"
         icon="pi pi-check" 
         (onClick)="onSave()"
         [loading]="loading || uploadingImages"
-        [disabled]="productForm.invalid">
+        [disabled]="productForm.invalid || (attributeFormGroup && hasAttributeErrors())"
+        [pTooltip]="(productForm.invalid || (attributeFormGroup && hasAttributeErrors())) ? 'Please fix validation errors' : ''"
+        tooltipPosition="top"
+        class="footer-btn footer-btn-submit">
       </p-button>
     </div>
   </ng-template>
 </p-dialog>
+
 

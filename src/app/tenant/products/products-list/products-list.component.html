@@ -2,82 +2,89 @@
   <p-toast></p-toast>
   <p-confirmDialog></p-confirmDialog>
 
-  <!-- Header Card -->
-  <div class="header-card">
-    <div class="flex items-center justify-between mb-6">
-      <div>
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-text">
         <h1 class="page-title">
-          <i class="pi pi-box mr-3"></i>
-          Products Management
+          <span class="title-icon-wrapper">
+            <i class="pi pi-box"></i>
+          </span>
+          <span class="title-text">Products Management</span>
         </h1>
-        <p class="page-subtitle">Manage your product catalog, inventory, and pricing</p>
+        <p class="page-subtitle">
+          Manage your product catalog, inventory, and pricing
+        </p>
       </div>
     </div>
 
-    <!-- Toolbar -->
-    <p-toolbar styleClass="toolbar-custom">
-      <ng-template pTemplate="left">
-        <div class="flex gap-2 flex-wrap">
-          <p-button 
-            label="New Product" 
-            icon="pi pi-plus" 
-            (onClick)="openNew()"
-            [rounded]="true"
-            class="p-button-success">
-          </p-button>
-          <p-button 
-            label="Bulk Publish" 
-            icon="pi pi-check-circle" 
-            [disabled]="selectedProducts.length === 0"
-            [rounded]="true"
-            [text]="true"
-            (onClick)="bulkPublish()">
-          </p-button>
-          <p-button 
-            label="Bulk Unpublish" 
-            icon="pi pi-times-circle" 
-            [disabled]="selectedProducts.length === 0"
-            [rounded]="true"
-            [text]="true"
-            (onClick)="bulkUnpublish()">
-          </p-button>
+    <!-- Action Toolbar -->
+    <div class="toolbar-section">
+      <div class="toolbar-left">
+        <p-button 
+          [label]="'New Product'"
+          icon="pi pi-plus" 
+          (onClick)="openNew()"
+          [rounded]="true"
+          class="btn-primary">
+        </p-button>
+        <p-button 
+          [label]="'Bulk Publish'"
+          icon="pi pi-check-circle" 
+          [disabled]="selectedProducts.length === 0"
+          [rounded]="true"
+          [text]="true"
+          class="btn-secondary"
+          (onClick)="bulkPublish()">
+        </p-button>
+        <p-button 
+          [label]="'Bulk Unpublish'"
+          icon="pi pi-times-circle" 
+          [disabled]="selectedProducts.length === 0"
+          [rounded]="true"
+          [text]="true"
+          class="btn-secondary"
+          (onClick)="bulkUnpublish()">
+        </p-button>
+        <div class="selection-badge" *ngIf="selectedProducts.length > 0">
+          <span class="badge-text">{{ selectedProducts.length }} selected</span>
         </div>
-      </ng-template>
-      <ng-template pTemplate="right">
-        <div class="flex gap-2 items-center flex-wrap">
+      </div>
+      <div class="toolbar-right">
+        <div class="filter-group">
           <p-dropdown 
             [options]="statusFilterOptions" 
             [(ngModel)]="isActiveFilter"
-            placeholder="Status"
+            [placeholder]="'Status'"
             [showClear]="true"
-            styleClass="w-40"
+            class="status-filter"
             (onChange)="onFilterChange()">
           </p-dropdown>
           <p-dropdown 
             [options]="publishedFilterOptions" 
             [(ngModel)]="isPublishedFilter"
-            placeholder="Published"
+            [placeholder]="'Published'"
             [showClear]="true"
-            styleClass="w-40"
+            class="status-filter"
             (onChange)="onFilterChange()">
           </p-dropdown>
-          <span class="p-input-icon-left search-input-wrapper">
-            <i class="pi pi-search"></i>
+          <span class="p-input-icon-left search-wrapper">
+            <i class="pi pi-search search-icon"></i>
             <input 
               pInputText 
               type="text" 
               [value]="filterValue"
               (input)="onGlobalFilter($event)"
-              placeholder="Search products..." 
-              class="w-full" />
+              [placeholder]="'Search products...'" 
+              class="search-input" />
           </span>
         </div>
-      </ng-template>
-    </p-toolbar>
+      </div>
+    </div>
   </div>
 
-  <!-- Products Table Card -->
-  <div class="table-card">
+  <!-- Products Table Section -->
+  <div class="table-section">
     <p-table 
       #dt 
       [value]="products" 
@@ -90,115 +97,147 @@
       [sortMode]="'single'"
       (onLazyLoad)="onPageChange($event)"
       (onSort)="onSort($event)"
-      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+      [currentPageReportTemplate]="'Showing {first} to {last} of {totalRecords} products'"
       responsiveLayout="scroll"
       [(selection)]="selectedProducts"
       [rowHover]="true"
-      styleClass="p-datatable-striped products-table"
+      styleClass="products-datatable"
       [globalFilterFields]="['name', 'sku', 'slug', 'description']">
       
       <ng-template pTemplate="header">
-        <tr>
-          <th style="width: 3rem">
+        <tr class="table-header-row">
+          <th class="checkbox-column">
             <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
           </th>
-          <th style="min-width: 100px">Image</th>
-          <th pSortableColumn="name" style="min-width: 250px">
-            Product <p-sortIcon field="name"></p-sortIcon>
+          <th class="image-column">
+            <span class="header-label">
+              <i class="pi pi-image header-icon"></i>
+              <span>Image</span>
+            </span>
           </th>
-          <th pSortableColumn="sku" style="min-width: 120px">
-            SKU <p-sortIcon field="sku"></p-sortIcon>
+          <th class="name-column" pSortableColumn="name">
+            <span class="header-label">
+              <span>Product</span>
+              <p-sortIcon field="name"></p-sortIcon>
+            </span>
           </th>
-          <th pSortableColumn="price" style="min-width: 120px">
-            Price <p-sortIcon field="price"></p-sortIcon>
+          <th class="sku-column" pSortableColumn="sku">
+            <span class="header-label">
+              <span>SKU</span>
+              <p-sortIcon field="sku"></p-sortIcon>
+            </span>
           </th>
-          <th style="min-width: 100px">Stock</th>
-          <th pSortableColumn="isActive" style="min-width: 100px">
-            Status <p-sortIcon field="isActive"></p-sortIcon>
+          <th class="price-column" pSortableColumn="price">
+            <span class="header-label">
+              <span>Price</span>
+              <p-sortIcon field="price"></p-sortIcon>
+            </span>
           </th>
-          <th pSortableColumn="isPublished" style="min-width: 120px">
-            Published <p-sortIcon field="isPublished"></p-sortIcon>
+          <th class="stock-column">
+            <span class="header-label">
+              <i class="pi pi-box header-icon"></i>
+              <span>Stock</span>
+            </span>
           </th>
-          <th style="min-width: 150px">Actions</th>
+          <th class="status-column" pSortableColumn="isActive">
+            <span class="header-label">
+              <span>Status</span>
+              <p-sortIcon field="isActive"></p-sortIcon>
+            </span>
+          </th>
+          <th class="published-column" pSortableColumn="isPublished">
+            <span class="header-label">
+              <span>Published</span>
+              <p-sortIcon field="isPublished"></p-sortIcon>
+            </span>
+          </th>
+          <th class="actions-column">
+            <span class="header-label">
+              <i class="pi pi-cog header-icon"></i>
+              <span>Actions</span>
+            </span>
+          </th>
         </tr>
       </ng-template>
 
       <ng-template pTemplate="body" let-product>
-        <tr>
-          <td>
+        <tr class="table-row">
+          <td class="checkbox-cell">
             <p-tableCheckbox [value]="product"></p-tableCheckbox>
           </td>
-          <td>
-            <div class="product-image-wrapper">
+          <td class="image-cell">
+            <div class="product-image-container">
               <img 
                 [src]="getImageUrl(product.primaryImageUrl)" 
                 [alt]="product.name"
-                class="product-thumbnail"
+                class="product-image"
                 (error)="onImageError($event)" />
-              <div class="image-overlay-badge" *ngIf="!product.primaryImageUrl">
-                <i class="pi pi-image text-xs"></i>
+              <div class="image-placeholder" *ngIf="!product.primaryImageUrl">
+                <i class="pi pi-image"></i>
               </div>
               <div class="image-count-badge" *ngIf="product.imageCount && product.imageCount > 1">
-                <i class="pi pi-images text-xs"></i>
+                <i class="pi pi-images"></i>
                 <span>{{ product.imageCount }}</span>
               </div>
             </div>
           </td>
-          <td>
-            <div class="flex flex-col">
-              <span class="font-semibold text-gray-900 dark:text-gray-100">{{ product.name }}</span>
-              <span class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2" *ngIf="product.description">
+          <td class="name-cell">
+            <div class="name-content">
+              <span class="name-text">{{ product.name }}</span>
+              <span class="description-text" *ngIf="product.description">
                 {{ product.description }}
               </span>
-              <div class="flex items-center gap-2 mt-1" *ngIf="product.isOnSale">
+              <div class="price-row" *ngIf="product.isOnSale">
                 <span class="price-original">{{ formatPrice(product.compareAtPrice!) }}</span>
                 <span class="price-sale">{{ formatPrice(product.price) }}</span>
                 <span class="sale-badge">Sale</span>
               </div>
             </div>
           </td>
-          <td>
-            <code class="sku-badge">{{ product.sku }}</code>
+          <td class="sku-cell">
+            <code class="sku-code">{{ product.sku }}</code>
           </td>
-          <td>
-            <div class="flex flex-col">
-              <span class="font-semibold text-gray-900 dark:text-gray-100">{{ formatPrice(product.price) }}</span>
-              <span class="text-xs text-gray-500 dark:text-gray-400" *ngIf="product.compareAtPrice">
+          <td class="price-cell">
+            <div class="price-content">
+              <span class="price-main">{{ formatPrice(product.price) }}</span>
+              <span class="price-compare" *ngIf="product.compareAtPrice">
                 <s>{{ formatPrice(product.compareAtPrice) }}</s>
               </span>
             </div>
           </td>
-          <td>
+          <td class="stock-cell">
             <div class="stock-indicator" [class]="getStockClass(product.stockQuantity)">
               <i [class]="getStockIcon(product.stockQuantity)"></i>
               <span>{{ product.stockQuantity }}</span>
             </div>
           </td>
-          <td>
+          <td class="status-cell">
             <p-tag 
               [value]="product.isActive ? 'Active' : 'Inactive'" 
               [severity]="product.isActive ? 'success' : 'danger'"
-              [rounded]="true">
+              [rounded]="true"
+              class="status-tag">
             </p-tag>
           </td>
-          <td>
+          <td class="published-cell">
             <p-tag 
               [value]="product.isPublished ? 'Published' : 'Draft'" 
               [severity]="product.isPublished ? 'success' : 'warning'"
-              [rounded]="true">
+              [rounded]="true"
+              class="status-tag">
             </p-tag>
           </td>
-          <td>
-            <div class="flex gap-1">
+          <td class="actions-cell">
+            <div class="action-buttons">
               <p-button 
                 icon="pi pi-pencil" 
                 [rounded]="true"
                 [text]="true"
                 [severity]="'info'"
                 (onClick)="editProduct(product)"
-                pTooltip="Edit Product"
+                [pTooltip]="'Edit Product'"
                 tooltipPosition="top"
-                [style]="{'width': '2rem', 'height': '2rem'}">
+                class="action-btn action-btn-edit">
               </p-button>
               <p-button 
                 [icon]="product.isPublished ? 'pi pi-eye-slash' : 'pi pi-eye'" 
@@ -208,7 +247,7 @@
                 (onClick)="togglePublished(product)"
                 [pTooltip]="product.isPublished ? 'Unpublish' : 'Publish'"
                 tooltipPosition="top"
-                [style]="{'width': '2rem', 'height': '2rem'}">
+                class="action-btn action-btn-toggle">
               </p-button>
               <p-button 
                 icon="pi pi-trash" 
@@ -216,9 +255,9 @@
                 [text]="true"
                 [severity]="'danger'"
                 (onClick)="confirmDeleteProduct(product)"
-                pTooltip="Delete Product"
+                [pTooltip]="'Delete Product'"
                 tooltipPosition="top"
-                [style]="{'width': '2rem', 'height': '2rem'}">
+                class="action-btn action-btn-delete">
               </p-button>
             </div>
           </td>
@@ -227,19 +266,21 @@
 
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="9" class="text-center py-12">
+          <td colspan="9" class="empty-state-cell">
             <div class="empty-state">
-              <div class="empty-state-icon">
-                <i class="pi pi-inbox text-6xl text-gray-300 dark:text-gray-600"></i>
+              <div class="empty-state-icon-wrapper">
+                <i class="pi pi-inbox empty-state-icon"></i>
               </div>
               <h3 class="empty-state-title">No Products Found</h3>
-              <p class="empty-state-message">Start building your catalog by adding your first product</p>
+              <p class="empty-state-description">
+                Start building your catalog by adding your first product
+              </p>
               <p-button 
-                label="Create Product" 
+                [label]="'Create Product'"
                 icon="pi pi-plus" 
                 (onClick)="openNew()"
                 [rounded]="true"
-                class="mt-4">
+                class="empty-state-action">
               </p-button>
             </div>
           </td>
@@ -248,9 +289,14 @@
 
       <ng-template pTemplate="loadingbody">
         <tr>
-          <td colspan="9">
-            <div class="flex items-center justify-center py-8">
-              <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4"></p-progressSpinner>
+          <td colspan="9" class="loading-cell">
+            <div class="loading-wrapper">
+              <p-progressSpinner 
+                [style]="{width: '50px', height: '50px'}" 
+                strokeWidth="4"
+                class="loading-spinner">
+              </p-progressSpinner>
+              <p class="loading-text">Loading products...</p>
             </div>
           </td>
         </tr>
@@ -262,10 +308,9 @@
   <app-create-update-product
     #createUpdateProduct
     [visible]="productDialog"
-    [(product)]="product"
-    [(isEditMode)]="isEditMode"
+    [product]="product"
+    [isEditMode]="isEditMode"
     (visibleChange)="hideDialog()"
     (save)="onProductSave($event)">
   </app-create-update-product>
 </div>
-

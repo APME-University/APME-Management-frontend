@@ -11,9 +11,8 @@ import { MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { DarkModeSwitcherComponent } from 'src/app/shared/components/dark-mode-switcher/dark-mode-switcher.component';
-import { AuthService, CoreModule, LocalizationService, SessionStateService, ConfigStateService } from '@abp/ng.core';
+import { AuthService, CoreModule, LocalizationService, SessionStateService, ConfigStateService, RestService } from '@abp/ng.core';
 import { Router } from '@angular/router';
-import { AbpTenantService } from '../../proxy/abp-tenant';
 import { setTenantId, clearTenantId } from '../../core/interceptors/tenant.interceptor';
 @Component({
   selector: 'app-login',
@@ -45,7 +44,7 @@ export class LoginComponent implements OnInit {
   authService = inject(AuthService);
   localization = inject(LocalizationService);
   readonly _router = inject(Router);
-  tenantService = inject(AbpTenantService);
+  restService = inject(RestService);
   sessionStateService = inject(SessionStateService);
   configState = inject(ConfigStateService);
   isInvalidLogin: boolean = false;
@@ -74,7 +73,10 @@ export class LoginComponent implements OnInit {
 
     // If tenant name is provided, resolve tenant first
     if (tenantName && tenantName.trim()) {
-      this.tenantService.findTenantByName(tenantName.trim()).subscribe({
+      this.restService.request<any, any>({
+        method: 'GET',
+        url: `/api/abp/multi-tenancy/tenants/by-name/${encodeURIComponent(tenantName.trim())}`,
+      }, { apiName: 'abp' }).subscribe({
         next: (result) => {
           if (result.success && result.tenantId) {
             // Set tenant context using SessionStateService (like athletes-hub)

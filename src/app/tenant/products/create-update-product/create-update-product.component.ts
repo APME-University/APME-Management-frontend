@@ -1,9 +1,20 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ProductDto, CreateUpdateProductDto, ProductService } from '../../../proxy/products';
+import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
+import { 
+  ProductDto, 
+  CreateUpdateProductDto, 
+  ProductService,
+  ProductAttributeService,
+  ProductAttributeDto,
+  ProductAttributeDataType
+} from '../../../proxy/products';
+
+// Export enum for template use
+export { ProductAttributeDataType };
 import { CategoryService, CategoryDto } from '../../../proxy/categories';
 import { MessageService } from 'primeng/api';
 import { ShopContextService } from '../../../core/services/shop-context.service';
+import { Router } from '@angular/router';
 import { take } from 'rxjs/operators';
 
 @Component({
@@ -21,7 +32,7 @@ export class CreateUpdateProductComponent implements OnInit {
   set visible(value: boolean) {
     this._visible = value;
     if (value) {
-      this.handleInputChanges();
+      this.loadShopIdAndHandleChanges();
     }
   }
   get visible(): boolean {
@@ -53,28 +64,41 @@ export class CreateUpdateProductComponent implements OnInit {
   }
 
   @Output() visibleChange = new EventEmitter<boolean>();
-  @Output() save = new EventEmitter<{ product: CreateUpdateProductDto; isEditMode: boolean }>();
+  @Output() save = new EventEmitter<{ product: CreateUpdateProductDto; isEditMode: boolean; imageFiles: Array<File | string> }>();
   @Output() productChange = new EventEmitter<ProductDto>();
   @Output() isEditModeChange = new EventEmitter<boolean>();
 
   productForm!: FormGroup;
   submitted: boolean = false;
   loading: boolean = false;
-  imageFiles: File[] = [];
+  
+  // Image handling (following Court pattern: hybrid File | string array)
+  imageFiles: Array<File | string> = [];
   imagePreviews: string[] = [];
+  
   autoGenerateSlug: boolean = true;
   autoGenerateSku: boolean = true;
   descriptionMaxLength: number = 4000;
   descriptionLength: number = 0;
   categories: CategoryDto[] = [];
   uploadingImages: boolean = false;
+  
+  // Dynamic attributes
+  productAttributes: ProductAttributeDto[] = [];
+  attributeFormGroup: FormGroup = this.fb.group({});
+  attributesLoading: boolean = false;
+  
+  // Expose enum to template
+  ProductAttributeDataType = ProductAttributeDataType;
 
   constructor(
     private fb: FormBuilder,
     private productService: ProductService,
     private categoryService: CategoryService,
+    private productAttributeService: ProductAttributeService,
     private messageService: MessageService,
-    private shopContextService: ShopContextService
+    private shopContextService: ShopContextService,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -86,13 +110,419 @@ export class CreateUpdateProductComponent implements OnInit {
       }, 100);
     }
   }
+  
+  /**
+   * Load product attributes for the current shop
+   * This will be called after shopId is available
+   */
+  loadProductAttributes() {
+    const shopId = this.productForm.get('shopId')?.value;
+    if (!shopId) {
+      return;
+    }
+    
+    this.attributesLoading = true;
+    
+    this.productAttributeService.getList({ 
+      shopId: shopId,
+      maxResultCount: 1000 
+    }).subscribe({
+      next: (result) => {
+        this.productAttributes = (result.items || []).sort((a, b) => 
+          (a.displayOrder || 0) - (b.displayOrder || 0)
+        );
+        this.buildAttributeFormControls();
+        this.attributesLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading product attributes:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to load product attributes',
+          life: 3000
+        });
+        this.attributesLoading = false;
+      }
+    });
+  }
+  
+  /**
+   * Build form controls dynamically based on ProductAttribute definitions
+   */
+  buildAttributeFormControls() {
+    const attributeControls: { [key: string]: FormControl } = {};
+    
+    this.productAttributes.forEach(attr => {
+      const validators = [];
+      if (attr.isRequired) {
+        validators.push(Validators.required);
+      }
+      
+      // Add data type specific validators
+      switch (attr.dataType) {
+        case ProductAttributeDataType.Number:
+          validators.push(Validators.pattern(/^-?\d*\.?\d+$/));
+          break;
+        case ProductAttributeDataType.Text:
+          // Text validation: prevent only whitespace for required fields
+          if (attr.isRequired) {
+            validators.push(Validators.pattern(/\S/));
+          }
+          break;
+        case ProductAttributeDataType.Date:
+          // Date validation handled by PrimeNG Calendar
+          break;
+      }
+      
+      attributeControls[attr.name] = new FormControl('', validators);
+    });
+    
+    this.attributeFormGroup = this.fb.group(attributeControls);
+    
+    // Add the attributeFormGroup to the main form
+    this.productForm.setControl('attributeValues', this.attributeFormGroup);
+  }
+  
+  /**
+   * Parse attributes JSON string and populate form controls with proper type conversion
+   */
+  parseAttributesJson(attributesJson: string | null | undefined): { [key: string]: any } {
+    if (!attributesJson) {
+      return {};
+    }
+    
+    try {
+      const parsed = JSON.parse(attributesJson);
+      const typedValues: { [key: string]: any } = {};
+      
+      // Convert values to appropriate types based on attribute definitions
+      this.productAttributes.forEach(attr => {
+        const rawValue = parsed[attr.name];
+        
+        if (rawValue === null || rawValue === undefined) {
+          return;
+        }
+        
+        // Convert to appropriate type for form control
+        switch (attr.dataType) {
+          case ProductAttributeDataType.Number:
+            typedValues[attr.name] = typeof rawValue === 'number' 
+              ? rawValue 
+              : parseFloat(rawValue) || null;
+            break;
+            
+          case ProductAttributeDataType.Boolean:
+            typedValues[attr.name] = typeof rawValue === 'boolean' 
+              ? rawValue 
+              : rawValue === 'true' || rawValue === '1' || rawValue === true;
+            break;
+            
+          case ProductAttributeDataType.Date:
+            // Convert ISO string to Date object for PrimeNG Calendar
+            if (typeof rawValue === 'string') {
+              const date = new Date(rawValue);
+              typedValues[attr.name] = !isNaN(date.getTime()) ? date : null;
+            } else if (rawValue instanceof Date) {
+              typedValues[attr.name] = rawValue;
+            } else {
+              typedValues[attr.name] = null;
+            }
+            break;
+            
+          case ProductAttributeDataType.Text:
+          default:
+            typedValues[attr.name] = String(rawValue);
+            break;
+        }
+      });
+      
+      return typedValues;
+    } catch (error) {
+      console.error('Error parsing attributes JSON:', error);
+      return {};
+    }
+  }
+  
+  /**
+   * Serialize attribute form values to JSON string with proper type preservation
+   */
+  serializeAttributesToJson(): string | null {
+    const attributeValues = this.attributeFormGroup.value;
+    const hasValues = Object.values(attributeValues).some(val => 
+      val !== null && val !== undefined && val !== ''
+    );
+    
+    if (!hasValues) {
+      return null;
+    }
+    
+    // Build typed attribute object
+    const typedAttributes: { [key: string]: any } = {};
+    
+    this.productAttributes.forEach(attr => {
+      const value = attributeValues[attr.name];
+      
+      // Skip empty values
+      if (value === null || value === undefined || value === '') {
+        return;
+      }
+      
+      // Preserve types based on attribute definition
+      switch (attr.dataType) {
+        case ProductAttributeDataType.Number:
+          typedAttributes[attr.name] = typeof value === 'number' 
+            ? value 
+            : parseFloat(value) || 0;
+          break;
+          
+        case ProductAttributeDataType.Boolean:
+          typedAttributes[attr.name] = typeof value === 'boolean' 
+            ? value 
+            : value === 'true' || value === true || value === '1' || value === 1;
+          break;
+          
+        case ProductAttributeDataType.Date:
+          // Ensure ISO format (YYYY-MM-DD)
+          if (value instanceof Date) {
+            typedAttributes[attr.name] = this.formatDateToISO(value);
+          } else if (typeof value === 'string') {
+            // Validate and normalize date string
+            typedAttributes[attr.name] = this.normalizeDateString(value);
+          } else {
+            typedAttributes[attr.name] = value;
+          }
+          break;
+          
+        case ProductAttributeDataType.Text:
+        default:
+          typedAttributes[attr.name] = String(value).trim();
+          break;
+      }
+    });
+    
+    return Object.keys(typedAttributes).length > 0 
+      ? JSON.stringify(typedAttributes) 
+      : null;
+  }
+  
+  /**
+   * Format Date to ISO string (YYYY-MM-DD)
+   */
+  private formatDateToISO(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  
+  /**
+   * Normalize date string to ISO format
+   */
+  private normalizeDateString(dateStr: string): string {
+    // Try to parse and reformat
+    const date = new Date(dateStr);
+    if (!isNaN(date.getTime())) {
+      return this.formatDateToISO(date);
+    }
+    // If parsing fails, return as-is (backend will validate)
+    return dateStr.trim();
+  }
+  
+  /**
+   * Check if product has attributes (non-empty JSON string)
+   */
+  hasProductAttributes(): boolean {
+    if (!this.product?.attributes) {
+      return false;
+    }
+    
+    try {
+      const attributes = JSON.parse(this.product.attributes);
+      return attributes && Object.keys(attributes).length > 0;
+    } catch {
+      return false;
+    }
+  }
+  
+  /**
+   * Navigate to product attributes management page
+   */
+  navigateToProductAttributes(): void {
+    this.router.navigate(['/tenant/product-attributes']);
+  }
+  
+  /**
+   * Get attribute control name for template
+   */
+  getAttributeControlName(attributeName: string): string {
+    return attributeName;
+  }
+  
+  /**
+   * Get input type based on attribute data type
+   */
+  getInputType(dataType: ProductAttributeDataType | undefined): string {
+    switch (dataType) {
+      case ProductAttributeDataType.Text: // 0
+        return 'text';
+      case ProductAttributeDataType.Number: // 1
+        return 'number';
+      case ProductAttributeDataType.Boolean: // 2
+        return 'checkbox';
+      case ProductAttributeDataType.Date: // 3
+        return 'date';
+      default:
+        return 'text';
+    }
+  }
+  
+  /**
+   * Get data type label for display
+   */
+  getDataTypeLabel(dataType: ProductAttributeDataType | undefined): string {
+    switch (dataType) {
+      case ProductAttributeDataType.Text:
+        return 'Text';
+      case ProductAttributeDataType.Number:
+        return 'Number';
+      case ProductAttributeDataType.Boolean:
+        return 'Boolean';
+      case ProductAttributeDataType.Date:
+        return 'Date';
+      default:
+        return 'Text';
+    }
+  }
+  
+  /**
+   * Get icon class for attribute data type
+   */
+  getAttributeTypeIcon(dataType: ProductAttributeDataType | undefined): string {
+    switch (dataType) {
+      case ProductAttributeDataType.Text:
+        return 'pi pi-font';
+      case ProductAttributeDataType.Number:
+        return 'pi pi-hashtag';
+      case ProductAttributeDataType.Boolean:
+        return 'pi pi-check-square';
+      case ProductAttributeDataType.Date:
+        return 'pi pi-calendar';
+      default:
+        return 'pi pi-tag';
+    }
+  }
+  
+  /**
+   * Check if attribute field is invalid
+   */
+  isAttributeFieldInvalid(attributeName: string): boolean {
+    const control = this.attributeFormGroup.get(attributeName);
+    return !!(control && control.invalid && (control.dirty || control.touched || this.submitted));
+  }
+  
+  /**
+   * Get attribute field error message
+   */
+  getAttributeFieldError(attributeName: string): string {
+    const control = this.attributeFormGroup.get(attributeName);
+    const attr = this.productAttributes.find(a => a.name === attributeName);
+    
+    if (control?.errors) {
+      if (control.errors['required']) {
+        return `${attr?.displayName || 'This field'} is required`;
+      }
+      if (control.errors['pattern']) {
+        if (attr?.dataType === ProductAttributeDataType.Number) {
+          return 'Please enter a valid number';
+        }
+        if (attr?.dataType === ProductAttributeDataType.Text) {
+          return 'Value cannot be empty or only whitespace';
+        }
+        return 'Invalid format';
+      }
+    }
+    return '';
+  }
+  
+  /**
+   * Check if attribute form group has any errors
+   */
+  hasAttributeErrors(): boolean {
+    if (!this.attributeFormGroup) {
+      return false;
+    }
+    return Object.keys(this.attributeFormGroup.controls).some(key => {
+      const control = this.attributeFormGroup.get(key);
+      return control ? control.invalid && (control.dirty || control.touched || this.submitted) : false;
+    });
+  }
+  
+  /**
+   * Get attribute field hint/help text
+   */
+  getAttributeFieldHint(attributeName: string): string {
+    const attr = this.productAttributes.find(a => a.name === attributeName);
+    if (!attr) {
+      return '';
+    }
+    
+    switch (attr.dataType) {
+      case ProductAttributeDataType.Text:
+        return attr.isRequired 
+          ? `Enter a value for ${attr.displayName.toLowerCase()}`
+          : `Optional: Add ${attr.displayName.toLowerCase()} if applicable`;
+      case ProductAttributeDataType.Number:
+        return attr.isRequired
+          ? `Enter a numeric value for ${attr.displayName.toLowerCase()}`
+          : `Optional: Add numeric value for ${attr.displayName.toLowerCase()}`;
+      case ProductAttributeDataType.Date:
+        return attr.isRequired
+          ? `Select a date for ${attr.displayName.toLowerCase()}`
+          : `Optional: Select date for ${attr.displayName.toLowerCase()}`;
+      case ProductAttributeDataType.Boolean:
+        return attr.isRequired
+          ? `Enable or disable ${attr.displayName.toLowerCase()}`
+          : `Optional: Toggle ${attr.displayName.toLowerCase()}`;
+      default:
+        return '';
+    }
+  }
+
+  private loadShopIdAndHandleChanges() {
+    // First, ensure shopId is loaded for new products
+    if (!this.isEditMode) {
+      // Check if shopId is already available synchronously
+      const cachedShopId = this.shopContextService.getCurrentShopId();
+      if (cachedShopId && this.productForm) {
+        this.productForm.patchValue({ shopId: cachedShopId }, { emitEvent: false });
+        this.loadProductAttributes();
+      } else {
+        // Load shop asynchronously if not cached
+        this.shopContextService.getCurrentShop().pipe(take(1)).subscribe(shop => {
+          if (shop && this.productForm) {
+            this.productForm.patchValue({ shopId: shop.id }, { emitEvent: false });
+            this.loadProductAttributes();
+          }
+        });
+      }
+    } else {
+      // For edit mode, load attributes after shopId is set
+      const shopId = this.product?.shopId;
+      if (shopId && this.productForm) {
+        this.productForm.patchValue({ shopId }, { emitEvent: false });
+        this.loadProductAttributes();
+      }
+    }
+    this.handleInputChanges();
+  }
 
   private handleInputChanges() {
-    if (!this.visible || !this.product) {
+    if (!this.visible) {
       return;
     }
 
-    if (this.isEditMode) {
+    if (this.isEditMode && this.product) {
       setTimeout(() => {
         this.populateForm();
       }, 100);
@@ -102,11 +532,9 @@ export class CreateUpdateProductComponent implements OnInit {
   }
 
   initForm() {
-    // Get shop ID from context for new products
-    const shopId = this.shopContextService.getCurrentShopId() || '';
-    
+    // Initialize shopId as null - it will be set when dialog opens
     this.productForm = this.fb.group({
-      shopId: [shopId, Validators.required],
+      shopId: [null, Validators.required],
       categoryId: [null],
       name: ['', [Validators.required, Validators.maxLength(256)]],
       slug: ['', [Validators.required, Validators.maxLength(256)]],
@@ -144,7 +572,30 @@ export class CreateUpdateProductComponent implements OnInit {
 
   populateForm() {
     if (this.product && this.productForm) {
-      const shopId = this.product.shopId || '';
+      // Ensure shopId is not empty - use product's shopId or load from context
+      const shopId = this.product.shopId || null;
+      if (!shopId) {
+        // If product doesn't have shopId, try to get it from context
+        this.shopContextService.getCurrentShop().pipe(take(1)).subscribe(shop => {
+          if (shop && this.productForm) {
+            this.productForm.patchValue({
+              shopId: shop.id,
+              categoryId: this.product.categoryId || null,
+              name: this.product.name || '',
+              slug: this.product.slug || '',
+              description: this.product.description || '',
+              sku: this.product.sku || '',
+              price: this.product.price || 0,
+              compareAtPrice: this.product.compareAtPrice || null,
+              stockQuantity: this.product.stockQuantity || 0,
+              isActive: this.product.isActive !== undefined ? this.product.isActive : true,
+              isPublished: this.product.isPublished !== undefined ? this.product.isPublished : false,
+              attributes: this.product.attributes || null,
+            });
+          }
+        });
+        return;
+      }
       
       this.productForm.patchValue({
         shopId: shopId,
@@ -161,27 +612,38 @@ export class CreateUpdateProductComponent implements OnInit {
         attributes: this.product.attributes || null,
       });
       
+      // Load product attributes and populate attribute form
+      this.loadProductAttributes();
+      
+      // Parse and populate attribute values after attributes are loaded
+      setTimeout(() => {
+        const attributeValues = this.parseAttributesJson(this.product.attributes);
+        if (this.attributeFormGroup && Object.keys(attributeValues).length > 0) {
+          this.attributeFormGroup.patchValue(attributeValues);
+        }
+      }, 500);
+      
       this.descriptionLength = this.product.description?.length || 0;
       
+      // Load existing images (following Court pattern: store as strings)
       if (this.product.imageUrls && this.product.imageUrls.length > 0) {
-        this.imagePreviews = [...this.product.imageUrls];
+        this.imageFiles = [...this.product.imageUrls]; // Store existing URLs as strings
+        this.imagePreviews = [...this.product.imageUrls]; // Use URLs directly for preview
+      } else {
+        this.initializeImages();
       }
       
       this.autoGenerateSlug = false;
       this.autoGenerateSku = false;
-    } else if (!this.isEditMode) {
-      // For new products, get shop ID from context
-      this.shopContextService.getCurrentShop().pipe(take(1)).subscribe(shop => {
-        if (shop && this.productForm) {
-          this.productForm.patchValue({ shopId: shop.id });
-        }
-      });
     }
   }
 
   resetForm() {
+    // Get shop ID synchronously if available
+    const shopId = this.shopContextService.getCurrentShopId();
+    
     this.productForm.reset({
-      shopId: '',
+      shopId: shopId || null,
       categoryId: null,
       name: '',
       slug: '',
@@ -194,12 +656,32 @@ export class CreateUpdateProductComponent implements OnInit {
       isPublished: false,
       attributes: null,
     });
-    this.imagePreviews = [];
-    this.imageFiles = [];
+    
+    // Reset attribute form group
+    if (this.attributeFormGroup) {
+      this.attributeFormGroup.reset();
+    }
+    
+    // Initialize images (following Court pattern)
+    this.initializeImages();
+    
     this.descriptionLength = 0;
     this.submitted = false;
     this.autoGenerateSlug = true;
     this.autoGenerateSku = true;
+    
+    // Reload attributes for the shop
+    if (shopId) {
+      this.loadProductAttributes();
+    }
+  }
+  
+  /**
+   * Initialize images array (following Court pattern)
+   */
+  private initializeImages() {
+    this.imageFiles = [undefined as any];
+    this.imagePreviews = [undefined as any];
   }
 
   loadCategories() {
@@ -266,6 +748,42 @@ export class CreateUpdateProductComponent implements OnInit {
     const files = event.files || [];
     files.forEach((file: File) => this.handleFileSelection(file));
   }
+  
+  /**
+   * Handle image file selection (following Court pattern)
+   */
+  handleImageChange(event: Event, index: number) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (file) {
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+      if (!allowedTypes.includes(file.type)) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Invalid File Type',
+          detail: `${file.name} is not a valid image file`,
+          life: 3000,
+        });
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024;
+      if (file.size > maxSize) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'File Too Large',
+          detail: `${file.name} exceeds 5MB limit`,
+          life: 3000,
+        });
+        return;
+      }
+      
+      this.imageFiles[index] = file;
+      this.imagePreviews[index] = URL.createObjectURL(file);
+    }
+  }
 
   private handleFileSelection(file: File) {
     // Validate file type
@@ -292,18 +810,75 @@ export class CreateUpdateProductComponent implements OnInit {
       return;
     }
 
-    this.imageFiles.push(file);
+    // Find first empty slot or add new
+    const emptyIndex = this.imageFiles.findIndex(item => !item);
+    if (emptyIndex >= 0) {
+      this.imageFiles[emptyIndex] = file;
+      this.imagePreviews[emptyIndex] = URL.createObjectURL(file);
+    } else {
+      this.imageFiles.push(file);
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.imagePreviews.push(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  /**
+   * Add new image slot (following Court pattern)
+   */
+  addImageSlot() {
+    this.imageFiles.push(undefined as any);
+    this.imagePreviews.push(undefined as any);
+  }
+
+  /**
+   * Remove image slot (following Court pattern)
+   * Handles both existing images (strings) and new uploads (Files)
+   */
+  removeImageSlot(index: number) {
+    const item = this.imageFiles[index];
     
-    // Create preview
-    const reader = new FileReader();
-    reader.onload = (e: any) => {
-      this.imagePreviews.push(e.target.result);
-    };
-    reader.readAsDataURL(file);
+    if (typeof item === 'string') {
+      // Existing image - need to delete from backend
+      // Note: We'll handle this in the parent component during save
+      // For now, just remove from arrays
+      this.imageFiles.splice(index, 1);
+      this.imagePreviews.splice(index, 1);
+      
+      // Ensure at least one slot remains
+      if (this.imageFiles.length === 0) {
+        this.initializeImages();
+      }
+    } else if (item instanceof File) {
+      // New upload - just remove from arrays
+      // Revoke object URL to free memory
+      const previewUrl = this.imagePreviews[index];
+      if (previewUrl && previewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(previewUrl);
+      }
+      this.imageFiles.splice(index, 1);
+      this.imagePreviews.splice(index, 1);
+      
+      // Ensure at least one slot remains
+      if (this.imageFiles.length === 0) {
+        this.initializeImages();
+      }
+    } else {
+      // Empty slot - just remove
+      this.imageFiles.splice(index, 1);
+      this.imagePreviews.splice(index, 1);
+      
+      // Ensure at least one slot remains
+      if (this.imageFiles.length === 0) {
+        this.initializeImages();
+      }
+    }
   }
 
   setPrimaryImage(index: number) {
-    if (index >= 0 && index < this.imagePreviews.length) {
+    if (index >= 0 && index < this.imagePreviews.length && index !== 0) {
       // Move to first position
       const preview = this.imagePreviews.splice(index, 1)[0];
       const file = this.imageFiles.splice(index, 1)[0];
@@ -312,9 +887,19 @@ export class CreateUpdateProductComponent implements OnInit {
     }
   }
 
+  /**
+   * Legacy method name for backward compatibility
+   */
   removeImage(index: number) {
-    this.imagePreviews.splice(index, 1);
-    this.imageFiles.splice(index, 1);
+    this.removeImageSlot(index);
+  }
+  
+  /**
+   * Handle image error (fallback to placeholder)
+   */
+  handleImageError(event: Event) {
+    const img = event.target as HTMLImageElement;
+    img.src = 'assets/images/placeholder.png';
   }
 
   isFieldInvalid(fieldName: string): boolean {
@@ -346,6 +931,19 @@ export class CreateUpdateProductComponent implements OnInit {
   onSave() {
     this.submitted = true;
 
+    // Mark all form controls as touched to show validation errors
+    Object.keys(this.productForm.controls).forEach(key => {
+      this.productForm.get(key)?.markAsTouched();
+    });
+    
+    // Mark all attribute form controls as touched
+    if (this.attributeFormGroup) {
+      Object.keys(this.attributeFormGroup.controls).forEach(key => {
+        this.attributeFormGroup.get(key)?.markAsTouched();
+      });
+    }
+
+    // Check if main form is invalid
     if (this.productForm.invalid) {
       this.messageService.add({
         severity: 'warn',
@@ -356,10 +954,27 @@ export class CreateUpdateProductComponent implements OnInit {
       return;
     }
 
+    // Check if attribute form has errors
+    if (this.attributeFormGroup && this.hasAttributeErrors()) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Attribute Validation Error',
+        detail: 'Please fix attribute validation errors before saving',
+        life: 3000,
+      });
+      return;
+    }
+
     this.loading = true;
 
     const formValue = this.productForm.value;
-    const productDto: CreateUpdateProductDto = {
+    
+    // Serialize attribute values to JSON
+    const attributesJson = this.serializeAttributesToJson();
+    
+    // Note: image property is handled separately via FormData in parent component
+    // Using type assertion since image is optional in practice but required in generated DTO
+    const productDto = {
       shopId: formValue.shopId,
       categoryId: formValue.categoryId || undefined,
       name: formValue.name,
@@ -371,18 +986,27 @@ export class CreateUpdateProductComponent implements OnInit {
       stockQuantity: formValue.stockQuantity,
       isActive: formValue.isActive,
       isPublished: formValue.isPublished,
-      attributes: formValue.attributes || undefined,
-    };
+      attributes: attributesJson || undefined,
+    } as CreateUpdateProductDto;
 
-    // Emit save event - images will be uploaded separately
+    // Emit save event with image files array for parent to handle
+    // Parent will construct FormData and handle existing image removal
     this.save.emit({
       product: productDto,
       isEditMode: this.isEditMode,
+      imageFiles: this.imageFiles, // Pass hybrid array to parent
     });
   }
 
   public populateFormPublic() {
     this.populateForm();
+  }
+  
+  /**
+   * Track by function for attribute list
+   */
+  trackByAttributeName(index: number, attr: ProductAttributeDto): string {
+    return attr.name || index.toString();
   }
 }
 

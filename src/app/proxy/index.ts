@@ -1,6 +1,8 @@
-import * as FackService from './fack-service';
-import * as Shops from './shops';
-import * as AbpTenant from './abp-tenant';
-import * as Products from './products';
 import * as Categories from './categories';
-export { FackService, Shops, AbpTenant, Products, Categories };
+import * as Customers from './customers';
+import * as FackService from './fack-service';
+import * as Microsoft from './microsoft';
+import * as Products from './products';
+import * as Shops from './shops';
+import * as Volo from './volo';
+export { Categories, Customers, FackService, Microsoft, Products, Shops, Volo };

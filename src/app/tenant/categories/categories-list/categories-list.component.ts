@@ -120,6 +120,7 @@ export class CategoriesListComponent implements OnInit {
   }
 
   confirmDeleteCategory(category: CategoryDto) {
+    this.category = { ...category };
     this.confirmationService.confirm({
       message: `Are you sure you want to delete "${category.name}"? This action cannot be undone.`,
       header: 'Confirm Deletion',
@@ -132,6 +133,16 @@ export class CategoriesListComponent implements OnInit {
   }
 
   performDelete() {
+    if (!this.category?.id) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Category ID is missing',
+        life: 3000,
+      });
+      return;
+    }
+
     this.loading = true;
     this.categoryService.delete(this.category.id).subscribe({
       next: () => {
@@ -200,7 +211,7 @@ export class CategoriesListComponent implements OnInit {
 
   toggleActive(category: CategoryDto) {
     this.loading = true;
-    const updateDto: CreateUpdateCategoryDto = {
+    const updateDto = {
       shopId: category.shopId,
       name: category.name,
       slug: category.slug,
@@ -208,8 +219,7 @@ export class CategoriesListComponent implements OnInit {
       parentId: category.parentId,
       displayOrder: category.displayOrder,
       isActive: !category.isActive,
-      imageUrl: category.imageUrl,
-    };
+    } as CreateUpdateCategoryDto;
 
     this.categoryService.update(category.id, updateDto).subscribe({
       next: (updatedCategory) => {
@@ -324,7 +334,7 @@ export class CategoriesListComponent implements OnInit {
   }
 
   uploadCategoryImage(categoryId: string, file: File) {
-    this.categoryService.uploadImage(categoryId, file).subscribe({
+    this.categoryService.uploadCategoryImage(categoryId, file as any).subscribe({
       next: (imageUrl) => {
         this.messageService.add({
           severity: 'success',

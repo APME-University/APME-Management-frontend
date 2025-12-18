@@ -71,7 +71,16 @@ function configureRoutes() {
         parentName :'::Menu:Catalog',
         isTenant: true
       } as any,
-      
+           {
+        path: '/tenant/product-attributes',
+        name : "::Menu:ProductAttributes",
+        // Using PrimeIcons (traditional way)
+        iconClass : PrimeIcons.OBJECTS_COLUMN,
+        layout : eLayoutType.application,
+        order : 4,
+        parentName :'::Menu:Catalog',
+        isTenant: true
+      } as any,
       {
         path: '/users',
         name : "::Menu:user",
@@ -133,32 +142,32 @@ function configureRoutes() {
         order: 1,
         isTenant: true
       } as any,
-      {
-        path: '/tenant/categories',
-        name: '::Menu:TenantCategories',
-        iconClass: 'material-icons-round|category',
-        layout: eLayoutType.application,
-        order: 2,
-        isTenant: true,
-        parentName: '::Menu:TenantCatalog'
-      } as any,
-      {
-        path: '/tenant/products',
-        name: '::Menu:TenantProducts',
-        iconClass: PrimeIcons.OBJECTS_COLUMN,
-        layout: eLayoutType.application,
-        order: 3,
-        isTenant: true,
-        parentName: '::Menu:TenantCatalog'
-      } as any,
-      {
-        path: '/tenant/orders',
-        name: '::Menu:TenantOrders',
-        iconClass: 'material-icons-round|shopping_cart',
-        layout: eLayoutType.application,
-        order: 4,
-        isTenant: true
-      } as any,
+      // {
+      //   path: '/tenant/categories',
+      //   name: '::Menu:TenantCategories',
+      //   iconClass: 'material-icons-round|category',
+      //   layout: eLayoutType.application,
+      //   order: 2,
+      //   isTenant: true,
+      //   parentName: '::Menu:TenantCatalog'
+      // } as any,
+      // {
+      //   path: '/tenant/products',
+      //   name: '::Menu:TenantProducts',
+      //   iconClass: PrimeIcons.OBJECTS_COLUMN,
+      //   layout: eLayoutType.application,
+      //   order: 3,
+      //   isTenant: true,
+      //   parentName: '::Menu:TenantCatalog'
+      // } as any,
+      // {
+      //   path: '/tenant/orders',
+      //   name: '::Menu:TenantOrders',
+      //   iconClass: 'material-icons-round|shopping_cart',
+      //   layout: eLayoutType.application,
+      //   order: 4,
+      //   isTenant: true
+      // } as any,
       {
         path: '/tenant/customers',
         name: '::Menu:TenantCustomers',

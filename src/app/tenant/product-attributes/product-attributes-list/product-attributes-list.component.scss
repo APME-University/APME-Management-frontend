@@ -1,0 +1,208 @@
+.product-attributes-container {
+  @apply min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 md:p-6 lg:p-8;
+}
+
+.header-section {
+  @apply mb-6 space-y-4;
+}
+
+.header-content {
+  @apply flex items-start justify-between flex-wrap gap-4;
+}
+
+.header-text {
+  @apply flex-1 min-w-0;
+}
+
+.page-title {
+  @apply flex items-center gap-3 mb-3 text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100;
+  
+  .title-icon-wrapper {
+    @apply flex items-center justify-center w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 shadow-sm;
+  }
+  
+  .title-text {
+    @apply tracking-tight;
+  }
+}
+
+.page-subtitle {
+  @apply text-base md:text-lg text-gray-600 dark:text-gray-400 leading-relaxed;
+}
+
+.toolbar-section {
+  @apply flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 p-5 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700;
+}
+
+.toolbar-left {
+  @apply flex items-center gap-3 flex-wrap;
+}
+
+.toolbar-right {
+  @apply flex items-center gap-3 flex-wrap flex-1 lg:flex-initial;
+}
+
+.selection-badge {
+  @apply px-3 py-1.5 rounded-lg bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800;
+  
+  .badge-text {
+    @apply text-sm font-medium text-primary-700 dark:text-primary-300;
+  }
+}
+
+.filter-group {
+  @apply relative flex-1 lg:flex-initial;
+}
+
+.search-wrapper {
+  @apply relative flex-1 lg:flex-initial;
+  
+  .search-icon {
+    @apply absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 z-10;
+  }
+  
+  .search-input {
+    @apply w-full lg:w-64 pl-10 pr-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-transparent transition-all;
+  }
+}
+
+.data-type-filter {
+  @apply w-full lg:w-48;
+}
+
+.table-section {
+  @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden;
+}
+
+.table-header-row {
+  @apply bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 font-semibold text-sm uppercase tracking-wider border-b-2 border-gray-200 dark:border-gray-700 px-4 py-4;
+  
+  .header-label {
+    @apply flex items-center gap-2;
+    
+    .header-icon {
+      @apply text-gray-500 dark:text-gray-400 text-sm;
+    }
+  }
+  
+  .checkbox-column {
+    @apply pl-6;
+  }
+  
+  .actions-column {
+    @apply pr-6;
+  }
+}
+
+.table-row {
+  @apply border-b border-gray-100 dark:border-gray-800 transition-all duration-200;
+  
+  &:hover {
+    @apply bg-gray-50 dark:bg-gray-700/30;
+  }
+  
+  &:has(input[type="checkbox"]:checked) {
+    @apply bg-primary-50 dark:bg-primary-900/20;
+  }
+}
+
+.name-code {
+  @apply px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md text-xs font-mono border border-gray-200 dark:border-gray-600;
+}
+
+.display-name-text {
+  @apply font-semibold text-gray-900 dark:text-gray-100 text-sm;
+}
+
+.data-type-tag,
+.required-tag {
+  @apply text-xs;
+}
+
+.order-text {
+  @apply text-sm text-gray-700 dark:text-gray-300;
+}
+
+.action-buttons {
+  @apply flex items-center gap-1.5;
+}
+
+.action-btn {
+  @apply w-8 h-8 transition-all duration-200;
+  
+  &:hover {
+    @apply scale-110;
+  }
+}
+
+.empty-message-cell {
+  @apply py-16 px-6;
+}
+
+.empty-state {
+  @apply flex flex-col items-center justify-center text-center max-w-md mx-auto;
+  
+  .empty-icon {
+    @apply mb-6 p-6 rounded-full bg-gray-100 dark:bg-gray-800;
+  }
+  
+  .empty-title {
+    @apply text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2;
+  }
+  
+  .empty-description {
+    @apply text-gray-500 dark:text-gray-400 mb-6 leading-relaxed;
+  }
+  
+  .empty-action-btn {
+    @apply mt-2;
+  }
+}
+
+// Column widths
+.checkbox-column {
+  @apply w-12;
+}
+
+.name-column {
+  @apply min-w-[150px];
+}
+
+.display-name-column {
+  @apply min-w-[180px];
+}
+
+.data-type-column {
+  @apply w-32;
+}
+
+.required-column {
+  @apply w-32;
+}
+
+.display-order-column {
+  @apply w-24;
+}
+
+.actions-column {
+  @apply w-40;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .toolbar-section {
+    @apply flex-col items-stretch;
+  }
+  
+  .filter-group {
+    @apply w-full;
+  }
+  
+  .search-wrapper {
+    @apply w-full;
+  }
+  
+  .data-type-filter {
+    @apply w-full;
+  }
+}

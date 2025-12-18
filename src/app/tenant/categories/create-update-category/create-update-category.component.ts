@@ -342,7 +342,9 @@ export class CreateUpdateCategoryComponent implements OnInit {
     this.loading = true;
 
     const formValue = this.categoryForm.value;
-    const categoryDto: CreateUpdateCategoryDto = {
+    // Note: image property is handled separately via FormData in parent component
+    // Using type assertion since image is optional in practice but required in generated DTO
+    const categoryDto = {
       shopId: formValue.shopId,
       name: formValue.name,
       slug: formValue.slug,
@@ -350,8 +352,7 @@ export class CreateUpdateCategoryComponent implements OnInit {
       parentId: formValue.parentId || undefined,
       displayOrder: formValue.displayOrder,
       isActive: formValue.isActive,
-      imageUrl: formValue.imageUrl || undefined,
-    };
+    } as CreateUpdateCategoryDto;
 
     // Note: Image upload will be handled after category creation/update in the parent component
     // For edit mode, if image file is selected, it will be uploaded separately
