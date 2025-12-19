@@ -1,0 +1,228 @@
+<p-dialog 
+  [(visible)]="visible" 
+  [modal]="true" 
+  [draggable]="false" 
+  [resizable]="false"
+  [closable]="true"
+  [style]="{width: '90vw', maxWidth: '600px'}"
+  styleClass="product-attribute-dialog"
+  [breakpoints]="{'960px': '95vw', '640px': '100vw'}"
+  (onHide)="hideDialog()">
+  
+  <ng-template pTemplate="header">
+    <div class="dialog-header">
+      <div class="dialog-header-content">
+        <div class="dialog-icon-wrapper">
+          <i class="pi pi-tags"></i>
+        </div>
+        <div class="dialog-title-wrapper">
+          <h5 class="dialog-title">{{ isEditMode ? 'Edit Product Attribute' : 'Create New Product Attribute' }}</h5>
+          <p class="dialog-subtitle">{{ isEditMode ? 'Update attribute information' : 'Define a new product attribute' }}</p>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="content">
+    <form [formGroup]="productAttributeForm" (ngSubmit)="onSave()" class="product-attribute-form" novalidate>
+      <!-- Basic Information Section -->
+      <div class="form-section">
+        <h6 class="section-title">
+          <i class="pi pi-info-circle"></i>
+          <span>Attribute Information</span>
+        </h6>
+        
+        <!-- Form Fields Grid -->
+        <div class="form-fields-grid">
+          <!-- Name Field Card -->
+          <div class="form-field-card" [class.field-card-error]="isFieldInvalid('name')">
+            <div class="field-card-header">
+              <label for="name" class="form-label">
+                <span class="label-text">Attribute Name</span>
+                <span class="label-required" aria-label="Required">*</span>
+              </label>
+            </div>
+            <div class="field-card-body">
+              <span class="p-input-icon-left input-wrapper-full">
+                <i class="pi pi-code input-icon"></i>
+                <input 
+                  id="name"
+                  pInputText 
+                  formControlName="name"
+                  [class.ng-invalid]="isFieldInvalid('name')"
+                  [class.ng-valid]="!isFieldInvalid('name') && productAttributeForm.get('name')?.value"
+                  [placeholder]="'e.g., color, size, material'"
+                  [attr.aria-required]="true"
+                  [attr.aria-invalid]="isFieldInvalid('name')"
+                  [attr.aria-describedby]="'name_error'"
+                  class="form-input field-input"
+                  [maxlength]="128"
+                  autocomplete="off" />
+              </span>
+            </div>
+            <div class="field-card-footer">
+              <small 
+                class="form-error" 
+                *ngIf="isFieldInvalid('name')"
+                [id]="'name_error'"
+                role="alert"
+                aria-live="polite">
+                <i class="pi pi-exclamation-circle"></i>
+                {{ getFieldError('name') }}
+              </small>
+              <small 
+                class="form-hint" 
+                *ngIf="!isFieldInvalid('name') && getFieldHint('name')"
+                [id]="'name_hint'">
+                <i class="pi pi-info-circle"></i>
+                {{ getFieldHint('name') }}
+              </small>
+            </div>
+          </div>
+
+          <!-- Display Name Field Card -->
+          <div class="form-field-card" [class.field-card-error]="isFieldInvalid('displayName')">
+            <div class="field-card-header">
+              <label for="displayName" class="form-label">
+                <span class="label-text">Display Name</span>
+              </label>
+            </div>
+            <div class="field-card-body">
+              <span class="p-input-icon-left input-wrapper-full">
+                <i class="pi pi-pencil input-icon"></i>
+                <input 
+                  id="displayName"
+                  pInputText 
+                  formControlName="displayName"
+                  [placeholder]="'e.g., Color, Size, Material'"
+                  class="form-input field-input"
+                  [maxlength]="256"
+                  autocomplete="off" />
+              </span>
+            </div>
+            <div class="field-card-footer">
+              <small 
+                class="form-hint" 
+                *ngIf="getFieldHint('displayName')"
+                [id]="'displayName_hint'">
+                <i class="pi pi-info-circle"></i>
+                {{ getFieldHint('displayName') }}
+              </small>
+            </div>
+          </div>
+
+          <!-- Data Type Field Card -->
+          <div class="form-field-card" [class.field-card-error]="isFieldInvalid('dataType')">
+            <div class="field-card-header">
+              <label for="dataType" class="form-label">
+                <span class="label-text">Data Type</span>
+              </label>
+            </div>
+            <div class="field-card-body">
+              <p-dropdown 
+                id="dataType"
+                formControlName="dataType"
+                [options]="dataTypeOptions"
+                optionLabel="label"
+                optionValue="value"
+                [placeholder]="'Select data type'"
+                [disabled]="isEditMode"
+                class="form-dropdown field-dropdown w-full">
+                <ng-template let-option pTemplate="item">
+                  <div class="dropdown-option">
+                    <i [class]="option.icon" class="option-icon"></i>
+                    <span>{{ option.label }}</span>
+                  </div>
+                </ng-template>
+              </p-dropdown>
+            </div>
+            <div class="field-card-footer">
+              <small 
+                class="form-hint" 
+                *ngIf="getFieldHint('dataType')"
+                [id]="'dataType_hint'">
+                <i class="pi pi-info-circle"></i>
+                {{ getFieldHint('dataType') }}
+              </small>
+            </div>
+          </div>
+
+          <!-- Display Order Field Card -->
+          <div class="form-field-card" [class.field-card-error]="isFieldInvalid('displayOrder')">
+            <div class="field-card-header">
+              <label for="displayOrder" class="form-label">
+                <span class="label-text">Display Order</span>
+              </label>
+            </div>
+            <div class="field-card-body">
+              <span class="input-number-wrapper-full">
+                <p-inputNumber 
+                  id="displayOrder"
+                  formControlName="displayOrder"
+                  [min]="0"
+                  [showButtons]="true"
+                  [placeholder]="'0'"
+                  class="form-input-number field-input">
+                </p-inputNumber>
+              </span>
+            </div>
+            <div class="field-card-footer">
+              <small 
+                class="form-hint" 
+                *ngIf="getFieldHint('displayOrder')"
+                [id]="'displayOrder_hint'">
+                <i class="pi pi-sort"></i>
+                {{ getFieldHint('displayOrder') }}
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Required Field Card -->
+        <div class="form-field-card form-field-switch-card">
+          <div class="switch-card-content">
+            <div class="switch-label-group">
+              <label for="isRequired" class="form-label">
+                <span class="label-text">Required</span>
+              </label>
+            </div>
+            <div class="switch-control-group">
+              <p-inputSwitch 
+                id="isRequired"
+                formControlName="isRequired"
+                class="status-switch">
+              </p-inputSwitch>
+              <span class="switch-label">
+                <span class="switch-label-off" *ngIf="!productAttributeForm.get('isRequired')?.value">Optional</span>
+                <span class="switch-label-on" *ngIf="productAttributeForm.get('isRequired')?.value">Required</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <p-button 
+        [label]="'Cancel'"
+        icon="pi pi-times" 
+        [text]="true"
+        (onClick)="hideDialog()"
+        [disabled]="loading"
+        class="footer-btn footer-btn-cancel">
+      </p-button>
+      <p-button 
+        [label]="isEditMode ? 'Update Attribute' : 'Create Attribute'"
+        icon="pi pi-check" 
+        (onClick)="onSave()"
+        [loading]="loading"
+        [disabled]="isFieldInvalid('name') || loading || !productAttributeForm.get('name')?.value"
+        [pTooltip]="isFieldInvalid('name') || !productAttributeForm.get('name')?.value ? 'Please enter a valid attribute name' : ''"
+        tooltipPosition="top"
+        class="footer-btn footer-btn-submit">
+      </p-button>
+    </div>
+  </ng-template>
+</p-dialog>
