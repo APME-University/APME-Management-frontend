@@ -63,7 +63,7 @@ export class CategoryService {
     { apiName: this.apiName,...config });
   
 
-  update = (id: string, input: CreateUpdateCategoryDto, config?: Partial<Rest.Config>) =>
+  update = (id: string, input: CreateUpdateCategoryDto | FormData, config?: Partial<Rest.Config>) =>
     this.restService.request<any, CategoryDto>({
       method: 'PUT',
       url: `/api/app/category/${id}`,

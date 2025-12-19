@@ -61,6 +61,7 @@ export class CreateUpdateCategoryComponent implements OnInit {
   loading: boolean = false;
   imagePreview: string | null = null;
   imageFile: File | null = null;
+  imageRemoved: boolean = false; // Track if user explicitly removed the image
   autoGenerateSlug: boolean = true;
   descriptionMaxLength: number = 2000;
   descriptionLength: number = 0;
@@ -149,6 +150,9 @@ export class CreateUpdateCategoryComponent implements OnInit {
 
   populateForm() {
     if (this.category && this.categoryForm) {
+      // Reset image removal flag when populating form
+      this.imageRemoved = false;
+      
       // Ensure shopId is not empty - use category's shopId or load from context
       const shopId = this.category.shopId || null;
       if (!shopId) {
@@ -164,7 +168,7 @@ export class CreateUpdateCategoryComponent implements OnInit {
               displayOrder: this.category.displayOrder || 0,
               isActive: this.category.isActive !== undefined ? this.category.isActive : true,
               imageUrl: this.category.imageUrl || null,
-            });
+            }, { emitEvent: false });
           }
         });
       } else {
@@ -177,14 +181,19 @@ export class CreateUpdateCategoryComponent implements OnInit {
           displayOrder: this.category.displayOrder || 0,
           isActive: this.category.isActive !== undefined ? this.category.isActive : true,
           imageUrl: this.category.imageUrl || null,
-        });
+        }, { emitEvent: false });
       }
       
       this.descriptionLength = this.category.description?.length || 0;
       
       if (this.category.imageUrl) {
         this.imagePreview = this.category.imageUrl;
+      } else {
+        this.imagePreview = null;
       }
+      
+      // Reset image file when populating
+      this.imageFile = null;
       
       this.autoGenerateSlug = false;
     }
@@ -206,6 +215,7 @@ export class CreateUpdateCategoryComponent implements OnInit {
     });
     this.imagePreview = null;
     this.imageFile = null;
+    this.imageRemoved = false;
     this.descriptionLength = 0;
     this.submitted = false;
     this.autoGenerateSlug = true;
@@ -297,6 +307,7 @@ export class CreateUpdateCategoryComponent implements OnInit {
   removeImage() {
     this.imageFile = null;
     this.imagePreview = null;
+    this.imageRemoved = true; // Mark that image was explicitly removed
     this.categoryForm.patchValue({ imageUrl: null });
   }
 
@@ -329,11 +340,27 @@ export class CreateUpdateCategoryComponent implements OnInit {
   async onSave() {
     this.submitted = true;
 
+    // Mark all fields as touched to show validation errors
+    Object.keys(this.categoryForm.controls).forEach(key => {
+      this.categoryForm.get(key)?.markAsTouched();
+    });
+
     if (this.categoryForm.invalid) {
+      const errors: string[] = [];
+      if (this.categoryForm.get('name')?.hasError('required')) {
+        errors.push('Name is required');
+      }
+      if (this.categoryForm.get('slug')?.hasError('required')) {
+        errors.push('Slug is required');
+      }
+      if (this.categoryForm.get('shopId')?.hasError('required')) {
+        errors.push('Shop is required');
+      }
+      
       this.messageService.add({
         severity: 'warn',
         summary: 'Validation Error',
-        detail: 'Please fill in all required fields correctly',
+        detail: errors.length > 0 ? errors.join(', ') : 'Please fill in all required fields correctly',
         life: 3000,
       });
       return;
@@ -342,16 +369,40 @@ export class CreateUpdateCategoryComponent implements OnInit {
     this.loading = true;
 
     const formValue = this.categoryForm.value;
+    
+    // Ensure required fields are not empty
+    if (!formValue.name || !formValue.name.trim()) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Validation Error',
+        detail: 'Name is required',
+        life: 3000,
+      });
+      this.loading = false;
+      return;
+    }
+    
+    if (!formValue.slug || !formValue.slug.trim()) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Validation Error',
+        detail: 'Slug is required',
+        life: 3000,
+      });
+      this.loading = false;
+      return;
+    }
+    
     // Note: image property is handled separately via FormData in parent component
     // Using type assertion since image is optional in practice but required in generated DTO
     const categoryDto = {
       shopId: formValue.shopId,
-      name: formValue.name,
-      slug: formValue.slug,
-      description: formValue.description || undefined,
+      name: formValue.name.trim(),
+      slug: formValue.slug.trim(),
+      description: formValue.description?.trim() || undefined,
       parentId: formValue.parentId || undefined,
-      displayOrder: formValue.displayOrder,
-      isActive: formValue.isActive,
+      displayOrder: formValue.displayOrder || 0,
+      isActive: formValue.isActive !== undefined ? formValue.isActive : true,
     } as CreateUpdateCategoryDto;
 
     // Note: Image upload will be handled after category creation/update in the parent component

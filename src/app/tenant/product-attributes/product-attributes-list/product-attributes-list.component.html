@@ -26,9 +26,11 @@
           icon="pi pi-plus" 
           (onClick)="openNew()"
           [rounded]="true"
+          severity="primary"
           class="btn-primary">
         </p-button>
         <div class="selection-badge" *ngIf="selectedProductAttributes.length > 0">
+          <i class="pi pi-check-circle badge-icon"></i>
           <span class="badge-text">{{ selectedProductAttributes.length }} selected</span>
         </div>
       </div>
@@ -47,11 +49,23 @@
             <input 
               pInputText 
               type="text" 
-              [value]="filterValue"
+              [(ngModel)]="filterValue"
               (input)="onGlobalFilter($event)"
               [placeholder]="'Search attributes...'" 
               class="search-input" />
           </span>
+          <p-button 
+            icon="pi pi-filter-slash" 
+            [label]="'Clear Filters'"
+            [rounded]="true"
+            [text]="true"
+            severity="secondary"
+            [disabled]="!hasActiveFilters()"
+            (onClick)="clearAllFilters()"
+            [pTooltip]="'Clear all filters'"
+            tooltipPosition="top"
+            class="clear-filters-btn">
+          </p-button>
         </div>
       </div>
     </div>
@@ -76,7 +90,8 @@
       [(selection)]="selectedProductAttributes"
       [rowHover]="true"
       styleClass="product-attributes-datatable"
-      [globalFilterFields]="['name', 'displayName']">
+      [globalFilterFields]="['name', 'displayName']"
+      [tableStyle]="{ 'min-width': '60rem' }">
       
       <ng-template pTemplate="header">
         <tr class="table-header-row">
@@ -180,9 +195,11 @@
         <tr>
           <td colspan="7" class="empty-message-cell">
             <div class="empty-state">
-              <i class="pi pi-inbox empty-icon"></i>
-              <h3 class="empty-title">No Product Attributes Found</h3>
-              <p class="empty-description">
+              <div class="empty-state-icon-wrapper">
+                <i class="pi pi-inbox empty-state-icon"></i>
+              </div>
+              <h3 class="empty-state-title">No Product Attributes Found</h3>
+              <p class="empty-state-description">
                 Get started by creating your first product attribute.
               </p>
               <p-button 
@@ -190,7 +207,8 @@
                 icon="pi pi-plus"
                 (onClick)="openNew()"
                 [rounded]="true"
-                class="empty-action-btn">
+                severity="primary"
+                class="empty-state-action">
               </p-button>
             </div>
           </td>

@@ -26,6 +26,7 @@
           icon="pi pi-plus" 
           (onClick)="openNew()"
           [rounded]="true"
+          severity="primary"
           class="btn-primary">
         </p-button>
         <p-button 
@@ -34,6 +35,7 @@
           [disabled]="selectedProducts.length === 0"
           [rounded]="true"
           [text]="true"
+          severity="success"
           class="btn-secondary"
           (onClick)="bulkPublish()">
         </p-button>
@@ -43,10 +45,12 @@
           [disabled]="selectedProducts.length === 0"
           [rounded]="true"
           [text]="true"
+          severity="warn"
           class="btn-secondary"
           (onClick)="bulkUnpublish()">
         </p-button>
         <div class="selection-badge" *ngIf="selectedProducts.length > 0">
+          <i class="pi pi-check-circle badge-icon"></i>
           <span class="badge-text">{{ selectedProducts.length }} selected</span>
         </div>
       </div>
@@ -73,11 +77,23 @@
             <input 
               pInputText 
               type="text" 
-              [value]="filterValue"
+              [(ngModel)]="filterValue"
               (input)="onGlobalFilter($event)"
               [placeholder]="'Search products...'" 
               class="search-input" />
           </span>
+          <p-button 
+            icon="pi pi-filter-slash" 
+            [label]="'Clear Filters'"
+            [rounded]="true"
+            [text]="true"
+            severity="secondary"
+            [disabled]="!hasActiveFilters()"
+            (onClick)="clearAllFilters()"
+            [pTooltip]="'Clear all filters'"
+            tooltipPosition="top"
+            class="clear-filters-btn">
+          </p-button>
         </div>
       </div>
     </div>
@@ -102,7 +118,8 @@
       [(selection)]="selectedProducts"
       [rowHover]="true"
       styleClass="products-datatable"
-      [globalFilterFields]="['name', 'sku', 'slug', 'description']">
+      [globalFilterFields]="['name', 'sku', 'slug', 'description']"
+      [tableStyle]="{ 'min-width': '60rem' }">
       
       <ng-template pTemplate="header">
         <tr class="table-header-row">

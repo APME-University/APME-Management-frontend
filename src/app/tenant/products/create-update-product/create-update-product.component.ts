@@ -866,7 +866,7 @@ export class CreateUpdateProductComponent implements OnInit {
   }
   
   /**
-   * Handle image file selection (following Court pattern)
+   * Handle image file selection - uploads immediately in edit mode
    */
   handleImageChange(event: Event, index: number) {
     const input = event.target as HTMLInputElement;
@@ -896,8 +896,49 @@ export class CreateUpdateProductComponent implements OnInit {
         return;
       }
       
-      this.imageFiles[index] = file;
-      this.imagePreviews[index] = URL.createObjectURL(file);
+      // If editing existing product, upload immediately
+      if (this.isEditMode && this.product?.id) {
+        const isPrimary = index === 0; // First image is primary
+        this.uploadingImages = true;
+        
+        this.productService.uploadProductImage(this.product.id, file as any, isPrimary).subscribe({
+          next: (imageUrl) => {
+            // Update arrays with the returned URL
+            this.imageFiles[index] = imageUrl;
+            this.imagePreviews[index] = imageUrl;
+            
+            // Reload product to get updated image list
+            this.productService.get(this.product.id!).subscribe({
+              next: (updatedProduct) => {
+                this.product = updatedProduct;
+                this.productChange.emit(updatedProduct);
+                this.uploadingImages = false;
+              },
+              error: (error) => {
+                console.error('Error reloading product:', error);
+                this.uploadingImages = false;
+              }
+            });
+          },
+          error: (error) => {
+            console.error('Error uploading image:', error);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: error.error?.error?.message || 'Failed to upload image',
+              life: 3000,
+            });
+            this.uploadingImages = false;
+          }
+        });
+      } else {
+        // Create mode - just store file for later
+        this.imageFiles[index] = file;
+        this.imagePreviews[index] = URL.createObjectURL(file);
+      }
+      
+      // Reset input to allow selecting same file again
+      input.value = '';
     }
   }
 
@@ -950,23 +991,48 @@ export class CreateUpdateProductComponent implements OnInit {
   }
 
   /**
-   * Remove image slot (following Court pattern)
+   * Remove image slot - calls API immediately for existing images
    * Handles both existing images (strings) and new uploads (Files)
    */
   removeImageSlot(index: number) {
     const item = this.imageFiles[index];
     
-    if (typeof item === 'string') {
-      // Existing image - need to delete from backend
-      // Note: We'll handle this in the parent component during save
-      // For now, just remove from arrays
-      this.imageFiles.splice(index, 1);
-      this.imagePreviews.splice(index, 1);
-      
-      // Ensure at least one slot remains
-      if (this.imageFiles.length === 0) {
-        this.initializeImages();
-      }
+    if (typeof item === 'string' && this.isEditMode && this.product?.id) {
+      // Existing image - delete from backend immediately
+      this.productService.deleteProductImage(this.product.id, item).subscribe({
+        next: () => {
+          // Remove from arrays after successful deletion
+          this.imageFiles.splice(index, 1);
+          this.imagePreviews.splice(index, 1);
+          
+          // Ensure at least one slot remains
+          if (this.imageFiles.length === 0) {
+            this.initializeImages();
+          }
+          
+          // Reload product to get updated image list
+          if (this.product?.id) {
+            this.productService.get(this.product.id).subscribe({
+              next: (updatedProduct) => {
+                this.product = updatedProduct;
+                this.productChange.emit(updatedProduct);
+              },
+              error: (error) => {
+                console.error('Error reloading product:', error);
+              }
+            });
+          }
+        },
+        error: (error) => {
+          console.error('Error deleting image:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: error.error?.error?.message || 'Failed to delete image',
+            life: 3000,
+          });
+        }
+      });
     } else if (item instanceof File) {
       // New upload - just remove from arrays
       // Revoke object URL to free memory
@@ -995,11 +1061,48 @@ export class CreateUpdateProductComponent implements OnInit {
 
   setPrimaryImage(index: number) {
     if (index >= 0 && index < this.imagePreviews.length && index !== 0) {
-      // Move to first position
-      const preview = this.imagePreviews.splice(index, 1)[0];
-      const file = this.imageFiles.splice(index, 1)[0];
-      this.imagePreviews.unshift(preview);
-      this.imageFiles.unshift(file);
+      const item = this.imageFiles[index];
+      
+      // If it's an existing image (string URL) and we're editing, call API
+      if (typeof item === 'string' && this.isEditMode && this.product?.id) {
+        this.productService.setPrimaryImage(this.product.id, item).subscribe({
+          next: () => {
+            // Move to first position in UI
+            const preview = this.imagePreviews.splice(index, 1)[0];
+            const file = this.imageFiles.splice(index, 1)[0];
+            this.imagePreviews.unshift(preview);
+            this.imageFiles.unshift(file);
+            
+            // Reload product to get updated primary image
+            if (this.product?.id) {
+              this.productService.get(this.product.id).subscribe({
+                next: (updatedProduct) => {
+                  this.product = updatedProduct;
+                  this.productChange.emit(updatedProduct);
+                },
+                error: (error) => {
+                  console.error('Error reloading product:', error);
+                }
+              });
+            }
+          },
+          error: (error) => {
+            console.error('Error setting primary image:', error);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: error.error?.error?.message || 'Failed to set primary image',
+              life: 3000,
+            });
+          }
+        });
+      } else {
+        // For new uploads or create mode, just move to first position
+        const preview = this.imagePreviews.splice(index, 1)[0];
+        const file = this.imageFiles.splice(index, 1)[0];
+        this.imagePreviews.unshift(preview);
+        this.imageFiles.unshift(file);
+      }
     }
   }
 

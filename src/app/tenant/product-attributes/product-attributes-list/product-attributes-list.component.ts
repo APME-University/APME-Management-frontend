@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
@@ -11,7 +11,8 @@ import {
 } from '../../../proxy/products';
 import { CreateUpdateProductAttributeComponent } from '../create-update-product-attribute/create-update-product-attribute.component';
 import { ShopContextService } from '../../../core/services/shop-context.service';
-import { take } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil, take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-product-attributes-list',
@@ -19,7 +20,7 @@ import { take } from 'rxjs/operators';
   templateUrl: './product-attributes-list.component.html',
   styleUrls: ['./product-attributes-list.component.scss'],
 })
-export class ProductAttributesListComponent implements OnInit {
+export class ProductAttributesListComponent implements OnInit, OnDestroy {
   @ViewChild('dt') dt!: Table;
   @ViewChild('createUpdateProductAttribute') createUpdateProductAttributeComponent!: CreateUpdateProductAttributeComponent;
 
@@ -40,6 +41,9 @@ export class ProductAttributesListComponent implements OnInit {
   dataTypeFilter: ProductAttributeDataType | null = null;
   shopId: string | null = null;
   
+  private searchSubject = new Subject<string>();
+  private destroy$ = new Subject<void>();
+  
   dataTypeFilterOptions = [
     { label: 'All Types', value: null },
     { label: 'Text', value: ProductAttributeDataType.Text },
@@ -59,7 +63,23 @@ export class ProductAttributesListComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    // Setup debounced search
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(searchValue => {
+      this.filterValue = searchValue;
+      this.skipCount = 0;
+      this.loadProductAttributes();
+    });
+    
     this.loadShopId();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   loadShopId() {
@@ -84,14 +104,28 @@ export class ProductAttributesListComponent implements OnInit {
     }
 
     this.loading = true;
+    
+    // Build input object following ABP.IO practices - only include defined values
     const input: GetProductAttributeListInput = {
-      filter: this.filterValue,
       shopId: this.shopId,
-      dataType: this.dataTypeFilter !== null ? this.dataTypeFilter : undefined,
-      sorting: this.sortField ? `${this.sortField} ${this.sortOrder === 1 ? 'asc' : 'desc'}` : undefined,
       skipCount: this.skipCount,
       maxResultCount: this.maxResultCount,
     };
+
+    // Add filter if provided
+    if (this.filterValue && this.filterValue.trim()) {
+      input.filter = this.filterValue.trim();
+    }
+
+    // Add data type filter only if explicitly set (not null)
+    if (this.dataTypeFilter !== null && this.dataTypeFilter !== undefined) {
+      input.dataType = this.dataTypeFilter;
+    }
+
+    // Add sorting if field is specified (ABP.IO format: "fieldName" or "fieldName asc/desc")
+    if (this.sortField) {
+      input.sorting = this.sortOrder === 1 ? `${this.sortField} asc` : `${this.sortField} desc`;
+    }
 
     this.productAttributeService.getList(input).subscribe({
       next: (result) => {
@@ -210,20 +244,28 @@ export class ProductAttributesListComponent implements OnInit {
   }
 
   onSort(event: any) {
-    this.sortField = event.field;
+    this.sortField = event.field || '';
     this.sortOrder = event.order === 1 ? 1 : -1;
+    this.skipCount = 0; // Reset to first page when sorting changes
     this.loadProductAttributes();
   }
 
-  onGlobalFilter(event: any) {
-    this.filterValue = event.target.value;
-    this.skipCount = 0;
-    this.dt.filterGlobal(event.target.value, 'contains');
-    this.loadProductAttributes();
+  onGlobalFilter(event: Event) {
+    const target = event.target as HTMLInputElement;
+    this.searchSubject.next(target.value);
   }
 
   onDataTypeFilterChange() {
     this.skipCount = 0;
+    this.loadProductAttributes();
+  }
+
+  clearAllFilters() {
+    this.filterValue = '';
+    this.dataTypeFilter = null;
+    this.skipCount = 0;
+    this.sortField = '';
+    this.sortOrder = 1;
     this.loadProductAttributes();
   }
 
@@ -265,5 +307,12 @@ export class ProductAttributesListComponent implements OnInit {
   hideDialog() {
     this.productAttributeDialog = false;
     this.submitted = false;
+  }
+
+  hasActiveFilters(): boolean {
+    return !!(
+      this.filterValue ||
+      this.dataTypeFilter !== null
+    );
   }
 }

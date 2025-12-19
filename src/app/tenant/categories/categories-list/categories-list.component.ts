@@ -1,9 +1,11 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
 import { CategoryService, CategoryDto, CreateUpdateCategoryDto, GetCategoryListInput } from '../../../proxy/categories';
 import { CreateUpdateCategoryComponent } from '../create-update-category/create-update-category.component';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-categories-list',
@@ -11,7 +13,7 @@ import { CreateUpdateCategoryComponent } from '../create-update-category/create-
   templateUrl: './categories-list.component.html',
   styleUrls: ['./categories-list.component.scss'],
 })
-export class CategoriesListComponent implements OnInit {
+export class CategoriesListComponent implements OnInit, OnDestroy {
   @ViewChild('dt') dt!: Table;
   @ViewChild('createUpdateCategory') createUpdateCategoryComponent!: CreateUpdateCategoryComponent;
 
@@ -32,6 +34,9 @@ export class CategoriesListComponent implements OnInit {
   isActiveFilter: boolean | null = null;
   parentFilter: string | null = null;
   
+  private searchSubject = new Subject<string>();
+  private destroy$ = new Subject<void>();
+  
   statusFilterOptions = [
     { label: 'All', value: null },
     { label: 'Active', value: true },
@@ -46,19 +51,53 @@ export class CategoriesListComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    // Setup debounced search
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(searchValue => {
+      this.filterValue = searchValue;
+      this.skipCount = 0;
+      this.loadCategories();
+    });
+    
     this.loadCategories();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   loadCategories() {
     this.loading = true;
+    
+    // Build input object following ABP.IO practices - only include defined values
     const input: GetCategoryListInput = {
-      filter: this.filterValue,
-      isActive: this.isActiveFilter !== null ? this.isActiveFilter : undefined,
-      parentId: this.parentFilter || undefined,
-      sorting: this.sortField ? `${this.sortField} ${this.sortOrder === 1 ? 'asc' : 'desc'}` : undefined,
       skipCount: this.skipCount,
       maxResultCount: this.maxResultCount,
     };
+
+    // Add filter if provided
+    if (this.filterValue && this.filterValue.trim()) {
+      input.filter = this.filterValue.trim();
+    }
+
+    // Add parent filter if set
+    if (this.parentFilter) {
+      input.parentId = this.parentFilter;
+    }
+
+    // Add status filter only if explicitly set (not null)
+    if (this.isActiveFilter !== null && this.isActiveFilter !== undefined) {
+      input.isActive = this.isActiveFilter;
+    }
+
+    // Add sorting if field is specified (ABP.IO format: "fieldName" or "fieldName asc/desc")
+    if (this.sortField) {
+      input.sorting = this.sortOrder === 1 ? `${this.sortField} asc` : `${this.sortField} desc`;
+    }
 
     this.categoryService.getList(input).subscribe({
       next: (result) => {
@@ -253,15 +292,63 @@ export class CategoriesListComponent implements OnInit {
     this.loading = true;
 
     const imageFile = this.createUpdateCategoryComponent.imageFile;
+    const imageRemoved = this.createUpdateCategoryComponent.imageRemoved;
 
     if (event.isEditMode) {
-      // Update category - for now, keep the existing flow (update then upload image separately)
-      // TODO: Update UpdateAsync to support [FromForm] if needed
-      this.categoryService.update(this.category.id, event.category).subscribe({
+      // Update category using FormData (backend UpdateAsync expects [FromForm])
+      const formData = new FormData();
+      
+      // Append all category properties to FormData
+      formData.append('shopId', event.category.shopId);
+      formData.append('name', event.category.name);
+      formData.append('slug', event.category.slug);
+      if (event.category.description) {
+        formData.append('description', event.category.description);
+      }
+      if (event.category.parentId) {
+        formData.append('parentId', event.category.parentId);
+      }
+      formData.append('displayOrder', event.category.displayOrder.toString());
+      formData.append('isActive', event.category.isActive.toString());
+      
+      // Append image file if provided
+      if (imageFile) {
+        formData.append('image', imageFile, imageFile.name);
+      }
+      // Note: If imageRemoved is true and no imageFile, backend UpdateAsync will handle removal
+      // The backend checks if input.Image is null and removes the old image
+      
+      this.categoryService.update(this.category.id, formData).subscribe({
         next: (updatedCategory) => {
-          // Upload image if provided
-          if (imageFile) {
-            this.uploadCategoryImage(updatedCategory.id, imageFile);
+          // If image was explicitly removed, ensure it's deleted
+          if (imageRemoved && !imageFile && this.category.imageUrl) {
+            // Image was removed - delete it explicitly
+            this.categoryService.deleteCategoryImage(updatedCategory.id).subscribe({
+              next: () => {
+                this.messageService.add({
+                  severity: 'success',
+                  summary: 'Success',
+                  detail: 'Category updated successfully',
+                  life: 3000,
+                });
+                this.categoryDialog = false;
+                this.category = {} as CategoryDto;
+                this.loadCategories();
+              },
+              error: (error) => {
+                console.error('Error deleting image:', error);
+                // Still show success for category update
+                this.messageService.add({
+                  severity: 'success',
+                  summary: 'Success',
+                  detail: 'Category updated successfully',
+                  life: 3000,
+                });
+                this.categoryDialog = false;
+                this.category = {} as CategoryDto;
+                this.loadCategories();
+              },
+            });
           } else {
             this.messageService.add({
               severity: 'success',
@@ -370,8 +457,16 @@ export class CategoriesListComponent implements OnInit {
 
   onGlobalFilter(event: Event) {
     const target = event.target as HTMLInputElement;
-    this.filterValue = target.value;
+    this.searchSubject.next(target.value);
+  }
+
+  clearAllFilters() {
+    this.filterValue = '';
+    this.isActiveFilter = null;
+    this.parentFilter = null;
     this.skipCount = 0;
+    this.sortField = '';
+    this.sortOrder = 1;
     this.loadCategories();
   }
 
@@ -382,8 +477,9 @@ export class CategoriesListComponent implements OnInit {
   }
 
   onSort(event: any) {
-    this.sortField = event.field;
+    this.sortField = event.field || '';
     this.sortOrder = event.order === 1 ? 1 : -1;
+    this.skipCount = 0; // Reset to first page when sorting changes
     this.loadCategories();
   }
 
@@ -420,6 +516,14 @@ export class CategoriesListComponent implements OnInit {
   onImageError(event: Event) {
     const img = event.target as HTMLImageElement;
     img.src = 'assets/images/placeholder.png';
+  }
+
+  hasActiveFilters(): boolean {
+    return !!(
+      this.filterValue ||
+      this.isActiveFilter !== null ||
+      this.parentFilter
+    );
   }
 }
 

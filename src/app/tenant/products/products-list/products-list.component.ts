@@ -1,10 +1,12 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
 import { ProductService, ProductDto, CreateUpdateProductDto, GetProductListInput } from '../../../proxy/products';
 import { CreateUpdateProductComponent } from '../create-update-product/create-update-product.component';
 import { ShopContextService } from '../../../core/services/shop-context.service';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-products-list',
@@ -12,7 +14,7 @@ import { ShopContextService } from '../../../core/services/shop-context.service'
   templateUrl: './products-list.component.html',
   styleUrls: ['./products-list.component.scss'],
 })
-export class ProductsListComponent implements OnInit {
+export class ProductsListComponent implements OnInit, OnDestroy {
   @ViewChild('dt') dt!: Table;
   @ViewChild('createUpdateProduct') createUpdateProductComponent!: CreateUpdateProductComponent;
 
@@ -33,6 +35,9 @@ export class ProductsListComponent implements OnInit {
   isActiveFilter: boolean | null = null;
   isPublishedFilter: boolean | null = null;
   categoryFilter: string | null = null;
+  
+  private searchSubject = new Subject<string>();
+  private destroy$ = new Subject<void>();
   
   statusFilterOptions = [
     { label: 'All', value: null },
@@ -55,22 +60,63 @@ export class ProductsListComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    // Setup debounced search
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(searchValue => {
+      this.filterValue = searchValue;
+      this.skipCount = 0;
+      this.loadProducts();
+    });
+    
     this.loadProducts();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   loadProducts() {
     this.loading = true;
     const shopId = this.shopContextService.getCurrentShopId();
+    
+    // Build input object following ABP.IO practices - only include defined values
     const input: GetProductListInput = {
-      filter: this.filterValue,
-      shopId: shopId || undefined,
-      isActive: this.isActiveFilter !== null ? this.isActiveFilter : undefined,
-      isPublished: this.isPublishedFilter !== null ? this.isPublishedFilter : undefined,
-      categoryId: this.categoryFilter || undefined,
-      sorting: this.sortField ? `${this.sortField} ${this.sortOrder === 1 ? 'asc' : 'desc'}` : undefined,
       skipCount: this.skipCount,
       maxResultCount: this.maxResultCount,
     };
+
+    // Add filter if provided
+    if (this.filterValue && this.filterValue.trim()) {
+      input.filter = this.filterValue.trim();
+    }
+
+    // Add shopId if available
+    if (shopId) {
+      input.shopId = shopId;
+    }
+
+    // Add category filter if set
+    if (this.categoryFilter) {
+      input.categoryId = this.categoryFilter;
+    }
+
+    // Add status filters only if explicitly set (not null)
+    if (this.isActiveFilter !== null && this.isActiveFilter !== undefined) {
+      input.isActive = this.isActiveFilter;
+    }
+
+    if (this.isPublishedFilter !== null && this.isPublishedFilter !== undefined) {
+      input.isPublished = this.isPublishedFilter;
+    }
+
+    // Add sorting if field is specified (ABP.IO format: "fieldName" or "fieldName asc/desc")
+    if (this.sortField) {
+      input.sorting = this.sortOrder === 1 ? `${this.sortField} asc` : `${this.sortField} desc`;
+    }
 
     this.productService.getList(input).subscribe({
       next: (result) => {
@@ -400,18 +446,10 @@ export class ProductsListComponent implements OnInit {
   }
 
   /**
-   * Handle product update (following Court pattern)
+   * Handle product update - images are handled separately via APIs
    */
   private handleProductUpdate(productDto: CreateUpdateProductDto, imageFiles: Array<File | string>) {
-    // Get current product images to compare
-    const currentImages = this.product.imageUrls || [];
-    
-    // Find images that were removed (exist in current but not in imageFiles)
-    const removedImages = currentImages.filter(currentUrl => 
-      !imageFiles.some(item => typeof item === 'string' && item === currentUrl)
-    );
-    
-    // Create FormData for update
+    // Create FormData for update (NO images - they're handled by separate APIs)
     const formData = new FormData();
     
     // Append all product properties to FormData
@@ -436,40 +474,23 @@ export class ProductsListComponent implements OnInit {
       formData.append('attributes', productDto.attributes);
     }
     
-    // Append new image files (only File objects) - following Court pattern
-    // Send as "images" array to match backend IList<IRemoteStreamContent>? Images
-    imageFiles.forEach((item) => {
-      if (item instanceof File) {
-        formData.append('images', item, item.name);
-      }
-    });
+    // Note: Images are NOT included here - they're handled by separate APIs:
+    // - uploadProductImage: called immediately when user adds image
+    // - deleteProductImage: called immediately when user removes image
+    // - setPrimaryImage: called immediately when user sets primary image
     
     this.productService.update(this.product.id, formData).subscribe({
       next: (updatedProduct) => {
-        // Delete removed images from backend
-        if (removedImages.length > 0) {
-          this.deleteRemovedImages(updatedProduct.id, removedImages);
-        }
-        
-        // Upload additional new images (Files that aren't primary)
-        const newImageFiles = imageFiles.filter((item, index) => 
-          item instanceof File && index > 0
-        ) as File[];
-        
-        if (newImageFiles.length > 0) {
-          this.uploadProductImages(updatedProduct.id, newImageFiles);
-        } else if (removedImages.length === 0) {
-          // No new images and no removals - update complete
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: 'Product updated successfully',
-            life: 3000,
-          });
-          this.productDialog = false;
-          this.product = {} as ProductDto;
-          this.loadProducts();
-        }
+        // Update complete - images were already handled separately
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Product updated successfully',
+          life: 3000,
+        });
+        this.productDialog = false;
+        this.product = {} as ProductDto;
+        this.loadProducts();
       },
       error: (error) => {
         console.error('Error updating product:', error);
@@ -576,8 +597,17 @@ export class ProductsListComponent implements OnInit {
 
   onGlobalFilter(event: Event) {
     const target = event.target as HTMLInputElement;
-    this.filterValue = target.value;
+    this.searchSubject.next(target.value);
+  }
+
+  clearAllFilters() {
+    this.filterValue = '';
+    this.isActiveFilter = null;
+    this.isPublishedFilter = null;
+    this.categoryFilter = null;
     this.skipCount = 0;
+    this.sortField = '';
+    this.sortOrder = 1;
     this.loadProducts();
   }
 
@@ -588,8 +618,9 @@ export class ProductsListComponent implements OnInit {
   }
 
   onSort(event: any) {
-    this.sortField = event.field;
+    this.sortField = event.field || '';
     this.sortOrder = event.order === 1 ? 1 : -1;
+    this.skipCount = 0; // Reset to first page when sorting changes
     this.loadProducts();
   }
 
@@ -627,6 +658,15 @@ export class ProductsListComponent implements OnInit {
   onImageError(event: Event) {
     const img = event.target as HTMLImageElement;
     img.src = 'assets/images/placeholder.png';
+  }
+
+  hasActiveFilters(): boolean {
+    return !!(
+      this.filterValue ||
+      this.isActiveFilter !== null ||
+      this.isPublishedFilter !== null ||
+      this.categoryFilter
+    );
   }
 }
 

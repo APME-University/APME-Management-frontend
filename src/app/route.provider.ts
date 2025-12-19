@@ -42,12 +42,20 @@ function configureRoutes() {
   
   routes.removeByParam({name : 'AbpUiNavigation::Menu:Administration'});
   routes.add([
+          {
+        path: '/tenant/dashboard',
+        name: '::Menu:TenantDashboard',
+        iconClass: 'material-icons-outlined|dashboard',
+        layout: eLayoutType.application,
+        order: 1,
+        isTenant: true
+      } as any,
       {
         path: '/',
         name: '::Menu:Catalog',
         // Using Material Icons - Outlined variant
         iconClass: 'material-icons-outlined|inventory_2',
-        order: 1,
+        order: 2,
         layout: eLayoutType.application,
         isTenant: true
       } as any,
@@ -57,7 +65,7 @@ function configureRoutes() {
         // Using Material Icons - Round variant
         iconClass: 'material-icons-round|category',
         layout : eLayoutType.application,
-        order : 2,
+        order : 3,
         parentName :'::Menu:Catalog',
         isTenant: true
       } as any,
@@ -67,7 +75,7 @@ function configureRoutes() {
         // Using PrimeIcons (traditional way)
         iconClass : PrimeIcons.OBJECTS_COLUMN,
         layout : eLayoutType.application,
-        order : 3,
+        order : 4,
         parentName :'::Menu:Catalog',
         isTenant: true
       } as any,
@@ -77,7 +85,7 @@ function configureRoutes() {
         // Using PrimeIcons (traditional way)
         iconClass : PrimeIcons.OBJECTS_COLUMN,
         layout : eLayoutType.application,
-        order : 4,
+        order : 5,
         parentName :'::Menu:Catalog',
         isTenant: true
       } as any,
@@ -134,14 +142,7 @@ function configureRoutes() {
         isTenant: false
       } as any,
       // Tenant Admin Routes
-      {
-        path: '/tenant/dashboard',
-        name: '::Menu:TenantDashboard',
-        iconClass: 'material-icons-outlined|dashboard',
-        layout: eLayoutType.application,
-        order: 1,
-        isTenant: true
-      } as any,
+
       // {
       //   path: '/tenant/categories',
       //   name: '::Menu:TenantCategories',
@@ -184,13 +185,13 @@ function configureRoutes() {
         order: 6,
         isTenant: true
       } as any,
-      {
-        path: '/tenant',
-        name: '::Menu:TenantCatalog',
-        iconClass: 'material-icons-outlined|inventory_2',
-        layout: eLayoutType.application,
-        order: 2,
-        isTenant: true
-      } as any
+      // {
+      //   path: '/tenant',
+      //   name: '::Menu:TenantCatalog',
+      //   iconClass: 'material-icons-outlined|inventory_2',
+      //   layout: eLayoutType.application,
+      //   order: 2,
+      //   isTenant: true
+      // } as any
   ]);
 }
