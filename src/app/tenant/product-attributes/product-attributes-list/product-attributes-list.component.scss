@@ -1,0 +1,316 @@
+.product-attributes-container {
+  @apply min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 md:p-6 lg:p-8;
+  
+  // Smooth transitions for theme changes
+  @apply transition-colors duration-300;
+}
+
+.header-section {
+  @apply mb-6 space-y-4;
+}
+
+.header-content {
+  @apply flex items-start justify-between flex-wrap gap-4;
+}
+
+.header-text {
+  @apply flex-1 min-w-0;
+}
+
+.page-title {
+  @apply flex items-center gap-3 mb-3 text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100;
+  
+  .title-icon-wrapper {
+    @apply flex items-center justify-center w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 shadow-sm transition-all duration-200 hover:shadow-md hover:scale-105;
+    
+    i {
+      @apply text-xl;
+    }
+  }
+  
+  .title-text {
+    @apply tracking-tight bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent;
+  }
+}
+
+.page-subtitle {
+  @apply text-base md:text-lg text-gray-600 dark:text-gray-400 leading-relaxed;
+}
+
+.toolbar-section {
+  @apply flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 p-5 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-200 hover:shadow-md;
+}
+
+.toolbar-left {
+  @apply flex items-center gap-3 flex-wrap;
+}
+
+.toolbar-right {
+  @apply flex items-center gap-3 flex-wrap flex-1 lg:flex-initial;
+}
+
+.selection-badge {
+  @apply px-3 py-1.5 rounded-lg bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 flex items-center gap-2 transition-all duration-200 hover:bg-primary-100 dark:hover:bg-primary-900/30;
+  
+  .badge-icon {
+    @apply text-primary-600 dark:text-primary-400 text-sm;
+  }
+  
+  .badge-text {
+    @apply text-sm font-medium text-primary-700 dark:text-primary-300;
+  }
+}
+
+.filter-group {
+  @apply relative flex-1 lg:flex-initial;
+}
+
+.search-wrapper {
+  @apply relative flex-1 lg:flex-initial;
+  
+  .search-icon {
+    @apply absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 z-10;
+  }
+  
+  .search-input {
+    @apply w-full lg:w-64 pl-10 pr-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-transparent transition-all;
+  }
+}
+
+.clear-filters-btn {
+  @apply transition-all duration-200;
+  
+  &:hover:not(:disabled) {
+    @apply scale-105;
+  }
+  
+  &:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+}
+
+.data-type-filter {
+  @apply w-full lg:w-48;
+}
+
+.table-section {
+  @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-200 hover:shadow-lg;
+}
+
+// Table Styles
+::ng-deep {
+  .product-attributes-datatable {
+    .p-datatable-wrapper {
+      @apply overflow-x-auto;
+    }
+    
+    .p-datatable-thead > tr > th {
+      @apply bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-800/80 dark:to-gray-800/50 text-gray-700 dark:text-gray-300 font-semibold text-xs uppercase tracking-wider border-b-2 border-gray-300 dark:border-gray-700 px-4 py-4 transition-colors duration-200;
+      
+      .header-label {
+        @apply flex items-center gap-2;
+        
+        .header-icon {
+          @apply text-gray-500 dark:text-gray-400 text-sm;
+        }
+      }
+      
+      &:first-child {
+        @apply pl-6;
+      }
+      
+      &:last-child {
+        @apply pr-6;
+      }
+      
+      &:hover {
+        @apply bg-gray-100 dark:bg-gray-800/70;
+      }
+    }
+    
+    .p-datatable-tbody > tr {
+      @apply border-b border-gray-100 dark:border-gray-800 transition-all duration-200;
+      
+      &:hover {
+        @apply bg-gray-50 dark:bg-gray-700/30 shadow-sm;
+      }
+      
+      &.p-highlight {
+        @apply bg-primary-50 dark:bg-primary-900/20 border-l-4 border-l-primary-500 dark:border-l-primary-400;
+      }
+    }
+    
+    .p-datatable-tbody > tr > td {
+      @apply px-4 py-5 text-gray-900 dark:text-gray-100 transition-colors duration-150;
+      
+      &:first-child {
+        @apply pl-6;
+      }
+      
+      &:last-child {
+        @apply pr-6;
+      }
+    }
+    
+    .p-paginator {
+      @apply bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700 px-6 py-4;
+      
+      .p-paginator-element {
+        @apply transition-all duration-200 hover:bg-white dark:hover:bg-gray-700 rounded-md;
+      }
+      
+      .p-paginator-page {
+        @apply transition-all duration-200 hover:bg-primary-50 dark:hover:bg-primary-900/30;
+        
+        &.p-highlight {
+          @apply bg-primary-500 dark:bg-primary-600 text-white;
+        }
+      }
+    }
+    
+    .p-paginator-bottom {
+      @apply border-t-0;
+    }
+  }
+}
+
+.table-header-row {
+  @apply bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 font-semibold text-sm uppercase tracking-wider border-b-2 border-gray-200 dark:border-gray-700 px-4 py-4;
+  
+  .header-label {
+    @apply flex items-center gap-2;
+    
+    .header-icon {
+      @apply text-gray-500 dark:text-gray-400 text-sm;
+    }
+  }
+  
+  .checkbox-column {
+    @apply pl-6;
+  }
+  
+  .actions-column {
+    @apply pr-6;
+  }
+}
+
+.table-row {
+  @apply border-b border-gray-100 dark:border-gray-800 transition-all duration-200;
+  
+  &:hover {
+    @apply bg-gray-50 dark:bg-gray-700/30;
+  }
+  
+  &:has(input[type="checkbox"]:checked) {
+    @apply bg-primary-50 dark:bg-primary-900/20;
+  }
+}
+
+.name-code {
+  @apply px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md text-xs font-mono border border-gray-200 dark:border-gray-600 transition-all duration-200 hover:bg-gray-200 dark:hover:bg-gray-600 hover:shadow-sm;
+}
+
+.display-name-text {
+  @apply font-semibold text-gray-900 dark:text-gray-100 text-sm transition-colors duration-200;
+}
+
+.data-type-tag,
+.required-tag {
+  @apply text-xs transition-all duration-200 hover:scale-105;
+}
+
+.order-text {
+  @apply text-sm text-gray-700 dark:text-gray-300 font-medium transition-colors duration-200;
+}
+
+.action-buttons {
+  @apply flex items-center gap-1.5;
+}
+
+.action-btn {
+  @apply w-8 h-8 transition-all duration-200;
+  
+  &:hover {
+    @apply scale-110 shadow-md;
+  }
+  
+  &:active {
+    @apply scale-95;
+  }
+}
+
+.empty-message-cell {
+  @apply py-16 px-6;
+}
+
+.empty-state {
+  @apply flex flex-col items-center justify-center text-center max-w-md mx-auto;
+  
+  .empty-state-icon-wrapper {
+    @apply mb-6 p-6 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 transition-all duration-200 hover:scale-105 hover:shadow-lg;
+  }
+  
+  .empty-state-icon {
+    @apply text-6xl text-gray-300 dark:text-gray-600;
+  }
+  
+  .empty-state-title {
+    @apply text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2;
+  }
+  
+  .empty-state-description {
+    @apply text-gray-500 dark:text-gray-400 mb-6 leading-relaxed;
+  }
+  
+  .empty-state-action {
+    @apply mt-2 transition-all duration-200 hover:scale-105;
+  }
+}
+
+// Column widths
+.checkbox-column {
+  @apply w-12;
+}
+
+.name-column {
+  @apply min-w-[150px];
+}
+
+.display-name-column {
+  @apply min-w-[180px];
+}
+
+.data-type-column {
+  @apply w-32;
+}
+
+.required-column {
+  @apply w-32;
+}
+
+.display-order-column {
+  @apply w-24;
+}
+
+.actions-column {
+  @apply w-40;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .toolbar-section {
+    @apply flex-col items-stretch;
+  }
+  
+  .filter-group {
+    @apply w-full;
+  }
+  
+  .search-wrapper {
+    @apply w-full;
+  }
+  
+  .data-type-filter {
+    @apply w-full;
+  }
+}

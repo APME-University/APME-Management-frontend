@@ -100,15 +100,21 @@ const routes: Routes = [
       },
       {
         path: 'categories',
-        loadComponent: () => import('./tenant/categories/categories.component').then(m => m.CategoriesComponent),
+        loadChildren: () => import('./tenant/categories/categories.module').then(m => m.CategoriesModule),
         canActivate: [authGuard, tenantGuard, adminGuard],
-        data: { menuName: '::Menu:TenantCategories', isTenant: true }
+        data: { menuName: '::Menu:Categories', isTenant: true }
       },
       {
         path: 'products',
-        loadComponent: () => import('./tenant/products/products.component').then(m => m.ProductsComponent),
+        loadChildren: () => import('./tenant/products/products.module').then(m => m.ProductsModule),
         canActivate: [authGuard, tenantGuard, adminGuard],
-        data: { menuName: '::Menu:TenantProducts', isTenant: true }
+        data: { menuName: '::Menu:Products', isTenant: true }
+      },
+      {
+        path: 'product-attributes',
+        loadChildren: () => import('./tenant/product-attributes/product-attributes.module').then(m => m.ProductAttributesModule),
+        canActivate: [authGuard, tenantGuard, adminGuard],
+        data: { menuName: '::Menu:ProductAttributes', isTenant: true }
       },
       {
         path: 'orders',

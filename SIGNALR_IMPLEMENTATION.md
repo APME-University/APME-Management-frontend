@@ -1,6 +1,6 @@
-# SignalR Implementation for AlhafezFMS
+# SignalR Implementation for APME
 
-This document describes the simplified SignalR client implementation for real-time notifications in the AlhafezFMS Angular application.
+This document describes the simplified SignalR client implementation for real-time notifications in the APME Angular application.
 
 ## Overview
 
@@ -56,7 +56,7 @@ signalR: {
 
 // environment.prod.ts (production)
 signalR: {
-  hubUrl: 'https://alhafez-back.varx-dev.com/hub'
+  hubUrl: 'https://apme-back.varx-dev.com/hub'
 }
 ```
 

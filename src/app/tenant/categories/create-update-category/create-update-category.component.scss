@@ -1,0 +1,367 @@
+// Dialog Styles
+::ng-deep {
+  .category-dialog {
+    .p-dialog {
+      @apply rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden;
+    }
+    
+    .p-dialog-header {
+      @apply bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-5;
+    }
+    
+    .p-dialog-content {
+      @apply bg-white dark:bg-gray-800 px-6 py-6;
+    }
+    
+    .p-dialog-footer {
+      @apply bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700 px-6 py-4;
+    }
+  }
+}
+
+// Dialog Header
+.dialog-header {
+  @apply w-full;
+}
+
+.dialog-header-content {
+  @apply flex items-start gap-4;
+}
+
+.dialog-icon-wrapper {
+  @apply flex items-center justify-center w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 flex-shrink-0;
+  
+  i {
+    @apply text-2xl;
+  }
+}
+
+.dialog-title-wrapper {
+  @apply flex-1 min-w-0;
+}
+
+.dialog-title {
+  @apply m-0 text-xl font-bold text-gray-900 dark:text-gray-100 mb-1;
+}
+
+.dialog-subtitle {
+  @apply m-0 text-sm text-gray-500 dark:text-gray-400;
+}
+
+// Form Styles
+.category-form {
+  @apply space-y-6;
+}
+
+.form-field {
+  @apply mb-6 last:mb-0;
+}
+
+.form-label-row {
+  @apply flex items-center justify-between mb-2;
+}
+
+.form-label {
+  @apply flex items-center gap-2 mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300;
+  
+  .label-text {
+    @apply font-medium;
+  }
+  
+  .label-required {
+    @apply text-red-500 dark:text-red-400 font-bold;
+  }
+  
+  .label-optional {
+    @apply text-gray-400 dark:text-gray-500 font-normal text-xs;
+  }
+}
+
+// Input Wrapper
+.input-wrapper {
+  @apply relative block w-full;
+  
+  .input-icon {
+    @apply absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 z-10 pointer-events-none;
+  }
+  
+  .form-input {
+    @apply w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-transparent transition-all;
+    
+    &.readonly {
+      @apply bg-gray-50 dark:bg-gray-800 cursor-not-allowed;
+    }
+    
+    &.ng-invalid {
+      @apply border-red-500 dark:border-red-400 focus:ring-red-500 dark:focus:ring-red-400;
+    }
+  }
+}
+
+// Textarea Wrapper
+.textarea-wrapper {
+  @apply block w-full;
+  
+  .form-textarea {
+    @apply w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-transparent transition-all resize-none;
+    
+    &.ng-invalid {
+      @apply border-red-500 dark:border-red-400 focus:ring-red-500 dark:focus:ring-red-400;
+    }
+  }
+}
+
+.textarea-footer {
+  @apply flex items-center justify-between mt-2;
+  
+  .character-count {
+    @apply text-xs text-gray-500 dark:text-gray-400 ml-auto;
+    
+    &.warning {
+      @apply text-orange-500 dark:text-orange-400 font-medium;
+    }
+  }
+}
+
+// Dropdown Wrapper
+.dropdown-wrapper {
+  @apply block w-full;
+  
+  .form-dropdown {
+    @apply w-full;
+  }
+  
+  .dropdown-item {
+    @apply flex items-center gap-2 px-2 py-1;
+    
+    i {
+      @apply text-gray-400 dark:text-gray-500;
+    }
+  }
+}
+
+// Input Number Wrapper
+.input-number-wrapper {
+  @apply block w-full;
+  
+  .form-input-number {
+    @apply w-full;
+  }
+}
+
+// Auto Generate Toggle
+.auto-generate-toggle {
+  @apply flex items-center gap-2;
+  
+  .toggle-switch {
+    @apply scale-110;
+  }
+  
+  .toggle-label {
+    @apply text-sm text-gray-600 dark:text-gray-400 font-medium;
+  }
+}
+
+// File Upload
+.file-upload-wrapper {
+  @apply w-full;
+}
+
+::ng-deep {
+  .file-upload-component {
+    .p-fileupload-choose {
+      @apply w-full justify-center py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 rounded-lg transition-all;
+    }
+  }
+}
+
+// Image Preview Section
+.image-preview-section {
+  @apply mt-4;
+}
+
+.image-preview-container {
+  @apply flex justify-center;
+}
+
+.image-preview-wrapper {
+  @apply relative inline-block rounded-xl overflow-hidden border-2 border-gray-200 dark:border-gray-700 shadow-lg;
+  
+  .preview-image {
+    @apply w-64 h-64 object-cover;
+  }
+  
+  .image-overlay {
+    @apply absolute inset-0 bg-black/50 opacity-0 transition-opacity flex items-center justify-center;
+    
+    .remove-image-btn {
+      @apply w-10 h-10;
+    }
+  }
+  
+  &:hover .image-overlay {
+    @apply opacity-100;
+  }
+}
+
+// Switch Container
+.form-field-switch {
+  @apply mb-0;
+}
+
+.switch-container {
+  @apply flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700;
+}
+
+.switch-label-group {
+  @apply flex-1;
+  
+  .form-label {
+    @apply mb-1;
+  }
+  
+  .form-hint {
+    @apply m-0 text-xs;
+  }
+}
+
+.status-switch {
+  @apply scale-125;
+}
+
+// Form Hints and Errors
+.form-hint {
+  @apply flex items-center gap-1.5 mt-2 text-xs text-gray-500 dark:text-gray-400;
+  
+  i {
+    @apply text-xs;
+  }
+}
+
+.form-error {
+  @apply flex items-center gap-1.5 mt-2 text-xs text-red-600 dark:text-red-400 font-medium;
+  
+  i {
+    @apply text-xs;
+  }
+}
+
+// Dialog Footer
+.dialog-footer {
+  @apply flex items-center justify-end gap-3;
+}
+
+.footer-btn {
+  @apply px-6 py-2.5 font-medium transition-all;
+  
+  &.footer-btn-cancel {
+    @apply text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100;
+  }
+  
+  &.footer-btn-submit {
+    @apply shadow-sm hover:shadow-md;
+  }
+}
+
+// PrimeNG Component Overrides
+::ng-deep {
+  .category-dialog {
+    // Dropdown
+    .p-dropdown {
+      @apply w-full;
+      
+      .p-dropdown-label {
+        @apply px-4 py-2.5 text-gray-900 dark:text-gray-100;
+      }
+      
+      .p-dropdown-trigger {
+        width: 3rem;
+      }
+      
+      &.p-focus {
+        @apply border-primary-500 dark:border-primary-400 ring-2 ring-primary-500/20 dark:ring-primary-400/20;
+      }
+    }
+    
+    // Input Number
+    .p-inputnumber {
+      @apply w-full;
+      
+      .p-inputnumber-input {
+        @apply px-4 py-2.5 text-gray-900 dark:text-gray-100;
+      }
+      
+      .p-inputnumber-button {
+        @apply bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300;
+        
+        &:hover {
+          @apply bg-gray-200 dark:bg-gray-600;
+        }
+      }
+    }
+    
+    // Input Switch
+    .p-inputswitch {
+      @apply scale-125;
+      
+      &.p-inputswitch-checked {
+        .p-inputswitch-slider {
+          @apply bg-primary-600 dark:bg-primary-500;
+        }
+      }
+    }
+    
+    // Buttons
+    .p-button {
+      @apply transition-all duration-200;
+      
+      &:not(.p-button-text):not(.p-button-outlined) {
+        @apply shadow-sm hover:shadow-md;
+      }
+    }
+    
+    // File Upload
+    .p-fileupload {
+      .p-button {
+        @apply w-full;
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 640px) {
+  .dialog-header-content {
+    @apply flex-col gap-3;
+  }
+  
+  .dialog-icon-wrapper {
+    @apply w-10 h-10;
+    
+    i {
+      @apply text-xl;
+    }
+  }
+  
+  .switch-container {
+    @apply flex-col items-stretch gap-3;
+  }
+  
+  .status-switch {
+    @apply scale-110 self-end;
+  }
+  
+  .dialog-footer {
+    @apply flex-col w-full;
+    
+    .footer-btn {
+      @apply w-full justify-center;
+    }
+  }
+  
+  .image-preview-wrapper {
+    .preview-image {
+      @apply w-48 h-48;
+    }
+  }
+}

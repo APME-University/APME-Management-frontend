@@ -1,0 +1,26 @@
+// Product Attributes Display Component Styles
+// Using Tailwind CSS with minimal custom styles
+
+.product-attributes {
+  @apply w-full;
+  
+  // Override PrimeNG Card default styles to match design system
+  ::ng-deep {
+    .p-card {
+      @apply shadow-sm;
+      
+      .p-card-body {
+        @apply p-0;
+      }
+      
+      .p-card-content {
+        @apply p-0;
+      }
+    }
+    
+    // Tag styling for boolean values
+    .p-tag {
+      @apply px-3 py-1 text-xs font-medium;
+    }
+  }
+}

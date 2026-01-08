@@ -1,0 +1,406 @@
+// Dialog Styles
+::ng-deep {
+  .product-attribute-dialog {
+    .p-dialog {
+      @apply rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden;
+    }
+    
+    .p-dialog-header {
+      @apply bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-5;
+    }
+    
+    .p-dialog-content {
+      @apply bg-white dark:bg-gray-800 px-6 py-6 max-h-[80vh] overflow-y-auto;
+    }
+    
+    .p-dialog-footer {
+      @apply bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700 px-6 py-4;
+    }
+  }
+}
+
+// Dialog Header
+.dialog-header {
+  @apply w-full;
+}
+
+.dialog-header-content {
+  @apply flex items-start gap-4;
+}
+
+.dialog-icon-wrapper {
+  @apply flex items-center justify-center w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 flex-shrink-0;
+  
+  i {
+    @apply text-2xl;
+  }
+}
+
+.dialog-title-wrapper {
+  @apply flex-1 min-w-0;
+}
+
+.dialog-title {
+  @apply m-0 text-xl font-bold text-gray-900 dark:text-gray-100 mb-1;
+}
+
+.dialog-subtitle {
+  @apply m-0 text-sm text-gray-500 dark:text-gray-400;
+}
+
+// Form Styles
+.product-attribute-form {
+  @apply w-full;
+}
+
+.form-section {
+  @apply mb-8 last:mb-0 pb-6 border-b border-gray-200 dark:border-gray-700 last:border-b-0;
+}
+
+.section-title {
+  @apply flex items-center gap-2 mb-6 text-lg font-semibold text-gray-900 dark:text-gray-100;
+  
+  i {
+    @apply text-primary-600 dark:text-primary-400;
+  }
+}
+
+// Form Fields Grid
+.form-fields-grid {
+  @apply grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6;
+}
+
+// Form Field Card
+.form-field-card {
+  @apply bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 transition-all duration-200;
+  @apply hover:shadow-md hover:border-gray-300 dark:hover:border-gray-600;
+  animation: fadeInUp 0.3s ease-out;
+  
+  &.field-card-error {
+    @apply border-red-300 dark:border-red-700 bg-red-50/30 dark:bg-red-900/10;
+    @apply border-l-4 border-l-red-500 dark:border-l-red-400;
+    animation: shake 0.4s ease-out;
+  }
+}
+
+.field-card-header {
+  @apply mb-3;
+}
+
+.field-card-body {
+  @apply mb-2;
+}
+
+.field-card-footer {
+  @apply min-h-[1.5rem];
+  
+  .form-error {
+    @apply flex items-center gap-2 text-xs text-red-600 dark:text-red-400 font-medium;
+    animation: slideDown 0.2s ease-out;
+    
+    i {
+      @apply text-xs flex-shrink-0;
+    }
+  }
+  
+  .form-hint {
+    @apply flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400;
+    animation: slideDown 0.2s ease-out;
+    
+    i {
+      @apply text-xs flex-shrink-0;
+    }
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+  20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.form-field {
+  @apply mb-6 last:mb-0;
+}
+
+.form-label {
+  @apply flex items-center justify-between mb-2;
+}
+
+.label-text {
+  @apply flex items-center gap-2 mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300;
+  
+  i {
+    @apply font-medium;
+  }
+}
+
+.label-required {
+  @apply text-red-500 dark:text-red-400 font-bold;
+}
+
+.label-optional {
+  @apply text-gray-400 dark:text-gray-500 font-normal text-xs;
+}
+
+.input-wrapper,
+.input-wrapper-full {
+  @apply relative block w-full;
+  
+  .input-icon {
+    @apply absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 z-10 pointer-events-none;
+  }
+  
+  .form-input,
+  .field-input {
+    @apply w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-transparent transition-all duration-200;
+    
+    &.readonly {
+      @apply bg-gray-50 dark:bg-gray-800 cursor-not-allowed;
+    }
+    
+    &.ng-invalid.ng-touched {
+      @apply border-red-500 dark:border-red-400 focus:ring-red-500 dark:focus:ring-red-400;
+    }
+    
+    &.ng-valid {
+      @apply border-green-300 dark:border-green-700 focus:ring-green-500 dark:focus:ring-green-400;
+    }
+  }
+}
+
+.input-number-wrapper,
+.input-number-wrapper-full {
+  @apply block w-full;
+  
+  ::ng-deep {
+    .p-inputnumber {
+      @apply w-full;
+      
+      .p-inputnumber-input {
+        @apply transition-all duration-200;
+        
+        &.ng-invalid.ng-touched {
+          @apply border-red-500 dark:border-red-400;
+        }
+        
+        &.ng-valid {
+          @apply border-green-300 dark:border-green-700;
+        }
+      }
+    }
+  }
+}
+
+.form-dropdown,
+.field-dropdown {
+  @apply block w-full;
+  
+  ::ng-deep {
+    .p-dropdown {
+      @apply w-full transition-all duration-200;
+      
+      &.ng-invalid.ng-touched {
+        .p-inputtext {
+          @apply border-red-500 dark:border-red-400;
+        }
+      }
+      
+      &.ng-valid {
+        .p-inputtext {
+          @apply border-green-300 dark:border-green-700;
+        }
+      }
+      
+      .p-dropdown-label {
+        @apply text-gray-900 dark:text-gray-100;
+      }
+    }
+  }
+}
+
+.dropdown-option {
+  @apply flex items-center gap-2 px-3 py-2;
+  
+  .option-icon {
+    @apply text-gray-500 dark:text-gray-400;
+  }
+}
+
+.form-error {
+  @apply flex items-center gap-2 mt-2 text-xs text-red-600 dark:text-red-400 font-medium;
+  
+  i {
+    @apply text-xs;
+  }
+}
+
+.form-hint {
+  @apply flex items-center gap-2 mt-2 text-xs text-gray-500 dark:text-gray-400;
+  
+  i {
+    @apply text-xs;
+  }
+}
+
+.form-field-switch-card {
+  @apply p-4 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700;
+}
+
+.switch-card-content {
+  @apply flex items-center justify-between gap-4 mb-2;
+}
+
+.switch-label-group {
+  @apply flex-1;
+  
+  .form-label {
+    @apply mb-1;
+  }
+  
+  .switch-hint {
+    @apply text-xs text-gray-500 dark:text-gray-400 hidden lg:block;
+  }
+}
+
+.switch-control-group {
+  @apply flex items-center gap-3;
+  
+  .status-switch {
+    @apply scale-110;
+  }
+  
+  .switch-label {
+    @apply flex items-center gap-2 text-sm font-medium min-w-[80px];
+    
+    .switch-label-off {
+      @apply text-gray-500 dark:text-gray-400;
+    }
+    
+    .switch-label-on {
+      @apply text-primary-600 dark:text-primary-400 font-semibold;
+    }
+  }
+}
+
+.switch-footer-hint {
+  @apply mt-2;
+}
+
+.form-field-switch {
+  @apply flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700;
+}
+
+.switch-container {
+  @apply flex items-center justify-between w-full;
+}
+
+.status-switch {
+  @apply scale-125;
+}
+
+// Dialog Footer
+.dialog-footer {
+  @apply flex items-center justify-end gap-3;
+}
+
+.footer-btn {
+  @apply px-6 py-2.5 font-medium transition-all;
+  
+  &.footer-btn-cancel {
+    @apply text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100;
+  }
+  
+  &.footer-btn-submit {
+    @apply shadow-sm hover:shadow-md;
+  }
+}
+
+// Responsive
+@media (max-width: 1024px) {
+  .form-fields-grid {
+    @apply grid-cols-1;
+  }
+}
+
+@media (max-width: 640px) {
+  .dialog-header-content {
+    @apply flex-col gap-3;
+  }
+  
+  .dialog-icon-wrapper {
+    @apply w-10 h-10;
+    
+    i {
+      @apply text-xl;
+    }
+  }
+  
+  .form-fields-grid {
+    @apply gap-3;
+  }
+  
+  .form-field-card {
+    @apply p-3;
+  }
+  
+  .form-field-switch-card {
+    @apply p-3;
+  }
+  
+  .switch-card-content {
+    @apply flex-col items-stretch gap-3;
+  }
+  
+  .switch-control-group {
+    @apply w-full justify-between;
+    
+    .status-switch {
+      @apply scale-100;
+    }
+  }
+  
+  .switch-label-group {
+    .switch-hint {
+      @apply block;
+    }
+  }
+  
+  .form-field-switch {
+    @apply flex-col items-stretch gap-3;
+  }
+  
+  .status-switch {
+    @apply scale-110 self-end;
+  }
+  
+  .dialog-footer {
+    @apply flex-col w-full;
+    
+    .footer-btn {
+      @apply w-full justify-center;
+    }
+  }
+}
